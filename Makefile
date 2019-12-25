@@ -1,6 +1,6 @@
-CC=c++ -c
-CFLAGS=-W -Wall -Wextra -pedantic -std=gnu++98
-LD=c++
+CXX=g++ -c
+CXXFLAGS=-W -Wall -Wextra -pedantic
+LD=g++
 LDFLAGS=
 
 SOURCES:=$(shell find src/ -type f -name '*.cpp')
@@ -18,10 +18,10 @@ endif
 
 ifeq ($(MODE), debug)
 	CFLAGS += -DDEBUG -O0 -g
-	LDFLAGS += -DDEBUG -O0 -g
+	LDFLAGS += -g
 else
 	CFLAGS += -DRELEASE -O3 -s
-	LDFLAGS += -DRELEASE -O3 -s
+	LDFLAGS += -s
 endif
 
 CFLAGS += -I`pwd`/src
@@ -34,7 +34,7 @@ $(EXEC): bin $(OBJECTS)
 	$(LD) $(OBJECTS) $(LDFLAGS) -o $@
 
 obj/%.cpp.o: src/%.cpp $(SUBDIRS)
-	$(CC) $(CFLAGS) $< -o $@
+	$(CXX) $(CXXFLAGS) $< -o $@
 
 bin:
 	mkdir bin
