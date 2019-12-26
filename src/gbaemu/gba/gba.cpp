@@ -9,7 +9,7 @@ using namespace std;
 
 gbaemu::gba::GBA::GBA(const char *biosFilePath, const char *romFilePath) {
     this->loadBIOS(biosFilePath);
-    this->loadROM(romFilePath);
+    this->cartridge = new Cartridge(romFilePath);
 }
 
 void gbaemu::gba::GBA::loadBIOS(const char *biosFilePath) {
@@ -38,30 +38,4 @@ void gbaemu::gba::GBA::loadBIOS(const char *biosFilePath) {
     }
 
     biosFile.close();
-}
-
-void gbaemu::gba::GBA::loadROM(const char *romFilePath) {
-    if(!gbaemu::fileExists(romFilePath)) {
-        throw runtime_error("ROM file does not exist.");
-    }
-
-    size_t romFileSize(gbaemu::getFileSize(romFilePath));
-
-    this->rom = new uint8_t[romFileSize];
-
-    if(!this->rom) {
-        throw runtime_error("Memory allocation failed.");
-    }
-
-    ifstream romFile(romFilePath, ifstream::in | fstream::binary);
-
-    if(!romFile) {
-        throw runtime_error("Failed to open ROM file.");
-    }
-
-    for(size_t i = 0; i < romFileSize; i++) {
-        romFile >> this->rom[i];
-    }
-
-    romFile.close();
 }

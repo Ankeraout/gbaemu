@@ -23,8 +23,18 @@ int _main(int argc, const char *argv[]) {
     resetConfiguration();
 
     if(readCommandLineArguments(argc, argv)) {
-        cerr << "Error: could not read the command-line arguments." << endl;
-        return EXIT_FAILURE;
+        cout << "GBAEmu help" << endl;
+        cout << "===========" << endl;
+        cout << endl;
+        cout << "Required command-line options:" << endl;
+        cout << "  --bios <bios_file_name>       : Specifies the BIOS file to use." << endl;
+        cout << "  --rom <rom_file_name>         : Specifies the ROM file to use." << endl;
+        cout << endl;
+        cout << "Available command-line options:" << endl;
+        cout << "  --help                        : Shows this message." << endl;
+        cout << "  --force-save-type <save_type> : Specifies the save type of the cartridge." << endl;
+
+        return 0;
     }
 
     if(checkConfiguration()) {
@@ -32,7 +42,7 @@ int _main(int argc, const char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    gbaemu::gba::GBA(gbaemu::conf.biosPath, gbaemu::conf.romPath);
+    gbaemu::gba::GBA gba(gbaemu::conf.biosPath, gbaemu::conf.romPath);
 
     return 0;
 }
@@ -64,6 +74,8 @@ int readCommandLineArguments(int argc, const char *argv[]) {
             flag_bios = true;
         } else if(strcmp(argv[i], "--rom") == 0) {
             flag_rom = true;
+        } else if(strcmp(argv[i], "--help") == 0) {
+            return 1;
         } else {
             throw runtime_error(string("invalid argument: '") + argv[i] + string("."));
         }

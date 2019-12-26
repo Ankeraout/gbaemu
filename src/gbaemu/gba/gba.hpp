@@ -3,15 +3,16 @@
 #include <cstddef>
 #include <cstdint>
 
+#include <gbaemu/gba/cartridge.hpp>
+
 namespace gbaemu::gba {
     class GBA {
         private:
         static inline const size_t biosFileSize = 16384;
         uint8_t *bios;
-        uint8_t *rom;
+        Cartridge *cartridge;
 
         void loadBIOS(const char *biosFilePath);
-        void loadROM(const char *romFilePath);
 
         public:
         GBA(const char *biosFilePath, const char *romFilePath);
