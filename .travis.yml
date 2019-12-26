@@ -1,4 +1,4 @@
 dist: bionic
 language: cpp
-compiler: gcc
+compiler: gcc-8
 script: make all
