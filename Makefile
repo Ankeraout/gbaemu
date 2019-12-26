@@ -1,5 +1,5 @@
 CXX=g++ -c
-CXXFLAGS=-W -Wall -Wextra -pedantic
+CXXFLAGS=-W -Wall -Wextra -pedantic -Isrc -std=c++17
 LD=g++
 LDFLAGS=
 
