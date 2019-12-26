@@ -1,8 +1,8 @@
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
 
+#include <gbaemu/fs.hpp>
 #include <gbaemu/gba/gba.hpp>
 
 using namespace std;
@@ -18,11 +18,11 @@ void gbaemu::gba::GBA::loadBIOS(const char *biosFilePath) {
         throw runtime_error("Memory allocation failed.");
     }
 
-    if(!filesystem::exists(biosFilePath)) {
+    if(!gbaemu::fileExists(biosFilePath)) {
         throw runtime_error("BIOS file does not exist.");
     }
 
-    if(filesystem::file_size(biosFilePath) != biosFileSize) {
+    if(gbaemu::getFileSize(biosFilePath) != biosFileSize) {
         throw runtime_error("Bad BIOS file size.");
     }
 
