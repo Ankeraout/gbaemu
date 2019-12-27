@@ -4,6 +4,7 @@
 
 #include <gbaemu/fs.hpp>
 #include <gbaemu/gba/cartridge.hpp>
+#include <gbaemu/gba/cpu.hpp>
 #include <gbaemu/gba/gba.hpp>
 
 using namespace std;
@@ -16,6 +17,7 @@ namespace gbaemu::gba {
     void init(const char *biosFilePath, const char *romFilePath) {
         loadBIOS(biosFilePath);
         cartridge::init(romFilePath);
+        cpu::init();
     }
 
     static inline void loadBIOS(const char *biosFilePath) {

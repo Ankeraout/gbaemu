@@ -12,8 +12,8 @@ namespace gbaemu::gba::cartridge {
         FLASH_1MB
     } SaveType;
 
-    void init(const char *romFilePath);
-    void loadSave(const char *saveFilePath);
-    void saveSave();
-    void saveSave(const char *saveFilePath);
+    extern void init(const char *romFilePath);
+    extern void loadSave(const char *saveFilePath);
+    extern void saveSave();
+    extern void saveSave(const char *saveFilePath);
 }
