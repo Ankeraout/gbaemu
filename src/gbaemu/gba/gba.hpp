@@ -6,15 +6,8 @@
 #include <gbaemu/gba/cartridge.hpp>
 
 namespace gbaemu::gba {
-    class GBA {
-        private:
-        static inline const size_t biosFileSize = 16384;
-        uint8_t *bios;
-        Cartridge *cartridge;
+    static inline const size_t biosFileSize = 16384;
+    extern uint8_t biosData[];
 
-        void loadBIOS(const char *biosFilePath);
-
-        public:
-        GBA(const char *biosFilePath, const char *romFilePath);
-    };
+    extern void init(const char *biosFilePath, const char *romFilePath);
 }

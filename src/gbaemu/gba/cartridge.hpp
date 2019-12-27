@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace gbaemu::gba {
+namespace gbaemu::gba::cartridge {
     typedef enum {
         NONE,
         EEPROM_4KB,
@@ -12,23 +12,8 @@ namespace gbaemu::gba {
         FLASH_1MB
     } SaveType;
 
-    class Cartridge {
-        private:
-        const char *saveFilePath;
-        uint8_t *save;
-        uint8_t *rom;
-        size_t romSize;
-        size_t saveSize;
-        SaveType saveType;
-
-        void detectSaveType();
-        void readForcedSaveType();
-        void allocateSave();
-
-        public:
-        Cartridge(const char *romFilePath);
-        void loadSave(const char *saveFilePath);
-        void saveSave();
-        void saveSave(const char *saveFilePath);
-    };
+    void init(const char *romFilePath);
+    void loadSave(const char *saveFilePath);
+    void saveSave();
+    void saveSave(const char *saveFilePath);
 }

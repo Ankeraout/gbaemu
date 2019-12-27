@@ -9,6 +9,6 @@ namespace gbaemu {
         const char *forcedSaveType;
     } conf_t;
 
-    extern gbaemu::conf_t conf;
+    extern conf_t conf;
 }
 
