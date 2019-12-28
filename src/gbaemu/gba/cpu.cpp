@@ -1,6 +1,7 @@
 #include <cstdint>
 
 #include <gbaemu/gba/cpu.hpp>
+#include <gbaemu/gba/cpu/decoder/arm.hpp>
 
 namespace gbaemu::gba::cpu {
     uint32_t r0_8[8];
@@ -12,6 +13,7 @@ namespace gbaemu::gba::cpu {
     uint32_t r13_14_und[2];
     psr_t cpsr;
     psr_t spsr[5];
+    pipeline_t pipeline;
     
     static inline const int modeMapping[] = {
         MODE_INV, MODE_INV, MODE_INV, MODE_INV,
@@ -43,9 +45,6 @@ namespace gbaemu::gba::cpu {
         &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],
     };
 
-    uint32_t registerRead(int reg);
-    void registerWrite(int reg, uint32_t value);
-
     void init() {
         // Reset general-purpose registers
         for(int i = 0; i < 7; i++) {
@@ -59,6 +58,7 @@ namespace gbaemu::gba::cpu {
         cpsr.fields.mode = PSR_MODE_SVC;
         cpsr.fields.flagF = 1;
         cpsr.fields.flagI = 1;
+        cpsr.fields.flagT = 0;
     }
 
     uint32_t registerRead(int reg) {
@@ -67,5 +67,117 @@ namespace gbaemu::gba::cpu {
 
     void registerWrite(int reg, uint32_t value) {
         *registerMapping[reg * 7 + modeMapping[cpsr.fields.mode]] = value;
+    }
+
+    static inline void execute() {
+        if(pipeline.pipelineStage == PIPELINE_FETCH_DECODE_EXECUTE) {
+            pipeline.decodedOpcode.function(pipeline.decodedOpcode.opcode);
+        }
+    }
+
+    static inline void decode() {
+        if(pipeline.pipelineStage >= PIPELINE_FETCH_DECODE) {
+            switch(cpsr.fields.flagT) {
+                case CPU_MODE_ARM:
+                    pipeline.decodedOpcode = gbaemu::gba::cpu::decoder::arm::decode(pipeline.fetchedOpcodeARM);
+                    break;
+
+                case CPU_MODE_THUMB:
+
+                    break;
+            }
+        }
+    }
+
+    static inline void fetch() {
+        switch(cpsr.fields.flagT) {
+            case CPU_MODE_ARM:
+            pipeline.fetchedOpcodeARM = 0;
+            break;
+
+            case CPU_MODE_THUMB:
+            pipeline.fetchedOpcodeThumb = 0;
+            break;
+        }
+    }
+
+    void cycle() {
+        execute();
+        decode();
+        fetch();
+
+        switch(pipeline.pipelineStage) {
+            case PIPELINE_FETCH:
+            pipeline.pipelineStage = PIPELINE_FETCH_DECODE;
+            break;
+
+            default:
+            pipeline.pipelineStage = PIPELINE_FETCH_DECODE_EXECUTE;
+            break;
+        }
+    }
+
+    bool checkCondition(uint32_t opcode) {
+        switch((opcode >> 28) & 0x0f) {
+            case CPU_CONDITION_EQ:
+            return cpsr.fields.flagZ;
+
+            case CPU_CONDITION_NE:
+            return !cpsr.fields.flagZ;
+            
+            case CPU_CONDITION_CS:
+            return cpsr.fields.flagC;
+            
+            case CPU_CONDITION_CC:
+            return !cpsr.fields.flagC;
+            
+            case CPU_CONDITION_MI:
+            return cpsr.fields.flagN;
+            
+            case CPU_CONDITION_PL:
+            return !cpsr.fields.flagN;
+            
+            case CPU_CONDITION_VS:
+            return cpsr.fields.flagV;
+            
+            case CPU_CONDITION_VC:
+            return !cpsr.fields.flagV;
+            
+            case CPU_CONDITION_HI:
+            return cpsr.fields.flagC && !cpsr.fields.flagZ;
+            
+            case CPU_CONDITION_LS:
+            return !cpsr.fields.flagC && cpsr.fields.flagZ;
+            
+            case CPU_CONDITION_GE:
+            return cpsr.fields.flagN == cpsr.fields.flagV;
+            
+            case CPU_CONDITION_LT:
+            return cpsr.fields.flagN != cpsr.fields.flagV;
+            
+            case CPU_CONDITION_GT:
+            return !cpsr.fields.flagZ && (cpsr.fields.flagN == cpsr.fields.flagV);
+            
+            case CPU_CONDITION_LE:
+            return cpsr.fields.flagZ || (cpsr.fields.flagN != cpsr.fields.flagV);
+            
+            case CPU_CONDITION_AL:
+            return true;
+            
+            default:
+            return false;
+        }
+    }
+
+    void resetPipeline() {
+        pipeline.pipelineStage = PIPELINE_FETCH;
+    }
+
+    psr_t readCPSR() {
+        return cpsr;
+    }
+
+    void writeCPSR(psr_t psr) {
+        cpsr = psr;
     }
 }

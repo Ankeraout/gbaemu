@@ -1,5 +1,7 @@
 #pragma once
 
+#include <gbaemu/gba/cpu/decoder.hpp>
+
 namespace gbaemu::gba::cpu {
     typedef union {
         uint32_t value;
@@ -15,7 +17,7 @@ namespace gbaemu::gba::cpu {
             uint32_t flagC : 1;
             uint32_t flagZ : 1;
             uint32_t flagN : 1;
-        } fields;
+        } __attribute__((packed)) fields;
     } psr_t;
 
     typedef enum {
@@ -27,6 +29,24 @@ namespace gbaemu::gba::cpu {
         PSR_MODE_UND = 0b11011,
         PSR_MODE_SYS = 0b11111,
     } mode_t;
+    
+    typedef struct {
+        uint32_t opcode;
+        gbaemu::gba::cpu::decoder::opcodeCallback_t function;
+    } instruction_t;
+
+    typedef enum {
+        PIPELINE_FETCH,
+        PIPELINE_FETCH_DECODE,
+        PIPELINE_FETCH_DECODE_EXECUTE
+    } pipelineStage_t;
+
+    typedef struct {
+        uint32_t fetchedOpcodeARM;
+        uint16_t fetchedOpcodeThumb;
+        instruction_t decodedOpcode;
+        pipelineStage_t pipelineStage;
+    } pipeline_t;
 
     enum {
         MODE_USR,
@@ -39,5 +59,57 @@ namespace gbaemu::gba::cpu {
         MODE_INV
     };
 
+    enum {
+        CPU_MODE_ARM,
+        CPU_MODE_THUMB
+    };
+
+    enum {
+        CPU_CONDITION_EQ,
+        CPU_CONDITION_NE,
+        CPU_CONDITION_CS,
+        CPU_CONDITION_CC,
+        CPU_CONDITION_MI,
+        CPU_CONDITION_PL,
+        CPU_CONDITION_VS,
+        CPU_CONDITION_VC,
+        CPU_CONDITION_HI,
+        CPU_CONDITION_LS,
+        CPU_CONDITION_GE,
+        CPU_CONDITION_LT,
+        CPU_CONDITION_GT,
+        CPU_CONDITION_LE,
+        CPU_CONDITION_AL,
+        CPU_CONDITION_NV,
+    };
+
+    enum {
+        CPU_REG_R0,
+        CPU_REG_R1,
+        CPU_REG_R2,
+        CPU_REG_R3,
+        CPU_REG_R4,
+        CPU_REG_R5,
+        CPU_REG_R6,
+        CPU_REG_R7,
+        CPU_REG_R8,
+        CPU_REG_R9,
+        CPU_REG_R10,
+        CPU_REG_R11,
+        CPU_REG_R12,
+        CPU_REG_SP,
+        CPU_REG_LR,
+        CPU_REG_PC,
+    };
+
     extern void init();
+    extern void cycle();
+    extern bool checkCondition(uint32_t opcode);
+
+    // Instruction API
+    extern uint32_t registerRead(int reg);
+    extern void registerWrite(int reg, uint32_t value);
+    extern void resetPipeline();
+    extern psr_t readCPSR();
+    extern void writeCPSR(psr_t psr);
 }
