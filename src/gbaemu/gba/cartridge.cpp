@@ -15,6 +15,7 @@ namespace gbaemu::gba::cartridge {
     size_t romSize;
     size_t saveSize;
     SaveType saveType;
+    uint32_t romAddressMask;
 
     void detectSaveType();
     void readForcedSaveType();
@@ -59,6 +60,7 @@ namespace gbaemu::gba::cartridge {
         romFile.close();
 
         romSize = romFileSize;
+        romAddressMask = romSize - 1;
 
         if(gbaemu::conf.forcedSaveType) {
             readForcedSaveType();

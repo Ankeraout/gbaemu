@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include <gbaemu/gbaemu.hpp>
+#include <gbaemu/gba/cpu.hpp>
 #include <gbaemu/gba/gba.hpp>
 
 using namespace std;
@@ -48,6 +49,12 @@ namespace gbaemu {
         }
 
         gbaemu::gba::init(gbaemu::conf.biosPath, gbaemu::conf.romPath);
+
+        for(int i = 0; i < 6; i++) {
+            gbaemu::gba::cpu::cycle();
+        }
+
+        gbaemu::gba::cpu::displayState();
 
         return 0;
     }

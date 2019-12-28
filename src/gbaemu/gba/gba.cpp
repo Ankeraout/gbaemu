@@ -13,6 +13,8 @@ namespace gbaemu::gba {
     static inline void loadBIOS(const char *biosFilePath);
 
     uint8_t biosData[biosFileSize];
+    uint8_t wramData_fast[wramFastSize];
+    uint8_t wramData_slow[wramSlowSize];
 
     void init(const char *biosFilePath, const char *romFilePath) {
         loadBIOS(biosFilePath);
@@ -39,8 +41,14 @@ namespace gbaemu::gba {
             throw runtime_error("Failed to open BIOS file.");
         }
 
-        for(size_t i = 0; i < biosFileSize; i++) {
-            biosFile >> biosData[i];
+        biosFile.read((char *)biosData, biosFileSize);
+
+        if(biosFile.eof()) {
+            throw runtime_error("EOF reached before the end of the BIOS file.");
+        }
+
+        if(biosFile.fail()) {
+            throw runtime_error("an error occurred while reading BIOS.");
         }
 
         biosFile.close();

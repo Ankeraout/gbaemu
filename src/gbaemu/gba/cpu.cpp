@@ -1,6 +1,8 @@
 #include <cstdint>
+#include <cstdio>
 
 #include <gbaemu/gba/cpu.hpp>
+#include <gbaemu/gba/mmu.hpp>
 #include <gbaemu/gba/cpu/decoder/arm.hpp>
 
 namespace gbaemu::gba::cpu {
@@ -14,6 +16,7 @@ namespace gbaemu::gba::cpu {
     psr_t cpsr;
     psr_t spsr[5];
     pipeline_t pipeline;
+    uint64_t cycleCounter = 0;
     
     static inline const int modeMapping[] = {
         MODE_INV, MODE_INV, MODE_INV, MODE_INV,
@@ -46,6 +49,13 @@ namespace gbaemu::gba::cpu {
     };
 
     void init() {
+        // Reset CPSR
+        cpsr.value = 0;
+        cpsr.fields.mode = PSR_MODE_SVC;
+        cpsr.fields.flagF = 1;
+        cpsr.fields.flagI = 1;
+        cpsr.fields.flagT = 0;
+
         // Reset general-purpose registers
         for(int i = 0; i < 7; i++) {
             for(int j = 0; j < 16; j++) {
@@ -53,12 +63,12 @@ namespace gbaemu::gba::cpu {
             }
         }
 
-        // Reset CPSR
-        cpsr.value = 0;
-        cpsr.fields.mode = PSR_MODE_SVC;
-        cpsr.fields.flagF = 1;
-        cpsr.fields.flagI = 1;
-        cpsr.fields.flagT = 0;
+        registerWrite(0, 0x00000ca5);
+        registerWrite(13, 0x03007f00);
+        
+        // Reset pipeline
+        pipeline.pipelineStage = PIPELINE_FETCH;
+        pipeline.fetchOffset = 0;
     }
 
     uint32_t registerRead(int reg) {
@@ -71,7 +81,9 @@ namespace gbaemu::gba::cpu {
 
     static inline void execute() {
         if(pipeline.pipelineStage == PIPELINE_FETCH_DECODE_EXECUTE) {
+            printf("%lu: Executing opcode 0x%08x\n", cycleCounter, pipeline.decodedOpcode.opcode);
             pipeline.decodedOpcode.function(pipeline.decodedOpcode.opcode);
+            r8_15_usr[7] += 4 >> cpsr.fields.flagT;
         }
     }
 
@@ -89,24 +101,32 @@ namespace gbaemu::gba::cpu {
         }
     }
 
-    static inline void fetch() {
+    static inline void fetch(uint32_t fetchOffset) {
         switch(cpsr.fields.flagT) {
             case CPU_MODE_ARM:
-            pipeline.fetchedOpcodeARM = 0;
+            pipeline.fetchedOpcodeARM = mmu::read32(fetchOffset);
             break;
 
             case CPU_MODE_THUMB:
             pipeline.fetchedOpcodeThumb = 0;
             break;
         }
+
+        pipeline.fetchOffset += 4 >> cpsr.fields.flagT;
     }
 
     void cycle() {
+        uint32_t cycleFetchOffset = pipeline.fetchOffset;
+
         execute();
         decode();
-        fetch();
+        fetch(cycleFetchOffset);
 
         switch(pipeline.pipelineStage) {
+            case PIPELINE_FLUSH:
+            pipeline.pipelineStage = PIPELINE_FETCH;
+            break;
+
             case PIPELINE_FETCH:
             pipeline.pipelineStage = PIPELINE_FETCH_DECODE;
             break;
@@ -115,6 +135,8 @@ namespace gbaemu::gba::cpu {
             pipeline.pipelineStage = PIPELINE_FETCH_DECODE_EXECUTE;
             break;
         }
+
+        cycleCounter++;
     }
 
     bool checkCondition(uint32_t opcode) {
@@ -169,15 +191,36 @@ namespace gbaemu::gba::cpu {
         }
     }
 
-    void resetPipeline() {
-        pipeline.pipelineStage = PIPELINE_FETCH;
-    }
-
     psr_t readCPSR() {
         return cpsr;
     }
 
     void writeCPSR(psr_t psr) {
         cpsr = psr;
+    }
+
+    void performJump(uint32_t address) {
+        address -= 4;
+
+        pipeline.fetchOffset = address;
+        registerWrite(CPU_REG_PC, address);
+        pipeline.pipelineStage = PIPELINE_FLUSH;
+    }
+
+    void displayState() {
+        printf("CPU state\n");
+        printf("=========\n");
+        printf("\n");
+        printf("Pipeline state: %u\n", pipeline.pipelineStage);
+        printf("CPSR: %08x\n", cpsr.value);
+        printf("Mode: %02x\n", cpsr.fields.mode);
+        
+        for(int i = 0; i < 16; i++) {
+            printf("R%d = %08x\n", i, registerRead(i));
+        }
+    }
+
+    uint32_t getFetchOffset() {
+        return pipeline.fetchOffset;
     }
 }

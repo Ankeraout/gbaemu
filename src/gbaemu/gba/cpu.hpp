@@ -36,6 +36,7 @@ namespace gbaemu::gba::cpu {
     } instruction_t;
 
     typedef enum {
+        PIPELINE_FLUSH,
         PIPELINE_FETCH,
         PIPELINE_FETCH_DECODE,
         PIPELINE_FETCH_DECODE_EXECUTE
@@ -46,14 +47,15 @@ namespace gbaemu::gba::cpu {
         uint16_t fetchedOpcodeThumb;
         instruction_t decodedOpcode;
         pipelineStage_t pipelineStage;
+        uint32_t fetchOffset;
     } pipeline_t;
 
     enum {
         MODE_USR,
         MODE_FIQ,
-        MODE_IRQ,
         MODE_SVC,
         MODE_ABT,
+        MODE_IRQ,
         MODE_UND,
         MODE_SYS,
         MODE_INV
@@ -109,7 +111,11 @@ namespace gbaemu::gba::cpu {
     // Instruction API
     extern uint32_t registerRead(int reg);
     extern void registerWrite(int reg, uint32_t value);
-    extern void resetPipeline();
     extern psr_t readCPSR();
     extern void writeCPSR(psr_t psr);
+    extern void performJump(uint32_t address);
+    extern uint32_t getFetchOffset();
+
+    // Debug API
+    extern void displayState();
 }

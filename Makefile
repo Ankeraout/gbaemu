@@ -17,10 +17,10 @@ ifeq ($(OS),Windows_NT)
 endif
 
 ifeq ($(MODE), debug)
-	CFLAGS += -DDEBUG -O0 -g
+	CXXFLAGS += -DDEBUG -O0 -g
 	LDFLAGS += -g
 else
-	CFLAGS += -DRELEASE -O3 -s
+	CXXFLAGS += -DRELEASE -O3 -s
 	LDFLAGS += -s
 endif
 
