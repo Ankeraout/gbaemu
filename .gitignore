@@ -4,3 +4,4 @@ obj
 *.gba
 *.bin
 .vscode
+*.ROM

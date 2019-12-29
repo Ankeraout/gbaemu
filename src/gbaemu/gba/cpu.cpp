@@ -17,6 +17,7 @@ namespace gbaemu::gba::cpu {
     psr_t spsr[5];
     pipeline_t pipeline;
     uint64_t cycleCounter = 0;
+    shifter_t shifter;
     
     static inline const int modeMapping[] = {
         MODE_INV, MODE_INV, MODE_INV, MODE_INV,
@@ -80,7 +81,7 @@ namespace gbaemu::gba::cpu {
     }
 
     static inline void execute() {
-        if(pipeline.pipelineStage == PIPELINE_FETCH_DECODE_EXECUTE) {
+        if((pipeline.pipelineStage == PIPELINE_FETCH_DECODE_EXECUTE) && checkCondition(pipeline.decodedOpcode.opcode)) {
             printf("%lu: Executing opcode 0x%08x\n", cycleCounter, pipeline.decodedOpcode.opcode);
             pipeline.decodedOpcode.function(pipeline.decodedOpcode.opcode);
             r8_15_usr[7] += 4 >> cpsr.fields.flagT;
@@ -189,14 +190,6 @@ namespace gbaemu::gba::cpu {
             default:
             return false;
         }
-    }
-
-    psr_t readCPSR() {
-        return cpsr;
-    }
-
-    void writeCPSR(psr_t psr) {
-        cpsr = psr;
     }
 
     void performJump(uint32_t address) {

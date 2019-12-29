@@ -19,26 +19,17 @@ namespace gbaemu::gba::cpu::impl::branch {
     }
 
     void b(uint32_t opcode) {
-        if(gbaemu::gba::cpu::checkCondition(opcode)) {
-            performJump(getFetchOffset() + computeOffset(opcode));
-        }
+        performJump(getFetchOffset() + computeOffset(opcode));
     }
 
     void bl(uint32_t opcode) {
-        if(gbaemu::gba::cpu::checkCondition(opcode)) {
-            registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC));
-            performJump(getFetchOffset() + computeOffset(opcode));
-        }
+        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC));
+        performJump(getFetchOffset() + computeOffset(opcode));
     }
 
     void bx(uint32_t opcode) {
-        if(gbaemu::gba::cpu::checkCondition(opcode)) {
-            uint32_t dest = registerRead(opcode & 0x0000000f);
-            psr_t psr = readCPSR();
-
-            psr.fields.flagT = dest & 0x00000001;
-            performJump(dest & (psr.fields.flagT ? 0xfffffffe : 0xfffffffc));
-            writeCPSR(psr);
-        }
+        uint32_t dest = registerRead(opcode & 0x0000000f);
+        cpsr.fields.flagT = dest & 0x00000001;
+        performJump(dest & (cpsr.fields.flagT ? 0xfffffffe : 0xfffffffc));
     }
 }

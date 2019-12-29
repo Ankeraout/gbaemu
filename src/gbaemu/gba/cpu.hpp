@@ -103,6 +103,14 @@ namespace gbaemu::gba::cpu {
         CPU_REG_LR,
         CPU_REG_PC,
     };
+    
+    typedef struct {
+        bool flagC;
+        uint32_t result;
+    } shifter_t;
+    
+    extern psr_t cpsr;
+    extern shifter_t shifter;
 
     extern void init();
     extern void cycle();
