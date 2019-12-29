@@ -26,6 +26,7 @@
         value += 4; \
     }
 
+#define CARRY(a, b)
 #define ROR(value, rotation) ((((uint32_t)(value)) >> (rotation)) | (((uint32_t)(value)) << ((-(rotation)) & 0x1f)))
 #define SIGN32(value) (value >> 31)
 

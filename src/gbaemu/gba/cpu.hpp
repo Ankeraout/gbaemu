@@ -47,7 +47,6 @@ namespace gbaemu::gba::cpu {
         uint16_t fetchedOpcodeThumb;
         instruction_t decodedOpcode;
         pipelineStage_t pipelineStage;
-        uint32_t fetchOffset;
     } pipeline_t;
 
     enum {
@@ -122,7 +121,6 @@ namespace gbaemu::gba::cpu {
     extern psr_t readCPSR();
     extern void writeCPSR(psr_t psr);
     extern void performJump(uint32_t address);
-    extern uint32_t getFetchOffset();
 
     // Debug API
     extern void displayState();

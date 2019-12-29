@@ -19,12 +19,12 @@ namespace gbaemu::gba::cpu::impl::branch {
     }
 
     void b(uint32_t opcode) {
-        performJump(getFetchOffset() + computeOffset(opcode));
+        performJump(registerRead(CPU_REG_PC) + computeOffset(opcode));
     }
 
     void bl(uint32_t opcode) {
         registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC));
-        performJump(getFetchOffset() + computeOffset(opcode));
+        performJump(registerRead(CPU_REG_PC) + computeOffset(opcode));
     }
 
     void bx(uint32_t opcode) {

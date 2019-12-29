@@ -5,6 +5,8 @@
 #include <gbaemu/gba/mmu.hpp>
 #include <gbaemu/gba/cpu/decoder/arm.hpp>
 
+#define PC r8_15_usr[7]
+
 namespace gbaemu::gba::cpu {
     uint32_t r0_8[8];
     uint32_t r8_15_usr[8];
@@ -69,7 +71,6 @@ namespace gbaemu::gba::cpu {
         
         // Reset pipeline
         pipeline.pipelineStage = PIPELINE_FETCH;
-        pipeline.fetchOffset = 0;
     }
 
     uint32_t registerRead(int reg) {
@@ -84,7 +85,6 @@ namespace gbaemu::gba::cpu {
         if((pipeline.pipelineStage == PIPELINE_FETCH_DECODE_EXECUTE) && checkCondition(pipeline.decodedOpcode.opcode)) {
             printf("%llu: Executing opcode 0x%08x\n", cycleCounter, pipeline.decodedOpcode.opcode);
             pipeline.decodedOpcode.function(pipeline.decodedOpcode.opcode);
-            r8_15_usr[7] += 4 >> cpsr.fields.flagT;
         }
     }
 
@@ -106,6 +106,7 @@ namespace gbaemu::gba::cpu {
         switch(cpsr.fields.flagT) {
             case CPU_MODE_ARM:
             pipeline.fetchedOpcodeARM = mmu::read32(fetchOffset);
+            printf("%llu: [0x%08x] 0x%08x\n", cycleCounter, fetchOffset, pipeline.fetchedOpcodeARM);
             break;
 
             case CPU_MODE_THUMB:
@@ -113,11 +114,11 @@ namespace gbaemu::gba::cpu {
             break;
         }
 
-        pipeline.fetchOffset += 4 >> cpsr.fields.flagT;
+        PC += 4 >> cpsr.fields.flagT;
     }
 
     void cycle() {
-        uint32_t cycleFetchOffset = pipeline.fetchOffset;
+        uint32_t cycleFetchOffset = PC;
 
         execute();
         decode();
@@ -195,7 +196,6 @@ namespace gbaemu::gba::cpu {
     void performJump(uint32_t address) {
         address -= 4;
 
-        pipeline.fetchOffset = r8_15_usr[7];
         registerWrite(CPU_REG_PC, address);
         pipeline.pipelineStage = PIPELINE_FLUSH;
     }
@@ -211,9 +211,5 @@ namespace gbaemu::gba::cpu {
         for(int i = 0; i < 16; i++) {
             printf("R%d = %08x\n", i, registerRead(i));
         }
-    }
-
-    uint32_t getFetchOffset() {
-        return pipeline.fetchOffset;
     }
 }
