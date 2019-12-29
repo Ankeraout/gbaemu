@@ -6,7 +6,7 @@ One of the goals of this project is portability.
 Here are the supported platforms:
 
 - PC:
-    - Windows (x86/x64) : Planned
+    - Windows (x86/x64) : Supported
     - Linux (x86/x64) : Supported
     - Mac OS X : Probably working, untested
 
