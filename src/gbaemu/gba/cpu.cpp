@@ -82,7 +82,7 @@ namespace gbaemu::gba::cpu {
 
     static inline void execute() {
         if((pipeline.pipelineStage == PIPELINE_FETCH_DECODE_EXECUTE) && checkCondition(pipeline.decodedOpcode.opcode)) {
-            printf("%lu: Executing opcode 0x%08x\n", cycleCounter, pipeline.decodedOpcode.opcode);
+            printf("%llu: Executing opcode 0x%08x\n", cycleCounter, pipeline.decodedOpcode.opcode);
             pipeline.decodedOpcode.function(pipeline.decodedOpcode.opcode);
             r8_15_usr[7] += 4 >> cpsr.fields.flagT;
         }
@@ -195,7 +195,7 @@ namespace gbaemu::gba::cpu {
     void performJump(uint32_t address) {
         address -= 4;
 
-        pipeline.fetchOffset = address;
+        pipeline.fetchOffset = r8_15_usr[7];
         registerWrite(CPU_REG_PC, address);
         pipeline.pipelineStage = PIPELINE_FLUSH;
     }
