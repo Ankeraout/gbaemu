@@ -331,6 +331,14 @@ namespace gbaemu::gba::cpu::impl::dataproc {
     )
 
     DECLARE_DATAPROC_OPCODE(
+        tst,
+        uint32_t result = Rn_v & op2;
+        
+        logicSetFlags(result);
+        registerWrite(Rd, result);
+    )
+
+    DECLARE_DATAPROC_OPCODE(
         cmp,
         UNUSED(Rd);
 

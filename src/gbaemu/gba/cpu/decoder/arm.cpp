@@ -291,21 +291,21 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x10d
         NULL, // 0x10e
         NULL, // 0x10f
-        NULL, // 0x110
-        NULL, // 0x111
-        NULL, // 0x112
-        NULL, // 0x113
-        NULL, // 0x114
-        NULL, // 0x115
-        NULL, // 0x116
-        NULL, // 0x117
-        NULL, // 0x118
+        gbaemu::gba::cpu::impl::dataproc::opcode_tst_LSL_Rm_0, // 0x110
+        gbaemu::gba::cpu::impl::dataproc::opcode_tst_LSL_Rm_1, // 0x111
+        gbaemu::gba::cpu::impl::dataproc::opcode_tst_LSR_Rm_0, // 0x112
+        gbaemu::gba::cpu::impl::dataproc::opcode_tst_LSR_Rm_1, // 0x113
+        gbaemu::gba::cpu::impl::dataproc::opcode_tst_ASR_Rm_0, // 0x114
+        gbaemu::gba::cpu::impl::dataproc::opcode_tst_ASR_Rm_1, // 0x115
+        gbaemu::gba::cpu::impl::dataproc::opcode_tst_ROR_Rm_0, // 0x116
+        gbaemu::gba::cpu::impl::dataproc::opcode_tst_ROR_Rm_1, // 0x117
+        gbaemu::gba::cpu::impl::dataproc::opcode_tst_LSL_Rm_0, // 0x118
         NULL, // 0x119
-        NULL, // 0x11a
+        gbaemu::gba::cpu::impl::dataproc::opcode_tst_LSR_Rm_0, // 0x11a
         NULL, // 0x11b
-        NULL, // 0x11c
+        gbaemu::gba::cpu::impl::dataproc::opcode_tst_ASR_Rm_0, // 0x11c
         NULL, // 0x11d
-        NULL, // 0x11e
+        gbaemu::gba::cpu::impl::dataproc::opcode_tst_ROR_Rm_0, // 0x11e
         NULL, // 0x11f
         NULL, // 0x120
         gbaemu::gba::cpu::impl::branch::bx, // 0x121
@@ -340,12 +340,12 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x13e
         NULL, // 0x13f
         NULL, // 0x140
-        gbaemu::gba::cpu::impl::dataproc::opcode_cmp_LSL_Rm_1, // 0x141
-        gbaemu::gba::cpu::impl::dataproc::opcode_cmp_LSR_Rm_0, // 0x142
-        gbaemu::gba::cpu::impl::dataproc::opcode_cmp_LSR_Rm_1, // 0x143
+        NULL, // 0x141
+        NULL, // 0x142
+        NULL, // 0x143
         NULL, // 0x144
         NULL, // 0x145
-        gbaemu::gba::cpu::impl::dataproc::opcode_cmp_ROR_Rm_0, // 0x146
+        NULL, // 0x146
         NULL, // 0x147
         NULL, // 0x148
         NULL, // 0x149
@@ -563,22 +563,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x30d
         NULL, // 0x30e
         NULL, // 0x30f
-        NULL, // 0x310
-        NULL, // 0x311
-        NULL, // 0x312
-        NULL, // 0x313
-        NULL, // 0x314
-        NULL, // 0x315
-        NULL, // 0x316
-        NULL, // 0x317
-        NULL, // 0x318
-        NULL, // 0x319
-        NULL, // 0x31a
-        NULL, // 0x31b
-        NULL, // 0x31c
-        NULL, // 0x31d
-        NULL, // 0x31e
-        NULL, // 0x31f
+        REP16(gbaemu::gba::cpu::impl::dataproc::opcode_tst_Immediate),
         NULL, // 0x320
         NULL, // 0x321
         NULL, // 0x322
