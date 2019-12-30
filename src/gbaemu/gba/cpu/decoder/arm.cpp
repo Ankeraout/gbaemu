@@ -243,37 +243,37 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x0dd
         gbaemu::gba::cpu::impl::dataproc::opcode_sbcs_ROR_Rm_0, // 0x0de
         NULL, // 0x0df
-        NULL, // 0x0e0
-        NULL, // 0x0e1
-        NULL, // 0x0e2
-        NULL, // 0x0e3
-        NULL, // 0x0e4
-        NULL, // 0x0e5
-        NULL, // 0x0e6
-        NULL, // 0x0e7
-        NULL, // 0x0e8
+        gbaemu::gba::cpu::impl::dataproc::opcode_rsc_LSL_Rm_0, // 0x0e0
+        gbaemu::gba::cpu::impl::dataproc::opcode_rsc_LSL_Rm_1, // 0x0e1
+        gbaemu::gba::cpu::impl::dataproc::opcode_rsc_LSR_Rm_0, // 0x0e2
+        gbaemu::gba::cpu::impl::dataproc::opcode_rsc_LSR_Rm_1, // 0x0e3
+        gbaemu::gba::cpu::impl::dataproc::opcode_rsc_ASR_Rm_0, // 0x0e4
+        gbaemu::gba::cpu::impl::dataproc::opcode_rsc_ASR_Rm_1, // 0x0e5
+        gbaemu::gba::cpu::impl::dataproc::opcode_rsc_ROR_Rm_0, // 0x0e6
+        gbaemu::gba::cpu::impl::dataproc::opcode_rsc_ROR_Rm_1, // 0x0e7
+        gbaemu::gba::cpu::impl::dataproc::opcode_rsc_LSL_Rm_0, // 0x0e8
         NULL, // 0x0e9
-        NULL, // 0x0ea
+        gbaemu::gba::cpu::impl::dataproc::opcode_rsc_LSR_Rm_0, // 0x0ea
         NULL, // 0x0eb
-        NULL, // 0x0ec
+        gbaemu::gba::cpu::impl::dataproc::opcode_rsc_ASR_Rm_0, // 0x0ec
         NULL, // 0x0ed
-        NULL, // 0x0ee
+        gbaemu::gba::cpu::impl::dataproc::opcode_rsc_ROR_Rm_0, // 0x0ee
         NULL, // 0x0ef
-        NULL, // 0x0f0
-        NULL, // 0x0f1
-        NULL, // 0x0f2
-        NULL, // 0x0f3
-        NULL, // 0x0f4
-        NULL, // 0x0f5
-        NULL, // 0x0f6
-        NULL, // 0x0f7
-        NULL, // 0x0f8
+        gbaemu::gba::cpu::impl::dataproc::opcode_rscs_LSL_Rm_0, // 0x0f0
+        gbaemu::gba::cpu::impl::dataproc::opcode_rscs_LSL_Rm_1, // 0x0f1
+        gbaemu::gba::cpu::impl::dataproc::opcode_rscs_LSR_Rm_0, // 0x0f2
+        gbaemu::gba::cpu::impl::dataproc::opcode_rscs_LSR_Rm_1, // 0x0f3
+        gbaemu::gba::cpu::impl::dataproc::opcode_rscs_ASR_Rm_0, // 0x0f4
+        gbaemu::gba::cpu::impl::dataproc::opcode_rscs_ASR_Rm_1, // 0x0f5
+        gbaemu::gba::cpu::impl::dataproc::opcode_rscs_ROR_Rm_0, // 0x0f6
+        gbaemu::gba::cpu::impl::dataproc::opcode_rscs_ROR_Rm_1, // 0x0f7
+        gbaemu::gba::cpu::impl::dataproc::opcode_rscs_LSL_Rm_0, // 0x0f8
         NULL, // 0x0f9
-        NULL, // 0x0fa
+        gbaemu::gba::cpu::impl::dataproc::opcode_rscs_LSR_Rm_0, // 0x0fa
         NULL, // 0x0fb
-        NULL, // 0x0fc
+        gbaemu::gba::cpu::impl::dataproc::opcode_rscs_ASR_Rm_0, // 0x0fc
         NULL, // 0x0fd
-        NULL, // 0x0fe
+        gbaemu::gba::cpu::impl::dataproc::opcode_rscs_ROR_Rm_0, // 0x0fe
         NULL, // 0x0ff
         NULL, // 0x100
         NULL, // 0x101
@@ -545,38 +545,8 @@ namespace gbaemu::gba::cpu::decoder::arm {
         REP16(gbaemu::gba::cpu::impl::dataproc::opcode_adcs_Immediate),
         REP16(gbaemu::gba::cpu::impl::dataproc::opcode_sbc_Immediate),
         REP16(gbaemu::gba::cpu::impl::dataproc::opcode_sbcs_Immediate),
-        NULL, // 0x2e0
-        NULL, // 0x2e1
-        NULL, // 0x2e2
-        NULL, // 0x2e3
-        NULL, // 0x2e4
-        NULL, // 0x2e5
-        NULL, // 0x2e6
-        NULL, // 0x2e7
-        NULL, // 0x2e8
-        NULL, // 0x2e9
-        NULL, // 0x2ea
-        NULL, // 0x2eb
-        NULL, // 0x2ec
-        NULL, // 0x2ed
-        NULL, // 0x2ee
-        NULL, // 0x2ef
-        NULL, // 0x2f0
-        NULL, // 0x2f1
-        NULL, // 0x2f2
-        NULL, // 0x2f3
-        NULL, // 0x2f4
-        NULL, // 0x2f5
-        NULL, // 0x2f6
-        NULL, // 0x2f7
-        NULL, // 0x2f8
-        NULL, // 0x2f9
-        NULL, // 0x2fa
-        NULL, // 0x2fb
-        NULL, // 0x2fc
-        NULL, // 0x2fd
-        NULL, // 0x2fe
-        NULL, // 0x2ff
+        REP16(gbaemu::gba::cpu::impl::dataproc::opcode_rsc_Immediate),
+        REP16(gbaemu::gba::cpu::impl::dataproc::opcode_rscs_Immediate),
         NULL, // 0x300
         NULL, // 0x301
         NULL, // 0x302

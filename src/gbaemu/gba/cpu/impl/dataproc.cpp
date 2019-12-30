@@ -314,6 +314,23 @@ namespace gbaemu::gba::cpu::impl::dataproc {
     )
 
     DECLARE_DATAPROC_OPCODE(
+        rsc,
+        registerWrite(Rd, op2 - Rn_v - !cpsr.fields.flagC);
+    )
+
+    DECLARE_DATAPROC_OPCODE(
+        rscs,
+        uint32_t result = op2 - Rn_v - !cpsr.fields.flagC;
+
+        cpsr.fields.flagZ = !result;
+        cpsr.fields.flagN = SIGN32(result);
+        cpsr.fields.flagV = SUB32_FLAGV(op2, Rn_v, result);
+        cpsr.fields.flagC = SBC32_FLAGC(op2, Rn_v, !cpsr.fields.flagC);
+
+        registerWrite(Rd, result);
+    )
+
+    DECLARE_DATAPROC_OPCODE(
         cmp,
         UNUSED(Rd);
 
