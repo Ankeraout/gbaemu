@@ -621,68 +621,8 @@ namespace gbaemu::gba::cpu::decoder::arm {
         REP16(gbaemu::gba::cpu::impl::dataproc::opcode_movs_Immediate),
         REP16(gbaemu::gba::cpu::impl::dataproc::opcode_bic_Immediate),
         REP16(gbaemu::gba::cpu::impl::dataproc::opcode_bics_Immediate),
-        NULL, // 0x3c2
-        NULL, // 0x3c3
-        NULL, // 0x3c4
-        NULL, // 0x3c5
-        NULL, // 0x3c6
-        NULL, // 0x3c7
-        NULL, // 0x3c8
-        NULL, // 0x3c9
-        NULL, // 0x3ca
-        NULL, // 0x3cb
-        NULL, // 0x3cc
-        NULL, // 0x3cd
-        NULL, // 0x3ce
-        NULL, // 0x3cf
-        NULL, // 0x3d0
-        NULL, // 0x3d1
-        NULL, // 0x3d2
-        NULL, // 0x3d3
-        NULL, // 0x3d4
-        NULL, // 0x3d5
-        NULL, // 0x3d6
-        NULL, // 0x3d7
-        NULL, // 0x3d8
-        NULL, // 0x3d9
-        NULL, // 0x3da
-        NULL, // 0x3db
-        NULL, // 0x3dc
-        NULL, // 0x3dd
-        NULL, // 0x3de
-        NULL, // 0x3df
-        NULL, // 0x3e0
-        NULL, // 0x3e1
-        NULL, // 0x3e2
-        NULL, // 0x3e3
-        NULL, // 0x3e4
-        NULL, // 0x3e5
-        NULL, // 0x3e6
-        NULL, // 0x3e7
-        NULL, // 0x3e8
-        NULL, // 0x3e9
-        NULL, // 0x3ea
-        NULL, // 0x3eb
-        NULL, // 0x3ec
-        NULL, // 0x3ed
-        NULL, // 0x3ee
-        NULL, // 0x3ef
-        NULL, // 0x3f0
-        NULL, // 0x3f1
-        NULL, // 0x3f2
-        NULL, // 0x3f3
-        NULL, // 0x3f4
-        NULL, // 0x3f5
-        NULL, // 0x3f6
-        NULL, // 0x3f7
-        NULL, // 0x3f8
-        NULL, // 0x3f9
-        NULL, // 0x3fa
-        NULL, // 0x3fb
-        NULL, // 0x3fc
-        NULL, // 0x3fd
-        NULL, // 0x3fe
-        NULL, // 0x3ff
+        REP16(gbaemu::gba::cpu::impl::dataproc::opcode_mvn_Immediate),
+        REP16(gbaemu::gba::cpu::impl::dataproc::opcode_mvns_Immediate),
         NULL, // 0x400
         NULL, // 0x401
         NULL, // 0x402
