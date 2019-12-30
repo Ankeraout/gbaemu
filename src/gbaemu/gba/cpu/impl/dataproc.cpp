@@ -385,7 +385,7 @@ namespace gbaemu::gba::cpu::impl::dataproc {
     DECLARE_DATAPROC_OPCODE(
         mov,
         UNUSED(Rn_v);
-        
+
         registerWrite(Rd, op2);
     )
 
@@ -395,5 +395,18 @@ namespace gbaemu::gba::cpu::impl::dataproc {
 
         logicSetFlags(op2);
         registerWrite(Rd, op2);
+    )
+
+    DECLARE_DATAPROC_OPCODE(
+        bic,
+        registerWrite(Rd, Rn_v & ~op2);
+    )
+
+    DECLARE_DATAPROC_OPCODE(
+        bics,
+        uint32_t result = Rn_v & ~op2;
+        
+        logicSetFlags(result);
+        registerWrite(Rd, result);
     )
 }
