@@ -33,8 +33,10 @@
 #define ROR(value, rotation) ((((uint32_t)(value)) >> (rotation)) | (((uint32_t)(value)) << ((-(rotation)) & 0x1f)))
 #define SIGN32(value) (((uint32_t)(value)) >> 31)
 
-#define SUB32_FLAGC(a, b) (((uint32_t)(a)) >= ((uint32_t)(b)))
+#define SUB32_FLAGC(a, b) ((a) >= (b))
 #define SUB32_FLAGV(a, b, r) (SIGN32((a) ^ (b)) && SIGN32((a) ^ (r)))
+
+#define SBC32_FLAGC(a, b, c) ((a) >= ((b) + (c)))
 
 #define ADD32_FLAGV(a, b, r) (!(SIGN32((a) ^ (b))) && SIGN32((a) ^ (r)))
 
@@ -292,6 +294,23 @@ namespace gbaemu::gba::cpu::impl::dataproc {
         cpsr.fields.flagC = result > UINT32_MAX;
 
         registerWrite(Rd, (uint32_t)result);
+    )
+
+    DECLARE_DATAPROC_OPCODE(
+        sbc,
+        registerWrite(Rd, Rn_v - op2 - !cpsr.fields.flagC);
+    )
+
+    DECLARE_DATAPROC_OPCODE(
+        sbcs,
+        uint32_t result = Rn_v - op2 - !cpsr.fields.flagC;
+
+        cpsr.fields.flagZ = !result;
+        cpsr.fields.flagN = SIGN32(result);
+        cpsr.fields.flagV = SUB32_FLAGV(Rn_v, op2, result);
+        cpsr.fields.flagC = SBC32_FLAGC(Rn_v, op2, !cpsr.fields.flagC);
+
+        registerWrite(Rd, result);
     )
 
     DECLARE_DATAPROC_OPCODE(
