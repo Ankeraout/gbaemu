@@ -190,7 +190,7 @@ namespace gbaemu::gba::cpu::impl::dataproc {
     }
 
     static inline void shiftImmediate(uint32_t opcode) {
-        unsigned int rotation = (opcode & 0x00000f00) >> 8;
+        unsigned int rotation = (opcode & 0x00000f00) >> 7;
         unsigned int immediate = opcode & 0x000000ff;
 
         if(rotation) {
