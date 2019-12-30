@@ -271,7 +271,24 @@ namespace gbaemu::gba::cpu::impl::dataproc {
 
         cpsr.fields.flagZ = !result;
         cpsr.fields.flagN = SIGN32(result);
-        cpsr.fields.flagV = ADD32_FLAGV(op2, Rn_v, result);
+        cpsr.fields.flagV = ADD32_FLAGV(op2, Rn_v, (uint32_t)result);
+        cpsr.fields.flagC = result > UINT32_MAX;
+
+        registerWrite(Rd, (uint32_t)result);
+    )
+
+    DECLARE_DATAPROC_OPCODE(
+        adc,
+        registerWrite(Rd, Rn_v + op2 + cpsr.fields.flagC);
+    )
+
+    DECLARE_DATAPROC_OPCODE(
+        adcs,
+        uint64_t result = Rn_v + op2 + cpsr.fields.flagC;
+
+        cpsr.fields.flagZ = !result;
+        cpsr.fields.flagN = SIGN32(result);
+        cpsr.fields.flagV = ADD32_FLAGV(op2, Rn_v, (uint32_t)result);
         cpsr.fields.flagC = result > UINT32_MAX;
 
         registerWrite(Rd, (uint32_t)result);
