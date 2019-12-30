@@ -357,4 +357,15 @@ namespace gbaemu::gba::cpu::impl::dataproc {
         cpsr.fields.flagV = SUB32_FLAGV(Rn_v, op2, result);
         cpsr.fields.flagC = SUB32_FLAGC(Rn_v, op2);
     )
+
+    DECLARE_DATAPROC_OPCODE(
+        cmn,
+        UNUSED(Rd);
+        uint64_t result = Rn_v + op2;
+
+        cpsr.fields.flagZ = !result;
+        cpsr.fields.flagN = SIGN32(result);
+        cpsr.fields.flagV = ADD32_FLAGV(op2, Rn_v, (uint32_t)result);
+        cpsr.fields.flagC = result > UINT32_MAX;
+    )
 }
