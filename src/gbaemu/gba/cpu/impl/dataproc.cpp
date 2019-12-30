@@ -193,6 +193,21 @@ namespace gbaemu::gba::cpu::impl::dataproc {
     }
 
     DECLARE_DATAPROC_OPCODE(
+        and,
+        registerWrite(Rd, Rn_v & op2);
+    )
+
+    DECLARE_DATAPROC_OPCODE(
+        ands,
+        uint32_t result = Rn_v & op2;
+
+        cpsr.fields.flagZ = !result;
+        cpsr.fields.flagN = SIGN32(result);
+
+        registerWrite(Rd, Rn_v & op2);
+    )
+
+    DECLARE_DATAPROC_OPCODE(
         sub,
         registerWrite(Rd, Rn_v - op2);
     )
@@ -201,7 +216,7 @@ namespace gbaemu::gba::cpu::impl::dataproc {
         subs,
         uint32_t result = Rn_v - op2;
 
-        cpsr.fields.flagZ = (!result);
+        cpsr.fields.flagZ = !result;
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = SUB32_FLAGV(Rn_v, op2, result);
         cpsr.fields.flagC = SUB32_FLAGC(Rn_v, op2);
@@ -215,7 +230,7 @@ namespace gbaemu::gba::cpu::impl::dataproc {
 
         uint32_t result = Rn_v - op2;
 
-        cpsr.fields.flagZ = (!result);
+        cpsr.fields.flagZ = !result;
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = SUB32_FLAGV(Rn_v, op2, result);
         cpsr.fields.flagC = SUB32_FLAGC(Rn_v, op2);
