@@ -323,21 +323,21 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x12d
         NULL, // 0x12e
         NULL, // 0x12f
-        NULL, // 0x130
-        NULL, // 0x131
-        NULL, // 0x132
-        NULL, // 0x133
-        NULL, // 0x134
-        NULL, // 0x135
-        NULL, // 0x136
-        NULL, // 0x137
-        NULL, // 0x138
+        gbaemu::gba::cpu::impl::dataproc::opcode_teq_LSL_Rm_0, // 0x130
+        gbaemu::gba::cpu::impl::dataproc::opcode_teq_LSL_Rm_1, // 0x131
+        gbaemu::gba::cpu::impl::dataproc::opcode_teq_LSR_Rm_0, // 0x132
+        gbaemu::gba::cpu::impl::dataproc::opcode_teq_LSR_Rm_0, // 0x133
+        gbaemu::gba::cpu::impl::dataproc::opcode_teq_ASR_Rm_0, // 0x134
+        gbaemu::gba::cpu::impl::dataproc::opcode_teq_ASR_Rm_1, // 0x135
+        gbaemu::gba::cpu::impl::dataproc::opcode_teq_ROR_Rm_0, // 0x136
+        gbaemu::gba::cpu::impl::dataproc::opcode_teq_ROR_Rm_1, // 0x137
+        gbaemu::gba::cpu::impl::dataproc::opcode_teq_LSL_Rm_0, // 0x138
         NULL, // 0x139
-        NULL, // 0x13a
+        gbaemu::gba::cpu::impl::dataproc::opcode_teq_LSR_Rm_0, // 0x13a
         NULL, // 0x13b
-        NULL, // 0x13c
+        gbaemu::gba::cpu::impl::dataproc::opcode_teq_ASR_Rm_0, // 0x13c
         NULL, // 0x13d
-        NULL, // 0x13e
+        gbaemu::gba::cpu::impl::dataproc::opcode_teq_ROR_Rm_0, // 0x13e
         NULL, // 0x13f
         NULL, // 0x140
         NULL, // 0x141
@@ -580,22 +580,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x32d
         NULL, // 0x32e
         NULL, // 0x32f
-        NULL, // 0x330
-        NULL, // 0x331
-        NULL, // 0x332
-        NULL, // 0x333
-        NULL, // 0x334
-        NULL, // 0x335
-        NULL, // 0x336
-        NULL, // 0x337
-        NULL, // 0x338
-        NULL, // 0x339
-        NULL, // 0x33a
-        NULL, // 0x33b
-        NULL, // 0x33c
-        NULL, // 0x33d
-        NULL, // 0x33e
-        NULL, // 0x33f
+        REP16(gbaemu::gba::cpu::impl::dataproc::opcode_teq_Immediate),
         NULL, // 0x340
         NULL, // 0x341
         NULL, // 0x342
