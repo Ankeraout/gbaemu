@@ -18,7 +18,7 @@ namespace gbaemu::gba::cpu {
     psr_t cpsr;
     psr_t spsr[5];
     pipeline_t pipeline;
-    uint64_t cycleCounter = 0;
+    long long unsigned int cycleCounter = 0;
     shifter_t shifter;
     
     static inline const int modeMapping[] = {

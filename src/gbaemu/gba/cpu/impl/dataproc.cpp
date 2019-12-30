@@ -1,3 +1,6 @@
+#include <cstdint>
+
+#include <gbaemu/gbaemu.hpp>
 #include <gbaemu/gba/cpu.hpp>
 #include <gbaemu/gba/cpu/impl/dataproc.hpp>
 
@@ -28,10 +31,18 @@
 
 #define CARRY(a, b)
 #define ROR(value, rotation) ((((uint32_t)(value)) >> (rotation)) | (((uint32_t)(value)) << ((-(rotation)) & 0x1f)))
-#define SIGN32(value) (value >> 31)
+#define SIGN32(value) (((uint32_t)(value)) >> 31)
+
+#define SUB32_FLAGC(a, b) (((uint32_t)(a)) >= ((uint32_t)(b)))
+#define SUB32_FLAGV(a, b, r) (SIGN32((a) ^ (b)) && SIGN32((a) ^ (r)))
 
 #define DECLARE_DATAPROC_OPCODE_SINGLE(name, suffix, body) \
     void opcode_ ## name ## _ ## suffix (uint32_t opcode) { \
+        uint32_t Rn = (opcode & 0x000f0000) >> 16; \
+        uint32_t Rd = (opcode & 0x0000f000) >> 12; \
+        uint32_t Rn_v = registerRead(Rn); \
+        uint32_t &op2 = shifter.result; \
+        \
         shift ## suffix (opcode); \
         body \
     }
@@ -180,4 +191,16 @@ namespace gbaemu::gba::cpu::impl::dataproc {
             shifter.flagC = cpsr.fields.flagC;
         }
     }
+
+    DECLARE_DATAPROC_OPCODE(
+        cmp,
+        UNUSED(Rd);
+
+        uint32_t result = Rn_v - op2;
+
+        cpsr.fields.flagZ = (Rn_v == op2);
+        cpsr.fields.flagN = SIGN32(result);
+        cpsr.fields.flagV = SUB32_FLAGV(Rn_v, op2, result);
+        cpsr.fields.flagC = SUB32_FLAGC(Rn_v, op2);
+    )
 }

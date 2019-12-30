@@ -73,7 +73,7 @@ namespace gbaemu::gba::cartridge {
 
     void loadSave(const char *saveFilePath) {
         // Temporary code
-        UNUSED_PARAMETER(saveFilePath);
+        UNUSED(saveFilePath);
     }
 
     void saveSave() {
@@ -82,7 +82,7 @@ namespace gbaemu::gba::cartridge {
 
     void saveSave(const char *saveFilePath) {
         // Temporary code
-        UNUSED_PARAMETER(saveFilePath);
+        UNUSED(saveFilePath);
     }
 
     void detectSaveType() {

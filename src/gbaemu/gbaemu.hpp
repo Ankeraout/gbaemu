@@ -1,6 +1,6 @@
 #pragma once
 
-#define UNUSED_PARAMETER(parameter) ((void *)parameter)
+#define UNUSED(parameter) ((void)parameter)
 
 namespace gbaemu {
     typedef struct {

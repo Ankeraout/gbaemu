@@ -1,3 +1,4 @@
+#include <gbaemu/gbaemu.hpp>
 #include <gbaemu/gba/gba.hpp>
 #include <gbaemu/gba/mmu.hpp>
 
@@ -56,6 +57,8 @@ namespace gbaemu::gba::mmu {
     }
 
     void write32(uint32_t address, uint32_t value) {
+        UNUSED(address);
+        UNUSED(value);
         // TODO
     }
 }
