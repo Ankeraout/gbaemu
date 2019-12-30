@@ -35,6 +35,10 @@
 
 #define SUB32_FLAGC(a, b) (((uint32_t)(a)) >= ((uint32_t)(b)))
 #define SUB32_FLAGV(a, b, r) (SIGN32((a) ^ (b)) && SIGN32((a) ^ (r)))
+#define logicSetFlags(result) \
+    cpsr.fields.flagZ = !result; \
+    cpsr.fields.flagN = SIGN32(result); \
+    cpsr.fields.flagC = shifter.flagC
 
 #define DECLARE_DATAPROC_OPCODE_SINGLE(name, suffix, body) \
     void opcode_ ## name ## _ ## suffix (uint32_t opcode) { \
@@ -200,11 +204,22 @@ namespace gbaemu::gba::cpu::impl::dataproc {
     DECLARE_DATAPROC_OPCODE(
         ands,
         uint32_t result = Rn_v & op2;
+        
+        logicSetFlags(result);
+        registerWrite(Rd, result);
+    )
 
-        cpsr.fields.flagZ = !result;
-        cpsr.fields.flagN = SIGN32(result);
+    DECLARE_DATAPROC_OPCODE(
+        eor,
+        registerWrite(Rd, Rn_v ^ op2);
+    )
 
-        registerWrite(Rd, Rn_v & op2);
+    DECLARE_DATAPROC_OPCODE(
+        eors,
+        uint32_t result = Rn_v ^ op2;
+        
+        logicSetFlags(result);
+        registerWrite(Rd, result);
     )
 
     DECLARE_DATAPROC_OPCODE(
