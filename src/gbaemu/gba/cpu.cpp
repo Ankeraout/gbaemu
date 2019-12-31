@@ -85,6 +85,7 @@ namespace gbaemu::gba::cpu {
         if((pipeline.pipelineStage == PIPELINE_FETCH_DECODE_EXECUTE) && checkCondition(pipeline.decodedOpcode.opcode)) {
             printf("%llu: Executing opcode 0x%08x\n", cycleCounter, pipeline.decodedOpcode.opcode);
             pipeline.decodedOpcode.function(pipeline.decodedOpcode.opcode);
+            displayState();
         }
     }
 

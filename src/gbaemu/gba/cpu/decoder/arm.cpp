@@ -6,6 +6,7 @@
 #include <gbaemu/gba/cpu/decoder/arm.hpp>
 #include <gbaemu/gba/cpu/impl/branch.hpp>
 #include <gbaemu/gba/cpu/impl/dataproc.hpp>
+#include <gbaemu/gba/cpu/impl/sdt.hpp>
 #include <gbaemu/gba/cpu/impl/swi.hpp>
 
 #define REP2(x) x, x
