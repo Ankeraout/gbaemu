@@ -2,16 +2,11 @@
 #include <gbaemu/gba/cpu/impl/sdt.hpp>
 #include <gbaemu/gba/mmu.hpp>
 
-#define STORE_BASE \
-    uint32_t Rd_v = registerRead(Rd)
-
-#define LOAD_BASE
-
 #define SDT_OPCODE_BASE \
     const uint32_t Rn = (opcode & 0x000f0000) >> 16; \
     const uint32_t Rd = (opcode & 0x0000f000) >> 12; \
     const uint32_t Rn_v = registerRead(Rn); \
-    uint32_t address = Rn_v;
+    uint32_t address = Rn_v
 
 #define DEFINE_SDT_OPCODE_SINGLE(name, suffix, body) \
     void opcode_ ## name ## _ ## suffix (uint32_t opcode) { \
@@ -44,14 +39,13 @@
 #define DEFINE_STR_OPCODE(suffix, body) \
     DEFINE_SDT_OPCODE( \
         str ## suffix, \
-        STORE_BASE; \
+        uint32_t Rd_v = registerRead(Rd); \
         body \
     )
 
 #define DEFINE_LDR_OPCODE(suffix, body) \
     DEFINE_SDT_OPCODE( \
         ldr ## suffix, \
-        LOAD_BASE; \
         body \
     )
 
@@ -73,10 +67,10 @@
     DO_WRITEBACK
 
 #define DO_PREINDEX \
-    address -= op2;
+    address -= op2
 
 #define DO_PREINDEX_U \
-    address += op2;
+    address += op2
 
 #define DO_LOAD \
     registerWrite(Rd, gbaemu::gba::mmu::read32(address))
