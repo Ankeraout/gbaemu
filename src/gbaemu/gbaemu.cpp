@@ -50,7 +50,7 @@ namespace gbaemu {
 
         gbaemu::gba::init(gbaemu::conf.biosPath, gbaemu::conf.romPath);
 
-        for(int i = 0; i < 20; i++) {
+        while(true) {
             gbaemu::gba::cpu::cycle();
         }
 
