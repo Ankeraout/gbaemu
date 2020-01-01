@@ -214,6 +214,8 @@ namespace gbaemu::gba::cpu {
         for(int i = 0; i < 16; i++) {
             printf("R%d = %08x\n", i, registerRead(i));
         }
+
+        fflush(stdout);
     }
 
     void writeCPSR(psr_t value) {

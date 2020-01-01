@@ -1,23 +1,24 @@
 #pragma once
 
+#include <gbaemu/gbaemu.hpp>
 #include <gbaemu/gba/cpu/decoder.hpp>
 
 namespace gbaemu::gba::cpu {
     typedef union {
         uint32_t value;
 
-        struct {
-            uint32_t mode : 5;
-            uint32_t flagT : 1;
-            uint32_t flagF : 1;
-            uint32_t flagI : 1;
-            uint32_t reserved : 19;
-            uint32_t flagQ : 1;
-            uint32_t flagV : 1;
-            uint32_t flagC : 1;
-            uint32_t flagZ : 1;
-            uint32_t flagN : 1;
-        } __attribute__((packed)) fields;
+		PACKED_STRUCT(
+			uint32_t mode : 5;
+			uint32_t flagT : 1;
+			uint32_t flagF : 1;
+			uint32_t flagI : 1;
+			uint32_t reserved : 19;
+			uint32_t flagQ : 1;
+			uint32_t flagV : 1;
+			uint32_t flagC : 1;
+			uint32_t flagZ : 1;
+			uint32_t flagN : 1;
+		) fields;
     } psr_t;
 
     typedef enum {
