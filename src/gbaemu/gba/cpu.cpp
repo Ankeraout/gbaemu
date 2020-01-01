@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 
 #include <gbaemu/gba/cpu.hpp>
 #include <gbaemu/gba/mmu.hpp>
@@ -48,7 +49,7 @@ namespace gbaemu::gba::cpu {
         &r8_15_usr[4],  &r8_14_fiq[4],  &r8_15_usr[4],  &r8_15_usr[4],  &r8_15_usr[4],  &r8_15_usr[4],  &r8_15_usr[4],
         &r8_15_usr[5],  &r8_14_fiq[5],  &r13_14_svc[0], &r13_14_abt[0], &r13_14_irq[0], &r13_14_und[0], &r8_15_usr[5],
         &r8_15_usr[6],  &r8_14_fiq[6],  &r13_14_svc[1], &r13_14_abt[1], &r13_14_irq[1], &r13_14_und[1], &r8_15_usr[6],
-        &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],
+        &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7]
     };
 
     void init() {
@@ -212,5 +213,50 @@ namespace gbaemu::gba::cpu {
         for(int i = 0; i < 16; i++) {
             printf("R%d = %08x\n", i, registerRead(i));
         }
+    }
+
+    void writeCPSR(psr_t value) {
+        if(cpsr.fields.mode == PSR_MODE_USR) {
+            cpsr.value &= 0x0fffffff;
+            cpsr.value |= value.value & 0xf0000000;
+        } else {
+            cpsr = value;
+        }
+    }
+
+    void writeCPSR(uint32_t value) {
+        if(cpsr.fields.mode == PSR_MODE_USR) {
+            cpsr.value &= 0x0fffffff;
+            cpsr.value |= value & 0xf0000000;
+        } else {
+            cpsr.value = value;
+        }
+    }
+
+    psr_t readSPSR() {
+        if((cpsr.fields.mode == PSR_MODE_USR) || (cpsr.fields.mode == PSR_MODE_SYS)) {
+            fprintf(stderr, "Attempted to read SPSR in user or system mode.\n");
+            exit(1);
+        }
+
+        return spsr[modeMapping[cpsr.fields.mode] - 1];
+    }
+
+    void writeSPSR(psr_t value) {
+        if((cpsr.fields.mode == PSR_MODE_USR) || (cpsr.fields.mode == PSR_MODE_SYS)) {
+            fprintf(stderr, "Attempted to write SPSR in user or system mode.\n");
+            exit(1);
+        }
+
+        spsr[modeMapping[cpsr.fields.mode] - 1] = value;
+    }
+
+    void writeSPSR(uint32_t value) {
+        if((cpsr.fields.mode == PSR_MODE_USR) || (cpsr.fields.mode == PSR_MODE_SYS)) {
+            fprintf(stderr, "Attempted to write SPSR in user or system mode.\n");
+            exit(1);
+        }
+
+        spsr[modeMapping[cpsr.fields.mode] - 1].value = value;
     }
 }

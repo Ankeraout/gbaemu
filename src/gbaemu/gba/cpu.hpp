@@ -118,9 +118,12 @@ namespace gbaemu::gba::cpu {
     // Instruction API
     extern uint32_t registerRead(int reg);
     extern void registerWrite(int reg, uint32_t value);
-    extern psr_t readCPSR();
-    extern void writeCPSR(psr_t psr);
     extern void performJump(uint32_t address);
+    extern psr_t readSPSR();
+    extern void writeSPSR(psr_t value);
+    extern void writeSPSR(uint32_t value);
+    extern void writeCPSR(psr_t value);
+    extern void writeCPSR(uint32_t value);
 
     // Debug API
     extern void displayState();

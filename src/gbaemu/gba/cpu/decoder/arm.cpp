@@ -6,6 +6,7 @@
 #include <gbaemu/gba/cpu/decoder/arm.hpp>
 #include <gbaemu/gba/cpu/impl/branch.hpp>
 #include <gbaemu/gba/cpu/impl/dataproc.hpp>
+#include <gbaemu/gba/cpu/impl/psrt.hpp>
 #include <gbaemu/gba/cpu/impl/sdt.hpp>
 #include <gbaemu/gba/cpu/impl/swi.hpp>
 
@@ -276,7 +277,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x0fd
         gbaemu::gba::cpu::impl::dataproc::opcode_rscs_ROR_Rm_0, // 0x0fe
         NULL, // 0x0ff
-        NULL, // 0x100
+        gbaemu::gba::cpu::impl::psrt::opcode_mrs_cpsr, // 0x100
         NULL, // 0x101
         NULL, // 0x102
         NULL, // 0x103
@@ -308,7 +309,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x11d
         gbaemu::gba::cpu::impl::dataproc::opcode_tst_ROR_Rm_0, // 0x11e
         NULL, // 0x11f
-        NULL, // 0x120
+        gbaemu::gba::cpu::impl::psrt::opcode_msr_cpsr, // 0x120
         gbaemu::gba::cpu::impl::branch::bx, // 0x121
         NULL, // 0x122
         NULL, // 0x123
@@ -340,7 +341,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x13d
         gbaemu::gba::cpu::impl::dataproc::opcode_teq_ROR_Rm_0, // 0x13e
         NULL, // 0x13f
-        NULL, // 0x140
+        gbaemu::gba::cpu::impl::psrt::opcode_mrs_spsr, // 0x140
         NULL, // 0x141
         NULL, // 0x142
         NULL, // 0x143
@@ -372,7 +373,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x15d
         gbaemu::gba::cpu::impl::dataproc::opcode_cmp_ROR_Rm_0, // 0x15e
         NULL, // 0x15f
-        NULL, // 0x160
+        gbaemu::gba::cpu::impl::psrt::opcode_msr_spsr, // 0x160
         NULL, // 0x161
         NULL, // 0x162
         NULL, // 0x163
@@ -565,22 +566,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x30e
         NULL, // 0x30f
         REP16(gbaemu::gba::cpu::impl::dataproc::opcode_tst_Immediate), // 0x310
-        NULL, // 0x320
-        NULL, // 0x321
-        NULL, // 0x322
-        NULL, // 0x323
-        NULL, // 0x324
-        NULL, // 0x325
-        NULL, // 0x326
-        NULL, // 0x327
-        NULL, // 0x328
-        NULL, // 0x329
-        NULL, // 0x32a
-        NULL, // 0x32b
-        NULL, // 0x32c
-        NULL, // 0x32d
-        NULL, // 0x32e
-        NULL, // 0x32f
+        REP16(gbaemu::gba::cpu::impl::psrt::opcode_msr_cpsr_flags_Immediate), // 0x320
         REP16(gbaemu::gba::cpu::impl::dataproc::opcode_teq_Immediate), // 0x330
         NULL, // 0x340
         NULL, // 0x341
@@ -599,22 +585,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x34e
         NULL, // 0x34f
         REP16(gbaemu::gba::cpu::impl::dataproc::opcode_cmp_Immediate), // 0x350
-        NULL, // 0x360
-        NULL, // 0x361
-        NULL, // 0x362
-        NULL, // 0x363
-        NULL, // 0x364
-        NULL, // 0x365
-        NULL, // 0x366
-        NULL, // 0x367
-        NULL, // 0x368
-        NULL, // 0x369
-        NULL, // 0x36a
-        NULL, // 0x36b
-        NULL, // 0x36c
-        NULL, // 0x36d
-        NULL, // 0x36e
-        NULL, // 0x36f
+        REP16(gbaemu::gba::cpu::impl::psrt::opcode_msr_spsr_flags_Immediate), // 0x360
         REP16(gbaemu::gba::cpu::impl::dataproc::opcode_cmn_Immediate), // 0x370
         REP16(gbaemu::gba::cpu::impl::dataproc::opcode_orr_Immediate), // 0x380
         REP16(gbaemu::gba::cpu::impl::dataproc::opcode_orrs_Immediate), // 0x390
