@@ -20,7 +20,7 @@
     DECLARE_DATAPROC_OPCODE(name); \
     DECLARE_DATAPROC_OPCODE(name ## s)
 
-namespace gbaemu::gba::cpu::impl::dataproc {
+namespace gbaemu::gba::cpu::impl::arm::dataproc {
     DECLARE_DATAPROC_OPCODE_S(and);
     DECLARE_DATAPROC_OPCODE_S(eor);
     DECLARE_DATAPROC_OPCODE_S(sub);

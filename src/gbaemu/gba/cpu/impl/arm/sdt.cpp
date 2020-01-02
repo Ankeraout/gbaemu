@@ -1,5 +1,5 @@
 #include <gbaemu/gba/cpu.hpp>
-#include <gbaemu/gba/cpu/impl/sdt.hpp>
+#include <gbaemu/gba/cpu/impl/arm/sdt.hpp>
 #include <gbaemu/gba/mmu.hpp>
 
 #define SDT_OPCODE_BASE \
@@ -13,7 +13,7 @@
         SDT_OPCODE_BASE; \
         uint32_t &op2 = shifter.result; \
         \
-        gbaemu::gba::cpu::impl::shift::shift ## suffix (opcode); \
+        gbaemu::gba::cpu::impl::arm::shift::shift ## suffix (opcode); \
         body; \
     }
 
@@ -78,7 +78,7 @@
 #define DO_LOAD_B \
     registerWrite(Rd, gbaemu::gba::mmu::read8(address))
 
-namespace gbaemu::gba::cpu::impl::sdt {
+namespace gbaemu::gba::cpu::impl::arm::sdt {
     DEFINE_STR_OPCODE(, DO_STORE; DO_POSTINDEX)
     DEFINE_STR_OPCODE(b, DO_STORE_B; DO_POSTINDEX)
     DEFINE_STR_OPCODE(u, DO_STORE; DO_POSTINDEX_U)

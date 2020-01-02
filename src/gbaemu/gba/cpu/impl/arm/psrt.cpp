@@ -1,6 +1,6 @@
 #include <gbaemu/gba/cpu.hpp>
-#include <gbaemu/gba/cpu/impl/psrt.hpp>
-#include <gbaemu/gba/cpu/impl/shift_inline.hpp>
+#include <gbaemu/gba/cpu/impl/arm/psrt.hpp>
+#include <gbaemu/gba/cpu/impl/arm/shift_inline.hpp>
 
 #define DEFINE_MRS(sourceRegisterName, sourceRegisterValue) \
     void opcode_mrs_ ## sourceRegisterName(uint32_t opcode) { \
@@ -9,7 +9,7 @@
         registerWrite(Rd, sourceRegisterValue); \
     }
 
-namespace gbaemu::gba::cpu::impl::psrt {
+namespace gbaemu::gba::cpu::impl::arm::psrt {
     DEFINE_MRS(cpsr, gbaemu::gba::cpu::cpsr.value)
     DEFINE_MRS(spsr, gbaemu::gba::cpu::readSPSR().value)
 
@@ -18,7 +18,7 @@ namespace gbaemu::gba::cpu::impl::psrt {
             uint32_t Rm = opcode & 0x0000000f;
             gbaemu::gba::cpu::writeCPSR(gbaemu::gba::cpu::registerRead(Rm));
         } else {
-            gbaemu::gba::cpu::impl::shift::shiftImmediate(opcode);
+            gbaemu::gba::cpu::impl::arm::shift::shiftImmediate(opcode);
             gbaemu::gba::cpu::cpsr.value &= 0x0fffffff;
             gbaemu::gba::cpu::cpsr.value |= gbaemu::gba::cpu::shifter.result & 0xf0000000;
         }
@@ -31,7 +31,7 @@ namespace gbaemu::gba::cpu::impl::psrt {
         } else {
             uint32_t value = gbaemu::gba::cpu::readSPSR().value;
 
-            gbaemu::gba::cpu::impl::shift::shiftImmediate(opcode);
+            gbaemu::gba::cpu::impl::arm::shift::shiftImmediate(opcode);
             value &= 0x0fffffff;
             value |= gbaemu::gba::cpu::shifter.result & 0xf0000000;
 
@@ -40,7 +40,7 @@ namespace gbaemu::gba::cpu::impl::psrt {
     }
 
     void opcode_msr_cpsr_flags_Immediate(uint32_t opcode) {
-        gbaemu::gba::cpu::impl::shift::shiftImmediate(opcode);
+        gbaemu::gba::cpu::impl::arm::shift::shiftImmediate(opcode);
         gbaemu::gba::cpu::cpsr.value &= 0x0fffffff;
         gbaemu::gba::cpu::cpsr.value |= gbaemu::gba::cpu::shifter.result & 0xf0000000;
     }
@@ -48,7 +48,7 @@ namespace gbaemu::gba::cpu::impl::psrt {
     void opcode_msr_spsr_flags_Immediate(uint32_t opcode) {
         uint32_t value = gbaemu::gba::cpu::readSPSR().value;
 
-        gbaemu::gba::cpu::impl::shift::shiftImmediate(opcode);
+        gbaemu::gba::cpu::impl::arm::shift::shiftImmediate(opcode);
         value &= 0x0fffffff;
         value |= gbaemu::gba::cpu::shifter.result & 0xf0000000;
 

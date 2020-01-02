@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include <gbaemu/gba/cpu/impl/shift_inline.hpp>
+#include <gbaemu/gba/cpu/impl/arm/shift_inline.hpp>
 
 #define DECLARE_SDT_OPCODE_SINGLE(name, suffix) \
     extern void opcode_ ## name ## _ ## suffix (uint32_t opcode)
@@ -32,7 +32,7 @@
     DECLARE_SDT_OPCODE(opcode ## pub); \
     DECLARE_SDT_OPCODE(opcode ## pubw); \
 
-namespace gbaemu::gba::cpu::impl::sdt {
+namespace gbaemu::gba::cpu::impl::arm::sdt {
     DECLARE_SDT_PREFIX(ldr)
     DECLARE_SDT_PREFIX(str)
 }

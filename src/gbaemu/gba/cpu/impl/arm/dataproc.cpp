@@ -2,9 +2,9 @@
 
 #include <gbaemu/gbaemu.hpp>
 #include <gbaemu/gba/cpu.hpp>
-#include <gbaemu/gba/cpu/impl/dataproc.hpp>
-#include <gbaemu/gba/cpu/impl/logic_inline.hpp>
-#include <gbaemu/gba/cpu/impl/shift_inline.hpp>
+#include <gbaemu/gba/cpu/impl/arm/dataproc.hpp>
+#include <gbaemu/gba/cpu/impl/arm/logic_inline.hpp>
+#include <gbaemu/gba/cpu/impl/arm/shift_inline.hpp>
 
 #define SUB32_FLAGC(a, b) ((a) >= (b))
 #define SUB32_FLAGV(a, b, r) (SIGN32((a) ^ (b)) && SIGN32((a) ^ (r)))
@@ -25,7 +25,7 @@
         uint32_t Rn_v = registerRead(Rn); \
         uint32_t &op2 = shifter.result; \
         \
-        gbaemu::gba::cpu::impl::shift::shift ## suffix (opcode); \
+        gbaemu::gba::cpu::impl::arm::shift::shift ## suffix (opcode); \
         body \
     }
 
@@ -40,7 +40,7 @@
     DECLARE_DATAPROC_OPCODE_SINGLE(name, ROR_Rm_1, body) \
     DECLARE_DATAPROC_OPCODE_SINGLE(name, Immediate, body)
 
-namespace gbaemu::gba::cpu::impl::dataproc {
+namespace gbaemu::gba::cpu::impl::arm::dataproc {
     DECLARE_DATAPROC_OPCODE(
         and,
         registerWrite(Rd, Rn_v & op2);

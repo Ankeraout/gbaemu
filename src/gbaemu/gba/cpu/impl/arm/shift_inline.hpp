@@ -2,7 +2,8 @@
 
 #include <cstdint>
 
-#include <gbaemu/gba/cpu/impl/logic_inline.hpp>
+#include <gbaemu/gba/cpu.hpp>
+#include <gbaemu/gba/cpu/impl/arm/logic_inline.hpp>
 
 #define HEADER_SHIFT_RM_0 \
     uint32_t Rm = opcode & 0x0000000f; \
@@ -29,7 +30,7 @@
         value += 4; \
     }
 
-namespace gbaemu::gba::cpu::impl::shift {
+namespace gbaemu::gba::cpu::impl::arm::shift {
     static inline void shiftLSL_Rm_0(uint32_t opcode) {
         HEADER_SHIFT_RM_0;
 

@@ -2,9 +2,9 @@
 #include <cstdint>
 
 #include <gbaemu/gba/cpu.hpp>
-#include <gbaemu/gba/cpu/impl/branch.hpp>
+#include <gbaemu/gba/cpu/impl/arm/branch.hpp>
 
-namespace gbaemu::gba::cpu::impl::branch {
+namespace gbaemu::gba::cpu::impl::arm::branch {
     static inline int32_t computeOffset(uint32_t opcode) {
         int32_t offset = opcode & 0x00ffffff;
 
