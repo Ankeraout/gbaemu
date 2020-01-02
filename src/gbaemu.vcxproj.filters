@@ -96,6 +96,9 @@
     <ClCompile Include="gbaemu\gba\cpu\impl\arm\swi.cpp">
       <Filter>Source Files\gbaemu\gba\cpu\impl\arm</Filter>
     </ClCompile>
+    <ClCompile Include="gbaemu\gba\cpu\impl\thumb\pcrldr.cpp">
+      <Filter>Source Files\gbaemu\gba\cpu\impl\thumb</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gbaemu\platform.hpp">
@@ -148,6 +151,9 @@
     </ClInclude>
     <ClInclude Include="gbaemu\gba\cpu\impl\arm\sdt.hpp">
       <Filter>Header Files\gbaemu\gba\cpu\impl\arm</Filter>
+    </ClInclude>
+    <ClInclude Include="gbaemu\gba\cpu\impl\thumb\pcrldr.hpp">
+      <Filter>Header Files\gbaemu\gba\cpu\impl\thumb</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

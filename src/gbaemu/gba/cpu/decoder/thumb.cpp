@@ -2,6 +2,7 @@
 #include <cstdint>
 
 #include <gbaemu/gba/cpu/decoder.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/pcrldr.hpp>
 
 #define REP2(x) x, x
 #define REP4(x) REP2(x), REP2(x)
@@ -74,22 +75,7 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         NULL, // 0x3d
         NULL, // 0x3e
         NULL, // 0x3f
-        NULL, // 0x40
-        NULL, // 0x41
-        NULL, // 0x42
-        NULL, // 0x43
-        NULL, // 0x44
-        NULL, // 0x45
-        NULL, // 0x46
-        NULL, // 0x47
-        NULL, // 0x48
-        NULL, // 0x49
-        NULL, // 0x4a
-        NULL, // 0x4b
-        NULL, // 0x4c
-        NULL, // 0x4d
-        NULL, // 0x4e
-        NULL, // 0x4f
+        REP16(gbaemu::gba::cpu::impl::thumb::pcrldr::pcrldr),
         NULL, // 0x50
         NULL, // 0x51
         NULL, // 0x52
