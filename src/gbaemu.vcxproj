@@ -125,6 +125,7 @@
     <ClCompile Include="gbaemu\gba\cartridge.cpp" />
     <ClCompile Include="gbaemu\gba\cpu.cpp" />
     <ClCompile Include="gbaemu\gba\cpu\decoder\arm.cpp" />
+    <ClCompile Include="gbaemu\gba\cpu\decoder\thumb.cpp" />
     <ClCompile Include="gbaemu\gba\cpu\impl\branch.cpp" />
     <ClCompile Include="gbaemu\gba\cpu\impl\dataproc.cpp" />
     <ClCompile Include="gbaemu\gba\cpu\impl\psrt.cpp" />
@@ -140,6 +141,7 @@
     <ClInclude Include="gbaemu\gba\cpu.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\decoder.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\decoder\arm.hpp" />
+    <ClInclude Include="gbaemu\gba\cpu\decoder\thumb.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\branch.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\dataproc.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\logic_inline.hpp" />

@@ -13,80 +13,83 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Header Files\gbaemu">
+      <UniqueIdentifier>{5fe5860a-3b10-47ee-831c-29d5df7d82ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gbaemu">
+      <UniqueIdentifier>{af14f352-bb63-423a-82ea-a719ae2967c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gbaemu\gba">
+      <UniqueIdentifier>{4fabbb5e-afcd-47ab-9981-9e6dc2f1a3b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gbaemu\gba">
+      <UniqueIdentifier>{26741689-bc21-4f2a-9791-207961cad58d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gbaemu\gba\cpu">
+      <UniqueIdentifier>{e54b81a0-485b-4af4-a0d6-c131d8dda106}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gbaemu\gba\cpu">
+      <UniqueIdentifier>{69ef9de5-8113-458e-b28e-8984e7dc8ff0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gbaemu\gba\cpu\decoder">
+      <UniqueIdentifier>{2ffe1a5d-77f7-44b3-b952-2796bd5fe985}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gbaemu\gba\cpu\decoder">
+      <UniqueIdentifier>{294c07cb-961a-483a-9dcf-6c3a16256e88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gbaemu\gba\cpu\impl">
+      <UniqueIdentifier>{d0e56e17-13ac-4e9d-a7bd-13696dbf2af1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gbaemu\gba\cpu\impl">
+      <UniqueIdentifier>{5e265aaa-4ac1-4720-825e-75c6788d5d2b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gbaemu\fs.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\gbaemu</Filter>
     </ClCompile>
     <ClCompile Include="gbaemu\gbaemu.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\gbaemu</Filter>
     </ClCompile>
     <ClCompile Include="gbaemu\gba\cartridge.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\gbaemu\gba</Filter>
     </ClCompile>
     <ClCompile Include="gbaemu\gba\cpu.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\gbaemu\gba</Filter>
     </ClCompile>
     <ClCompile Include="gbaemu\gba\gba.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\gbaemu\gba</Filter>
     </ClCompile>
     <ClCompile Include="gbaemu\gba\mmu.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\gbaemu\gba</Filter>
     </ClCompile>
     <ClCompile Include="gbaemu\gba\cpu\decoder\arm.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\gbaemu\gba\cpu\decoder</Filter>
     </ClCompile>
-    <ClCompile Include="gbaemu\gba\cpu\impl\branch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gbaemu\gba\cpu\impl\dataproc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gbaemu\gba\cpu\impl\psrt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gbaemu\gba\cpu\impl\sdt.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="gbaemu\gba\cpu\decoder\thumb.cpp">
+      <Filter>Source Files\gbaemu\gba\cpu\decoder</Filter>
     </ClCompile>
     <ClCompile Include="gbaemu\gba\cpu\impl\swi.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\gbaemu\gba\cpu\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="gbaemu\gba\cpu\impl\sdt.cpp">
+      <Filter>Source Files\gbaemu\gba\cpu\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="gbaemu\gba\cpu\impl\psrt.cpp">
+      <Filter>Source Files\gbaemu\gba\cpu\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="gbaemu\gba\cpu\impl\dataproc.cpp">
+      <Filter>Source Files\gbaemu\gba\cpu\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="gbaemu\gba\cpu\impl\branch.cpp">
+      <Filter>Source Files\gbaemu\gba\cpu\impl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="gbaemu\gba\cpu\decoder\arm.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gbaemu\gba\cpu\impl\branch.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gbaemu\gba\cartridge.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gbaemu\gba\cpu.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gbaemu\gba\cpu\impl\dataproc.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gbaemu\gba\cpu\decoder.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gbaemu\fs.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gbaemu\gba\gba.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gbaemu\gbaemu.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gbaemu\gba\cpu\impl\logic_inline.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gbaemu\gba\mmu.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gbaemu\platform.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gbaemu\gba\cpu\impl\psrt.hpp">
@@ -100,6 +103,39 @@
     </ClInclude>
     <ClInclude Include="gbaemu\gba\cpu\impl\swi.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gbaemu\platform.hpp">
+      <Filter>Header Files\gbaemu</Filter>
+    </ClInclude>
+    <ClInclude Include="gbaemu\fs.hpp">
+      <Filter>Header Files\gbaemu</Filter>
+    </ClInclude>
+    <ClInclude Include="gbaemu\gbaemu.hpp">
+      <Filter>Header Files\gbaemu</Filter>
+    </ClInclude>
+    <ClInclude Include="gbaemu\gba\cartridge.hpp">
+      <Filter>Header Files\gbaemu\gba</Filter>
+    </ClInclude>
+    <ClInclude Include="gbaemu\gba\cpu.hpp">
+      <Filter>Header Files\gbaemu\gba</Filter>
+    </ClInclude>
+    <ClInclude Include="gbaemu\gba\gba.hpp">
+      <Filter>Header Files\gbaemu\gba</Filter>
+    </ClInclude>
+    <ClInclude Include="gbaemu\gba\mmu.hpp">
+      <Filter>Header Files\gbaemu\gba</Filter>
+    </ClInclude>
+    <ClInclude Include="gbaemu\gba\cpu\decoder.hpp">
+      <Filter>Header Files\gbaemu\gba\cpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gbaemu\gba\cpu\decoder\arm.hpp">
+      <Filter>Header Files\gbaemu\gba\cpu\decoder</Filter>
+    </ClInclude>
+    <ClInclude Include="gbaemu\gba\cpu\decoder\thumb.hpp">
+      <Filter>Header Files\gbaemu\gba\cpu\decoder</Filter>
+    </ClInclude>
+    <ClInclude Include="gbaemu\gba\cpu\impl\branch.hpp">
+      <Filter>Header Files\gbaemu\gba\cpu\impl</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -20,7 +20,7 @@
 #define REP256(x) REP128(x), REP128(x)
 
 namespace gbaemu::gba::cpu::decoder::arm {
-    const opcodeCallback_t opcodeDecoderTable[] = {
+    const armOpcodeCallback_t opcodeDecoderTable[] = {
         gbaemu::gba::cpu::impl::dataproc::opcode_and_LSL_Rm_0, // 0x000
         gbaemu::gba::cpu::impl::dataproc::opcode_and_LSL_Rm_1, // 0x001
         gbaemu::gba::cpu::impl::dataproc::opcode_and_LSR_Rm_0, // 0x002
@@ -2544,10 +2544,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         REP256(gbaemu::gba::cpu::impl::swi::swi) // 0xf00
     };
 
-    instruction_t decode(uint32_t opcode) {
-        return {
-            opcode,
-            opcodeDecoderTable[((opcode >> 16) & 0xff0) | ((opcode >> 4) & 0xf)]
-        };
+    armOpcodeCallback_t decode(uint32_t opcode) {
+		return opcodeDecoderTable[((opcode >> 16) & 0xff0) | ((opcode >> 4) & 0xf)];
     }
 }

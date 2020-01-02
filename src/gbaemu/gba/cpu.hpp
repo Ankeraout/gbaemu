@@ -7,18 +7,18 @@ namespace gbaemu::gba::cpu {
     typedef union {
         uint32_t value;
 
-		PACKED_STRUCT(
-			uint32_t mode : 5;
-			uint32_t flagT : 1;
-			uint32_t flagF : 1;
-			uint32_t flagI : 1;
-			uint32_t reserved : 19;
-			uint32_t flagQ : 1;
-			uint32_t flagV : 1;
-			uint32_t flagC : 1;
-			uint32_t flagZ : 1;
-			uint32_t flagN : 1;
-		) fields;
+        PACKED_STRUCT(
+            uint32_t mode : 5;
+            uint32_t flagT : 1;
+            uint32_t flagF : 1;
+            uint32_t flagI : 1;
+            uint32_t reserved : 19;
+            uint32_t flagQ : 1;
+            uint32_t flagV : 1;
+            uint32_t flagC : 1;
+            uint32_t flagZ : 1;
+            uint32_t flagN : 1;
+        ) fields;
     } psr_t;
 
     typedef enum {
@@ -33,8 +33,13 @@ namespace gbaemu::gba::cpu {
     
     typedef struct {
         uint32_t opcode;
-        gbaemu::gba::cpu::decoder::opcodeCallback_t function;
-    } instruction_t;
+        gbaemu::gba::cpu::decoder::armOpcodeCallback_t function;
+    } ARMInstruction_t;
+
+    typedef struct {
+        uint16_t opcode;
+        gbaemu::gba::cpu::decoder::thumbOpcodeCallback_t function;
+    } thumbInstruction_t;
 
     typedef enum {
         PIPELINE_FLUSH,
@@ -44,9 +49,21 @@ namespace gbaemu::gba::cpu {
     } pipelineStage_t;
 
     typedef struct {
-        uint32_t fetchedOpcodeARM;
-        uint16_t fetchedOpcodeThumb;
-        instruction_t decodedOpcode;
+        union {
+            uint32_t fetchedOpcodeARM;
+            uint16_t fetchedOpcodeThumb;
+        };
+
+        union {
+            gbaemu::gba::cpu::decoder::armOpcodeCallback_t decodedOpcodeARM;
+            gbaemu::gba::cpu::decoder::thumbOpcodeCallback_t decodedOpcodeThumb;
+        };
+
+        union {
+            uint32_t decodedOpcodeARM_value;
+            uint16_t decodedOpcodeThumb_value;
+        };
+
         pipelineStage_t pipelineStage;
     } pipeline_t;
 

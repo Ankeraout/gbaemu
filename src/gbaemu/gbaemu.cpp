@@ -34,7 +34,7 @@ namespace gbaemu {
             cout << endl;
             cout << "Required command-line options:" << endl;
             cout << "  --bios <bios_file_name>       : Specifies the BIOS file to use." << endl;
-			cout << "  --rom <rom_file_name>         : Specifies the ROM file to use." << endl;
+            cout << "  --rom <rom_file_name>         : Specifies the ROM file to use." << endl;
             cout << endl;
             cout << "Available command-line options:" << endl;
             cout << "  --help                        : Shows this message." << endl;

@@ -30,6 +30,14 @@ namespace gbaemu::gba::cpu::impl::branch {
     void bx(uint32_t opcode) {
         uint32_t dest = registerRead(opcode & 0x0000000f);
         cpsr.fields.flagT = dest & 0x00000001;
-        performJump(dest & (cpsr.fields.flagT ? 0xfffffffe : 0xfffffffc));
+
+        if(cpsr.fields.flagT) {
+            dest &= 0xfffffffe;
+            dest += 2;
+        } else {
+            dest &= 0xfffffffc;
+        }
+
+        performJump(dest);
     }
 }
