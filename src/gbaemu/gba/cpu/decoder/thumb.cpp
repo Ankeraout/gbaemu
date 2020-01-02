@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <cstdint>
 
 #include <gbaemu/gba/cpu/decoder.hpp>
