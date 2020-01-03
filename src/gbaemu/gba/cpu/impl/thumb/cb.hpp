@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#define DECLARE_OPCODE_CB(cond) void opcode_b ## cond(uint16_t opcode);
+#define DECLARE_OPCODE_CB(cond) void opcode_b ## cond(uint16_t opcode)
 
 namespace gbaemu::gba::cpu::impl::thumb::cb {
     DECLARE_OPCODE_CB(eq);
