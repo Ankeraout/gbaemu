@@ -2,6 +2,7 @@
 #include <cstdint>
 
 #include <gbaemu/gba/cpu/decoder.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/addsub.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/msr.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/pcrldr.hpp>
 
@@ -17,38 +18,10 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         REP32(gbaemu::gba::cpu::impl::thumb::msr::opcode_lsl), // 0x000
         REP32(gbaemu::gba::cpu::impl::thumb::msr::opcode_lsr), // 0x080
         REP32(gbaemu::gba::cpu::impl::thumb::msr::opcode_asr), // 0x100
-        NULL, // 0x180
-        NULL, // 0x184
-        NULL, // 0x188
-        NULL, // 0x18c
-        NULL, // 0x190
-        NULL, // 0x194
-        NULL, // 0x198
-        NULL, // 0x19c
-        NULL, // 0x1a0
-        NULL, // 0x1a4
-        NULL, // 0x1a8
-        NULL, // 0x1ac
-        NULL, // 0x1b0
-        NULL, // 0x1b4
-        NULL, // 0x1b8
-        NULL, // 0x1bc
-        NULL, // 0x1c0
-        NULL, // 0x1c4
-        NULL, // 0x1c8
-        NULL, // 0x1cc
-        NULL, // 0x1d0
-        NULL, // 0x1d4
-        NULL, // 0x1d8
-        NULL, // 0x1dc
-        NULL, // 0x1e0
-        NULL, // 0x1e4
-        NULL, // 0x1e8
-        NULL, // 0x1ec
-        NULL, // 0x1f0
-        NULL, // 0x1f4
-        NULL, // 0x1f8
-        NULL, // 0x1fc
+        REP8(gbaemu::gba::cpu::impl::thumb::addsub::opcode_add_Rn), // 0x180
+        REP8(gbaemu::gba::cpu::impl::thumb::addsub::opcode_sub_Rn), // 0x1a0
+        REP8(gbaemu::gba::cpu::impl::thumb::addsub::opcode_add_Offset), // 0x1c0
+        REP8(gbaemu::gba::cpu::impl::thumb::addsub::opcode_sub_Offset), // 0x1e0
         NULL, // 0x200
         NULL, // 0x204
         NULL, // 0x208

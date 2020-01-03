@@ -102,6 +102,9 @@
     <ClCompile Include="gbaemu\gba\cpu\impl\thumb\msr.cpp">
       <Filter>Source Files\gbaemu\gba\cpu\impl\thumb</Filter>
     </ClCompile>
+    <ClCompile Include="gbaemu\gba\cpu\impl\thumb\addsub.cpp">
+      <Filter>Source Files\gbaemu\gba\cpu\impl\thumb</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gbaemu\platform.hpp">
@@ -159,6 +162,9 @@
       <Filter>Header Files\gbaemu\gba\cpu\impl</Filter>
     </ClInclude>
     <ClInclude Include="gbaemu\gba\cpu\impl\thumb\msr.hpp">
+      <Filter>Header Files\gbaemu\gba\cpu\impl\thumb</Filter>
+    </ClInclude>
+    <ClInclude Include="gbaemu\gba\cpu\impl\thumb\addsub.hpp">
       <Filter>Header Files\gbaemu\gba\cpu\impl\thumb</Filter>
     </ClInclude>
   </ItemGroup>

@@ -131,6 +131,7 @@
     <ClCompile Include="gbaemu\gba\cpu\impl\arm\psrt.cpp" />
     <ClCompile Include="gbaemu\gba\cpu\impl\arm\sdt.cpp" />
     <ClCompile Include="gbaemu\gba\cpu\impl\arm\swi.cpp" />
+    <ClCompile Include="gbaemu\gba\cpu\impl\thumb\addsub.cpp" />
     <ClCompile Include="gbaemu\gba\cpu\impl\thumb\msr.cpp" />
     <ClCompile Include="gbaemu\gba\cpu\impl\thumb\pcrldr.cpp" />
     <ClCompile Include="gbaemu\gba\gba.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="gbaemu\gba\cpu\impl\arm\shift_inline.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\arm\swi.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\logic_inline.hpp" />
+    <ClInclude Include="gbaemu\gba\cpu\impl\thumb\addsub.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\thumb\pcrldr.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\thumb\msr.hpp" />
     <ClInclude Include="gbaemu\gba\gba.hpp" />
