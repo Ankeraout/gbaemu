@@ -12,7 +12,7 @@
 #define REP64(x) REP32(x), REP32(x)
 
 namespace gbaemu::gba::cpu::decoder::thumb {
-    const thumbOpcodeCallback_t opcodeDecoderTable[] = {
+        const thumbOpcodeCallback_t opcodeDecoderTable[] = {
         NULL, // 0x000
         NULL, // 0x004
         NULL, // 0x008
@@ -301,39 +301,71 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         NULL, // 0x474
         NULL, // 0x478
         NULL, // 0x47c
-        NULL, // 0x480
-        NULL, // 0x484
-        NULL, // 0x488
-        NULL, // 0x48c
-        NULL, // 0x490
-        NULL, // 0x494
-        NULL, // 0x498
-        NULL, // 0x49c
-        NULL, // 0x4a0
-        NULL, // 0x4a4
-        NULL, // 0x4a8
-        NULL, // 0x4ac
-        NULL, // 0x4b0
-        NULL, // 0x4b4
-        NULL, // 0x4b8
-        NULL, // 0x4bc
-        NULL, // 0x4c0
-        NULL, // 0x4c4
-        NULL, // 0x4c8
-        NULL, // 0x4cc
-        NULL, // 0x4d0
-        NULL, // 0x4d4
-        NULL, // 0x4d8
-        NULL, // 0x4dc
-        NULL, // 0x4e0
-        NULL, // 0x4e4
-        NULL, // 0x4e8
-        NULL, // 0x4ec
-        NULL, // 0x4f0
-        NULL, // 0x4f4
-        NULL, // 0x4f8
-        NULL, // 0x4fc
-REP64(gbaemu::gba::cpu::impl::thumb::pcrldr::pcrldr),
+        REP32(gbaemu::gba::cpu::impl::thumb::pcrldr::pcrldr), // 0x480
+        NULL, // 0x500
+        NULL, // 0x504
+        NULL, // 0x508
+        NULL, // 0x50c
+        NULL, // 0x510
+        NULL, // 0x514
+        NULL, // 0x518
+        NULL, // 0x51c
+        NULL, // 0x520
+        NULL, // 0x524
+        NULL, // 0x528
+        NULL, // 0x52c
+        NULL, // 0x530
+        NULL, // 0x534
+        NULL, // 0x538
+        NULL, // 0x53c
+        NULL, // 0x540
+        NULL, // 0x544
+        NULL, // 0x548
+        NULL, // 0x54c
+        NULL, // 0x550
+        NULL, // 0x554
+        NULL, // 0x558
+        NULL, // 0x55c
+        NULL, // 0x560
+        NULL, // 0x564
+        NULL, // 0x568
+        NULL, // 0x56c
+        NULL, // 0x570
+        NULL, // 0x574
+        NULL, // 0x578
+        NULL, // 0x57c
+        NULL, // 0x580
+        NULL, // 0x584
+        NULL, // 0x588
+        NULL, // 0x58c
+        NULL, // 0x590
+        NULL, // 0x594
+        NULL, // 0x598
+        NULL, // 0x59c
+        NULL, // 0x5a0
+        NULL, // 0x5a4
+        NULL, // 0x5a8
+        NULL, // 0x5ac
+        NULL, // 0x5b0
+        NULL, // 0x5b4
+        NULL, // 0x5b8
+        NULL, // 0x5bc
+        NULL, // 0x5c0
+        NULL, // 0x5c4
+        NULL, // 0x5c8
+        NULL, // 0x5cc
+        NULL, // 0x5d0
+        NULL, // 0x5d4
+        NULL, // 0x5d8
+        NULL, // 0x5dc
+        NULL, // 0x5e0
+        NULL, // 0x5e4
+        NULL, // 0x5e8
+        NULL, // 0x5ec
+        NULL, // 0x5f0
+        NULL, // 0x5f4
+        NULL, // 0x5f8
+        NULL, // 0x5fc
         NULL, // 0x600
         NULL, // 0x604
         NULL, // 0x608
