@@ -3,6 +3,7 @@
 
 #include <gbaemu/gba/cpu/decoder.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/addsub.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/cb.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/msr.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/pcrldr.hpp>
 
@@ -695,62 +696,20 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         NULL, // 0xcf4
         NULL, // 0xcf8
         NULL, // 0xcfc
-        NULL, // 0xd00
-        NULL, // 0xd04
-        NULL, // 0xd08
-        NULL, // 0xd0c
-        NULL, // 0xd10
-        NULL, // 0xd14
-        NULL, // 0xd18
-        NULL, // 0xd1c
-        NULL, // 0xd20
-        NULL, // 0xd24
-        NULL, // 0xd28
-        NULL, // 0xd2c
-        NULL, // 0xd30
-        NULL, // 0xd34
-        NULL, // 0xd38
-        NULL, // 0xd3c
-        NULL, // 0xd40
-        NULL, // 0xd44
-        NULL, // 0xd48
-        NULL, // 0xd4c
-        NULL, // 0xd50
-        NULL, // 0xd54
-        NULL, // 0xd58
-        NULL, // 0xd5c
-        NULL, // 0xd60
-        NULL, // 0xd64
-        NULL, // 0xd68
-        NULL, // 0xd6c
-        NULL, // 0xd70
-        NULL, // 0xd74
-        NULL, // 0xd78
-        NULL, // 0xd7c
-        NULL, // 0xd80
-        NULL, // 0xd84
-        NULL, // 0xd88
-        NULL, // 0xd8c
-        NULL, // 0xd90
-        NULL, // 0xd94
-        NULL, // 0xd98
-        NULL, // 0xd9c
-        NULL, // 0xda0
-        NULL, // 0xda4
-        NULL, // 0xda8
-        NULL, // 0xdac
-        NULL, // 0xdb0
-        NULL, // 0xdb4
-        NULL, // 0xdb8
-        NULL, // 0xdbc
-        NULL, // 0xdc0
-        NULL, // 0xdc4
-        NULL, // 0xdc8
-        NULL, // 0xdcc
-        NULL, // 0xdd0
-        NULL, // 0xdd4
-        NULL, // 0xdd8
-        NULL, // 0xddc
+        REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_beq), // 0xd00
+        REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_bne), // 0xd10
+        REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_bcs), // 0xd20
+        REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_bcc), // 0xd30
+        REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_bmi), // 0xd40
+        REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_bpl), // 0xd50
+        REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_bvs), // 0xd60
+        REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_bvc), // 0xd70
+        REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_bhi), // 0xd80
+        REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_bls), // 0xd90
+        REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_bge), // 0xda0
+        REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_blt), // 0xdb0
+        REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_bgt), // 0xdc0
+        REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_ble), // 0xdd0
         NULL, // 0xde0
         NULL, // 0xde4
         NULL, // 0xde8
