@@ -2,6 +2,7 @@
 #include <cstdint>
 
 #include <gbaemu/gba/cpu/decoder.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/msr.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/pcrldr.hpp>
 
 #define REP2(x) x, x
@@ -12,103 +13,10 @@
 #define REP64(x) REP32(x), REP32(x)
 
 namespace gbaemu::gba::cpu::decoder::thumb {
-        const thumbOpcodeCallback_t opcodeDecoderTable[] = {
-        NULL, // 0x000
-        NULL, // 0x004
-        NULL, // 0x008
-        NULL, // 0x00c
-        NULL, // 0x010
-        NULL, // 0x014
-        NULL, // 0x018
-        NULL, // 0x01c
-        NULL, // 0x020
-        NULL, // 0x024
-        NULL, // 0x028
-        NULL, // 0x02c
-        NULL, // 0x030
-        NULL, // 0x034
-        NULL, // 0x038
-        NULL, // 0x03c
-        NULL, // 0x040
-        NULL, // 0x044
-        NULL, // 0x048
-        NULL, // 0x04c
-        NULL, // 0x050
-        NULL, // 0x054
-        NULL, // 0x058
-        NULL, // 0x05c
-        NULL, // 0x060
-        NULL, // 0x064
-        NULL, // 0x068
-        NULL, // 0x06c
-        NULL, // 0x070
-        NULL, // 0x074
-        NULL, // 0x078
-        NULL, // 0x07c
-        NULL, // 0x080
-        NULL, // 0x084
-        NULL, // 0x088
-        NULL, // 0x08c
-        NULL, // 0x090
-        NULL, // 0x094
-        NULL, // 0x098
-        NULL, // 0x09c
-        NULL, // 0x0a0
-        NULL, // 0x0a4
-        NULL, // 0x0a8
-        NULL, // 0x0ac
-        NULL, // 0x0b0
-        NULL, // 0x0b4
-        NULL, // 0x0b8
-        NULL, // 0x0bc
-        NULL, // 0x0c0
-        NULL, // 0x0c4
-        NULL, // 0x0c8
-        NULL, // 0x0cc
-        NULL, // 0x0d0
-        NULL, // 0x0d4
-        NULL, // 0x0d8
-        NULL, // 0x0dc
-        NULL, // 0x0e0
-        NULL, // 0x0e4
-        NULL, // 0x0e8
-        NULL, // 0x0ec
-        NULL, // 0x0f0
-        NULL, // 0x0f4
-        NULL, // 0x0f8
-        NULL, // 0x0fc
-        NULL, // 0x100
-        NULL, // 0x104
-        NULL, // 0x108
-        NULL, // 0x10c
-        NULL, // 0x110
-        NULL, // 0x114
-        NULL, // 0x118
-        NULL, // 0x11c
-        NULL, // 0x120
-        NULL, // 0x124
-        NULL, // 0x128
-        NULL, // 0x12c
-        NULL, // 0x130
-        NULL, // 0x134
-        NULL, // 0x138
-        NULL, // 0x13c
-        NULL, // 0x140
-        NULL, // 0x144
-        NULL, // 0x148
-        NULL, // 0x14c
-        NULL, // 0x150
-        NULL, // 0x154
-        NULL, // 0x158
-        NULL, // 0x15c
-        NULL, // 0x160
-        NULL, // 0x164
-        NULL, // 0x168
-        NULL, // 0x16c
-        NULL, // 0x170
-        NULL, // 0x174
-        NULL, // 0x178
-        NULL, // 0x17c
+    const thumbOpcodeCallback_t opcodeDecoderTable[] = {
+        REP32(gbaemu::gba::cpu::impl::thumb::msr::opcode_lsl), // 0x000
+        REP32(gbaemu::gba::cpu::impl::thumb::msr::opcode_lsr), // 0x080
+        REP32(gbaemu::gba::cpu::impl::thumb::msr::opcode_asr), // 0x100
         NULL, // 0x180
         NULL, // 0x184
         NULL, // 0x188
