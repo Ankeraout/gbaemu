@@ -145,12 +145,13 @@
     <ClInclude Include="gbaemu\gba\cpu\decoder\thumb.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\arm\branch.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\arm\dataproc.hpp" />
-    <ClInclude Include="gbaemu\gba\cpu\impl\arm\logic_inline.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\arm\psrt.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\arm\sdt.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\arm\shift_inline.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\arm\swi.hpp" />
+    <ClInclude Include="gbaemu\gba\cpu\impl\logic_inline.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\thumb\pcrldr.hpp" />
+    <ClInclude Include="gbaemu\gba\cpu\impl\thumb\shift_inline.hpp" />
     <ClInclude Include="gbaemu\gba\gba.hpp" />
     <ClInclude Include="gbaemu\gba\mmu.hpp" />
     <ClInclude Include="gbaemu\platform.hpp" />

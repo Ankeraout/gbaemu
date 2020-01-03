@@ -143,9 +143,6 @@
     <ClInclude Include="gbaemu\gba\cpu\impl\arm\dataproc.hpp">
       <Filter>Header Files\gbaemu\gba\cpu\impl\arm</Filter>
     </ClInclude>
-    <ClInclude Include="gbaemu\gba\cpu\impl\arm\logic_inline.hpp">
-      <Filter>Header Files\gbaemu\gba\cpu\impl\arm</Filter>
-    </ClInclude>
     <ClInclude Include="gbaemu\gba\cpu\impl\arm\psrt.hpp">
       <Filter>Header Files\gbaemu\gba\cpu\impl\arm</Filter>
     </ClInclude>
@@ -153,6 +150,12 @@
       <Filter>Header Files\gbaemu\gba\cpu\impl\arm</Filter>
     </ClInclude>
     <ClInclude Include="gbaemu\gba\cpu\impl\thumb\pcrldr.hpp">
+      <Filter>Header Files\gbaemu\gba\cpu\impl\thumb</Filter>
+    </ClInclude>
+    <ClInclude Include="gbaemu\gba\cpu\impl\logic_inline.hpp">
+      <Filter>Header Files\gbaemu\gba\cpu\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="gbaemu\gba\cpu\impl\thumb\shift_inline.hpp">
       <Filter>Header Files\gbaemu\gba\cpu\impl\thumb</Filter>
     </ClInclude>
   </ItemGroup>

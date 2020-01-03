@@ -3,7 +3,7 @@
 #include <gbaemu/gbaemu.hpp>
 #include <gbaemu/gba/cpu.hpp>
 #include <gbaemu/gba/cpu/impl/arm/dataproc.hpp>
-#include <gbaemu/gba/cpu/impl/arm/logic_inline.hpp>
+#include <gbaemu/gba/cpu/impl/logic_inline.hpp>
 #include <gbaemu/gba/cpu/impl/arm/shift_inline.hpp>
 
 #define SUB32_FLAGC(a, b) ((a) >= (b))
