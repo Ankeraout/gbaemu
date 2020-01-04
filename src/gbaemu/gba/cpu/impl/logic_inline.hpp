@@ -8,3 +8,4 @@
 #define SUB32_FLAGC(a, b) ((a) >= (b))
 #define SUB32_FLAGV(a, b, r) (SIGN32((a) ^ (b)) && SIGN32((a) ^ (r)))
 #define ADD32_FLAGV(a, b, r) (!(SIGN32((a) ^ (b))) && SIGN32((a) ^ (r)))
+#define SBC32_FLAGC(a, b, c) (SUB32_FLAGC(a, (b + c)))

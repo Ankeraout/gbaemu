@@ -6,8 +6,6 @@
 #include <gbaemu/gba/cpu/impl/logic_inline.hpp>
 #include <gbaemu/gba/cpu/impl/arm/shift_inline.hpp>
 
-#define SBC32_FLAGC(a, b, c) (SUB32_FLAGC(a, (b + c)))
-
 #define logicSetFlags(result) \
     cpsr.fields.flagZ = !result; \
     cpsr.fields.flagN = SIGN32(result); \

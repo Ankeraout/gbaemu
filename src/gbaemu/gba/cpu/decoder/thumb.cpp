@@ -3,6 +3,7 @@
 
 #include <gbaemu/gba/cpu/decoder.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/addsub.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/alu.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/cb.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/lbl.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/mcas.hpp>
@@ -29,22 +30,22 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         REP32(gbaemu::gba::cpu::impl::thumb::mcas::opcode_cmp), // 0x280
         REP32(gbaemu::gba::cpu::impl::thumb::mcas::opcode_add), // 0x300
         REP32(gbaemu::gba::cpu::impl::thumb::mcas::opcode_sub), // 0x380
-        NULL, // 0x400
-        NULL, // 0x404
-        NULL, // 0x408
-        NULL, // 0x40c
-        NULL, // 0x410
-        NULL, // 0x414
-        NULL, // 0x418
-        NULL, // 0x41c
-        NULL, // 0x420
-        NULL, // 0x424
-        NULL, // 0x428
-        NULL, // 0x42c
-        NULL, // 0x430
-        NULL, // 0x434
-        NULL, // 0x438
-        NULL, // 0x43c
+        gbaemu::gba::cpu::impl::thumb::alu::opcode_and, // 0x400
+        gbaemu::gba::cpu::impl::thumb::alu::opcode_eor, // 0x404
+        gbaemu::gba::cpu::impl::thumb::alu::opcode_lsl, // 0x408
+        gbaemu::gba::cpu::impl::thumb::alu::opcode_lsr, // 0x40c
+        gbaemu::gba::cpu::impl::thumb::alu::opcode_asr, // 0x410
+        gbaemu::gba::cpu::impl::thumb::alu::opcode_adc, // 0x414
+        gbaemu::gba::cpu::impl::thumb::alu::opcode_sbc, // 0x418
+        gbaemu::gba::cpu::impl::thumb::alu::opcode_ror, // 0x41c
+        gbaemu::gba::cpu::impl::thumb::alu::opcode_tst, // 0x420
+        gbaemu::gba::cpu::impl::thumb::alu::opcode_neg, // 0x424
+        gbaemu::gba::cpu::impl::thumb::alu::opcode_cmp, // 0x428
+        gbaemu::gba::cpu::impl::thumb::alu::opcode_cmn, // 0x42c
+        gbaemu::gba::cpu::impl::thumb::alu::opcode_orr, // 0x430
+        gbaemu::gba::cpu::impl::thumb::alu::opcode_mul, // 0x434
+        gbaemu::gba::cpu::impl::thumb::alu::opcode_bic, // 0x438
+        gbaemu::gba::cpu::impl::thumb::alu::opcode_mvn, // 0x43c
         NULL, // 0x440
         NULL, // 0x444
         NULL, // 0x448
