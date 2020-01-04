@@ -4,6 +4,7 @@
 #include <gbaemu/gba/cpu/decoder.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/addsub.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/cb.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/lbl.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/mcas.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/msr.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/pcrldr.hpp>
@@ -659,70 +660,8 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         NULL, // 0xef4
         NULL, // 0xef8
         NULL, // 0xefc
-        NULL, // 0xf00
-        NULL, // 0xf04
-        NULL, // 0xf08
-        NULL, // 0xf0c
-        NULL, // 0xf10
-        NULL, // 0xf14
-        NULL, // 0xf18
-        NULL, // 0xf1c
-        NULL, // 0xf20
-        NULL, // 0xf24
-        NULL, // 0xf28
-        NULL, // 0xf2c
-        NULL, // 0xf30
-        NULL, // 0xf34
-        NULL, // 0xf38
-        NULL, // 0xf3c
-        NULL, // 0xf40
-        NULL, // 0xf44
-        NULL, // 0xf48
-        NULL, // 0xf4c
-        NULL, // 0xf50
-        NULL, // 0xf54
-        NULL, // 0xf58
-        NULL, // 0xf5c
-        NULL, // 0xf60
-        NULL, // 0xf64
-        NULL, // 0xf68
-        NULL, // 0xf6c
-        NULL, // 0xf70
-        NULL, // 0xf74
-        NULL, // 0xf78
-        NULL, // 0xf7c
-        NULL, // 0xf80
-        NULL, // 0xf84
-        NULL, // 0xf88
-        NULL, // 0xf8c
-        NULL, // 0xf90
-        NULL, // 0xf94
-        NULL, // 0xf98
-        NULL, // 0xf9c
-        NULL, // 0xfa0
-        NULL, // 0xfa4
-        NULL, // 0xfa8
-        NULL, // 0xfac
-        NULL, // 0xfb0
-        NULL, // 0xfb4
-        NULL, // 0xfb8
-        NULL, // 0xfbc
-        NULL, // 0xfc0
-        NULL, // 0xfc4
-        NULL, // 0xfc8
-        NULL, // 0xfcc
-        NULL, // 0xfd0
-        NULL, // 0xfd4
-        NULL, // 0xfd8
-        NULL, // 0xfdc
-        NULL, // 0xfe0
-        NULL, // 0xfe4
-        NULL, // 0xfe8
-        NULL, // 0xfec
-        NULL, // 0xff0
-        NULL, // 0xff4
-        NULL, // 0xff8
-        NULL, // 0xffc
+        REP32(gbaemu::gba::cpu::impl::thumb::lbl::opcode_bl), // 0xf00
+        REP32(gbaemu::gba::cpu::impl::thumb::lbl::opcode_blh), // 0xf80
     };
 
     thumbOpcodeCallback_t decode(uint16_t opcode) {
