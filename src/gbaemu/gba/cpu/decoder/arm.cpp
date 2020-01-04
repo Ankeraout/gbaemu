@@ -6,6 +6,7 @@
 #include <gbaemu/gba/cpu/decoder/arm.hpp>
 #include <gbaemu/gba/cpu/impl/arm/branch.hpp>
 #include <gbaemu/gba/cpu/impl/arm/dataproc.hpp>
+#include <gbaemu/gba/cpu/impl/arm/hsdt.hpp>
 #include <gbaemu/gba/cpu/impl/arm/psrt.hpp>
 #include <gbaemu/gba/cpu/impl/arm/sdt.hpp>
 #include <gbaemu/gba/cpu/impl/arm/swi.hpp>
@@ -32,7 +33,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_LSL_Rm_0, // 0x008
         NULL, // 0x009
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_LSR_Rm_0, // 0x00a
-        NULL, // 0x00b
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_strh, // 0x00b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_ASR_Rm_0, // 0x00c
         NULL, // 0x00d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_ROR_Rm_0, // 0x00e
@@ -48,11 +49,11 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_LSL_Rm_0, // 0x018
         NULL, // 0x019
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_LSR_Rm_0, // 0x01a
-        NULL, // 0x01b
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrh, // 0x01b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_ASR_Rm_0, // 0x01c
-        NULL, // 0x01d
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrs, // 0x01d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_ROR_Rm_0, // 0x01e
-        NULL, // 0x01f
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrsh, // 0x01f
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_LSL_Rm_0, // 0x020
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_LSL_Rm_1, // 0x021
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_LSR_Rm_0, // 0x022
@@ -96,7 +97,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub_LSL_Rm_0, // 0x048
         NULL, // 0x049
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub_LSR_Rm_0, // 0x04a
-        NULL, // 0x04b
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_strih, // 0x04b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub_ASR_Rm_0, // 0x04c
         NULL, // 0x04d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub_ROR_Rm_0, // 0x04e
@@ -112,11 +113,11 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_subs_LSL_Rm_0, // 0x058
         NULL, // 0x059
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_subs_LSR_Rm_0, // 0x05a
-        NULL, // 0x05b
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrih, // 0x05b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_subs_ASR_Rm_0, // 0x05c
-        NULL, // 0x05d
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldris, // 0x05d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_subs_ROR_Rm_0, // 0x05e
-        NULL, // 0x05f
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrish, // 0x05f
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsb_LSL_Rm_0, // 0x060
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsb_LSL_Rm_1, // 0x061
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsb_LSR_Rm_0, // 0x062
@@ -160,7 +161,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_LSL_Rm_0, // 0x088
         NULL, // 0x089
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_LSR_Rm_0, // 0x08a
-        NULL, // 0x08b
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_strhu, // 0x08b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_ASR_Rm_0, // 0x08c
         NULL, // 0x08d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_ROR_Rm_0, // 0x08e
@@ -176,11 +177,11 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_LSL_Rm_0, // 0x098
         NULL, // 0x099
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_LSR_Rm_0, // 0x09a
-        NULL, // 0x09b
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrhu, // 0x09b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_ASR_Rm_0, // 0x09c
-        NULL, // 0x09d
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrsu, // 0x09d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_ROR_Rm_0, // 0x09e
-        NULL, // 0x09f
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrshu, // 0x09f
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_LSL_Rm_0, // 0x0a0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_LSL_Rm_1, // 0x0a1
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_LSR_Rm_0, // 0x0a2
@@ -224,7 +225,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_LSL_Rm_0, // 0x0c8
         NULL, // 0x0c9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_LSR_Rm_0, // 0x0ca
-        NULL, // 0x0cb
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_strihu, // 0x0cb
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_ASR_Rm_0, // 0x0cc
         NULL, // 0x0cd
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_ROR_Rm_0, // 0x0ce
@@ -240,11 +241,11 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_LSL_Rm_0, // 0x0d8
         NULL, // 0x0d9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_LSR_Rm_0, // 0x0da
-        NULL, // 0x0db
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrihu, // 0x0db
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_ASR_Rm_0, // 0x0dc
-        NULL, // 0x0dd
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrisu, // 0x0dd
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_ROR_Rm_0, // 0x0de
-        NULL, // 0x0df
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrishu, // 0x0df
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_LSL_Rm_0, // 0x0e0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_LSL_Rm_1, // 0x0e1
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_LSR_Rm_0, // 0x0e2
@@ -288,7 +289,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x108
         NULL, // 0x109
         NULL, // 0x10a
-        NULL, // 0x10b
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_strhp, // 0x10b
         NULL, // 0x10c
         NULL, // 0x10d
         NULL, // 0x10e
@@ -304,11 +305,11 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_tst_LSL_Rm_0, // 0x118
         NULL, // 0x119
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_tst_LSR_Rm_0, // 0x11a
-        NULL, // 0x11b
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrhp, // 0x11b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_tst_ASR_Rm_0, // 0x11c
-        NULL, // 0x11d
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrsp, // 0x11d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_tst_ROR_Rm_0, // 0x11e
-        NULL, // 0x11f
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrshp, // 0x11f
         gbaemu::gba::cpu::impl::arm::psrt::opcode_msr_cpsr, // 0x120
         gbaemu::gba::cpu::impl::arm::branch::bx, // 0x121
         NULL, // 0x122
@@ -320,7 +321,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x128
         NULL, // 0x129
         NULL, // 0x12a
-        NULL, // 0x12b
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_strhpw, // 0x12b
         NULL, // 0x12c
         NULL, // 0x12d
         NULL, // 0x12e
@@ -336,11 +337,11 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_teq_LSL_Rm_0, // 0x138
         NULL, // 0x139
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_teq_LSR_Rm_0, // 0x13a
-        NULL, // 0x13b
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrhpw, // 0x13b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_teq_ASR_Rm_0, // 0x13c
-        NULL, // 0x13d
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrspw, // 0x13d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_teq_ROR_Rm_0, // 0x13e
-        NULL, // 0x13f
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrshpw, // 0x13f
         gbaemu::gba::cpu::impl::arm::psrt::opcode_mrs_spsr, // 0x140
         NULL, // 0x141
         NULL, // 0x142
@@ -352,7 +353,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x148
         NULL, // 0x149
         NULL, // 0x14a
-        NULL, // 0x14b
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_strihp, // 0x14b
         NULL, // 0x14c
         NULL, // 0x14d
         NULL, // 0x14e
@@ -368,11 +369,11 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmp_LSL_Rm_0, // 0x158
         NULL, // 0x159
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmp_LSR_Rm_0, // 0x15a
-        NULL, // 0x15b
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrihp, // 0x15b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmp_ASR_Rm_0, // 0x15c
-        NULL, // 0x15d
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrisp, // 0x15d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmp_ROR_Rm_0, // 0x15e
-        NULL, // 0x15f
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrishp, // 0x15f
         gbaemu::gba::cpu::impl::arm::psrt::opcode_msr_spsr, // 0x160
         NULL, // 0x161
         NULL, // 0x162
@@ -384,7 +385,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x168
         NULL, // 0x169
         NULL, // 0x16a
-        NULL, // 0x16b
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_strihpw, // 0x16b
         NULL, // 0x16c
         NULL, // 0x16d
         NULL, // 0x16e
@@ -400,11 +401,11 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn_LSL_Rm_0, // 0x178
         NULL, // 0x179
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn_LSR_Rm_0, // 0x17a
-        NULL, // 0x17b
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrihpw, // 0x17b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn_ASR_Rm_0, // 0x17c
-        NULL, // 0x17d
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrispw, // 0x17d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn_ROR_Rm_0, // 0x17e
-        NULL, // 0x17f
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrishpw, // 0x17f
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_LSL_Rm_0, // 0x180
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_LSL_Rm_1, // 0x181
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_LSR_Rm_0, // 0x182
@@ -416,7 +417,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_LSL_Rm_0, // 0x188
         NULL, // 0x189
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_LSR_Rm_0, // 0x18a
-        NULL, // 0x18b
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_strhpu, // 0x18b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_ASR_Rm_0, // 0x18c
         NULL, // 0x18d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_ROR_Rm_0, // 0x18e
@@ -432,11 +433,11 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orrs_LSL_Rm_0, // 0x198
         NULL, // 0x199
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orrs_LSR_Rm_0, // 0x19a
-        NULL, // 0x19b
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrhpu, // 0x19b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orrs_ASR_Rm_0, // 0x19c
-        NULL, // 0x19d
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrspu, // 0x19d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orrs_ROR_Rm_0, // 0x19e
-        NULL, // 0x19f
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrshpu, // 0x19f
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_LSL_Rm_0, // 0x1a0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_LSL_Rm_1, // 0x1a1
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_LSR_Rm_0, // 0x1a2
@@ -448,7 +449,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_LSL_Rm_0, // 0x1a8
         NULL, // 0x1a9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_LSR_Rm_0, // 0x1aa
-        NULL, // 0x1ab
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_strhpuw, // 0x1ab
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_ASR_Rm_0, // 0x1ac
         NULL, // 0x1ad
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_ROR_Rm_0, // 0x1ae
@@ -464,11 +465,11 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_movs_LSL_Rm_0, // 0x1b8
         NULL, // 0x1b9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_movs_LSR_Rm_0, // 0x1ba
-        NULL, // 0x1bb
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrhpuw, // 0x1bb
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_movs_ASR_Rm_0, // 0x1bc
-        NULL, // 0x1bd
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrspuw, // 0x1bd
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_movs_ROR_Rm_0, // 0x1be
-        NULL, // 0x1bf
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrshpuw, // 0x1bf
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_LSL_Rm_0, // 0x1c0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_LSL_Rm_1, // 0x1c1
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_LSR_Rm_0, // 0x1c2
@@ -480,7 +481,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_LSL_Rm_0, // 0x1c8
         NULL, // 0x1c9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_LSR_Rm_0, // 0x1ca
-        NULL, // 0x1cb
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_strihpu, // 0x1cb
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_ASR_Rm_0, // 0x1cc
         NULL, // 0x1cd
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_ROR_Rm_0, // 0x1ce
@@ -496,11 +497,11 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bics_LSL_Rm_0, // 0x1d8
         NULL, // 0x1d9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bics_LSR_Rm_0, // 0x1da
-        NULL, // 0x1db
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrihpu, // 0x1db
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bics_ASR_Rm_0, // 0x1dc
-        NULL, // 0x1dd
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrispu, // 0x1dd
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bics_ROR_Rm_0, // 0x1de
-        NULL, // 0x1df
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrishpu, // 0x1df
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_LSL_Rm_0, // 0x1e0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_LSL_Rm_1, // 0x1e1
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_LSR_Rm_0, // 0x1e2
@@ -512,7 +513,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_LSL_Rm_0, // 0x1e8
         NULL, // 0x1e9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_LSR_Rm_0, // 0x1ea
-        NULL, // 0x1eb
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_strihpuw, // 0x1eb
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_ASR_Rm_0, // 0x1ec
         NULL, // 0x1ed
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_ROR_Rm_0, // 0x1ee
@@ -528,11 +529,11 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvns_LSL_Rm_0, // 0x1f8
         NULL, // 0x1f9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvns_LSR_Rm_0, // 0x1fa
-        NULL, // 0x1fb
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrihpuw, // 0x1fb
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvns_ASR_Rm_0, // 0x1fc
-        NULL, // 0x1fd
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrispuw, // 0x1fd
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvns_ROR_Rm_0, // 0x1fe
-        NULL, // 0x1ff
+        gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrishpuw, // 0x1ff
         REP16(gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_Immediate), // 0x200
         REP16(gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_Immediate), // 0x210
         REP16(gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_Immediate), // 0x220

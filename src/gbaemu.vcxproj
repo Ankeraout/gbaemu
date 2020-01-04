@@ -128,6 +128,7 @@
     <ClCompile Include="gbaemu\gba\cpu\decoder\thumb.cpp" />
     <ClCompile Include="gbaemu\gba\cpu\impl\arm\branch.cpp" />
     <ClCompile Include="gbaemu\gba\cpu\impl\arm\dataproc.cpp" />
+    <ClCompile Include="gbaemu\gba\cpu\impl\arm\hsdt.cpp" />
     <ClCompile Include="gbaemu\gba\cpu\impl\arm\psrt.cpp" />
     <ClCompile Include="gbaemu\gba\cpu\impl\arm\sdt.cpp" />
     <ClCompile Include="gbaemu\gba\cpu\impl\arm\swi.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="gbaemu\gba\cpu\decoder\thumb.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\arm\branch.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\arm\dataproc.hpp" />
+    <ClInclude Include="gbaemu\gba\cpu\impl\arm\hsdt.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\arm\psrt.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\arm\sdt.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\arm\shift_inline.hpp" />
