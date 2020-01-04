@@ -5,6 +5,7 @@
 #include <gbaemu/gba/cpu/impl/thumb/addsub.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/alu.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/cb.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/hrobe.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/lbl.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/mcas.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/mls.hpp>
@@ -48,19 +49,19 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         gbaemu::gba::cpu::impl::thumb::alu::opcode_bic, // 0x438
         gbaemu::gba::cpu::impl::thumb::alu::opcode_mvn, // 0x43c
         NULL, // 0x440
-        NULL, // 0x444
-        NULL, // 0x448
-        NULL, // 0x44c
+        gbaemu::gba::cpu::impl::thumb::hrobe::opcode_add_Rd_Hs, // 0x444
+        gbaemu::gba::cpu::impl::thumb::hrobe::opcode_add_Hd_Rs, // 0x448
+        gbaemu::gba::cpu::impl::thumb::hrobe::opcode_add_Hd_Hs, // 0x44c
         NULL, // 0x450
-        NULL, // 0x454
-        NULL, // 0x458
-        NULL, // 0x45c
+        gbaemu::gba::cpu::impl::thumb::hrobe::opcode_cmp_Rd_Hs, // 0x454
+        gbaemu::gba::cpu::impl::thumb::hrobe::opcode_cmp_Hd_Rs, // 0x458
+        gbaemu::gba::cpu::impl::thumb::hrobe::opcode_cmp_Hd_Hs, // 0x45c
         NULL, // 0x460
-        NULL, // 0x464
-        NULL, // 0x468
-        NULL, // 0x46c
-        NULL, // 0x470
-        NULL, // 0x474
+        gbaemu::gba::cpu::impl::thumb::hrobe::opcode_mov_Rd_Hs, // 0x464
+        gbaemu::gba::cpu::impl::thumb::hrobe::opcode_mov_Hd_Rs, // 0x468
+        gbaemu::gba::cpu::impl::thumb::hrobe::opcode_mov_Hd_Hs, // 0x46c
+        gbaemu::gba::cpu::impl::thumb::hrobe::opcode_bx_Rs, // 0x470
+        gbaemu::gba::cpu::impl::thumb::hrobe::opcode_bx_Hs, // 0x474
         NULL, // 0x478
         NULL, // 0x47c
         REP32(gbaemu::gba::cpu::impl::thumb::pcrldr::pcrldr), // 0x480

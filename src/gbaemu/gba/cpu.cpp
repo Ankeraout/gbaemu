@@ -87,18 +87,13 @@ namespace gbaemu::gba::cpu {
         if(pipeline.pipelineStage == PIPELINE_FETCH_DECODE_EXECUTE) {
             switch(cpsr.fields.flagT) {
                 case CPU_MODE_ARM:
-                    printf("%llu: Executing opcode 0x%08x\n", cycleCounter, pipeline.decodedOpcodeARM_value);
                     pipeline.decodedOpcodeARM(pipeline.decodedOpcodeARM_value);
                     break;
 
                 case CPU_MODE_THUMB:
-                    printf("%llu: Executing opcode 0x%04x\n", cycleCounter, pipeline.decodedOpcodeThumb_value);
                     pipeline.decodedOpcodeThumb(pipeline.decodedOpcodeThumb_value);
                     break;
             }
-
-            displayState();
-            getchar();
         }
     }
 
@@ -122,12 +117,10 @@ namespace gbaemu::gba::cpu {
         switch(cpsr.fields.flagT) {
             case CPU_MODE_ARM:
             pipeline.fetchedOpcodeARM = mmu::read32(fetchOffset);
-            printf("%llu: [0x%08x] 0x%08x\n", cycleCounter, fetchOffset, pipeline.fetchedOpcodeARM);
             break;
 
             case CPU_MODE_THUMB:
             pipeline.fetchedOpcodeThumb = mmu::read16(fetchOffset);
-            printf("%llu: [0x%08x] 0x%04x\n", cycleCounter, fetchOffset, pipeline.fetchedOpcodeThumb);
             break;
         }
 
