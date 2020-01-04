@@ -141,6 +141,7 @@
     <ClCompile Include="gbaemu\gba\cpu\impl\thumb\mls.cpp" />
     <ClCompile Include="gbaemu\gba\cpu\impl\thumb\msr.cpp" />
     <ClCompile Include="gbaemu\gba\cpu\impl\thumb\pcrldr.cpp" />
+    <ClCompile Include="gbaemu\gba\cpu\impl\thumb\ppr.cpp" />
     <ClCompile Include="gbaemu\gba\gba.cpp" />
     <ClCompile Include="gbaemu\gba\mmu.cpp" />
   </ItemGroup>
@@ -169,6 +170,7 @@
     <ClInclude Include="gbaemu\gba\cpu\impl\thumb\mls.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\thumb\pcrldr.hpp" />
     <ClInclude Include="gbaemu\gba\cpu\impl\thumb\msr.hpp" />
+    <ClInclude Include="gbaemu\gba\cpu\impl\thumb\ppr.hpp" />
     <ClInclude Include="gbaemu\gba\gba.hpp" />
     <ClInclude Include="gbaemu\gba\mmu.hpp" />
     <ClInclude Include="gbaemu\platform.hpp" />

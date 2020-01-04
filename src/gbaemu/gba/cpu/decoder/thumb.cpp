@@ -12,6 +12,7 @@
 #include <gbaemu/gba/cpu/impl/thumb/mls.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/msr.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/pcrldr.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/ppr.hpp>
 
 #define REP2(x) x, x
 #define REP4(x) REP2(x), REP2(x)
@@ -342,14 +343,8 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         NULL, // 0xb34
         NULL, // 0xb38
         NULL, // 0xb3c
-        NULL, // 0xb40
-        NULL, // 0xb44
-        NULL, // 0xb48
-        NULL, // 0xb4c
-        NULL, // 0xb50
-        NULL, // 0xb54
-        NULL, // 0xb58
-        NULL, // 0xb5c
+        REP4(gbaemu::gba::cpu::impl::thumb::ppr::opcode_push), // 0xb40
+        REP4(gbaemu::gba::cpu::impl::thumb::ppr::opcode_push_lr), // 0xb50
         NULL, // 0xb60
         NULL, // 0xb64
         NULL, // 0xb68
@@ -374,14 +369,8 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         NULL, // 0xbb4
         NULL, // 0xbb8
         NULL, // 0xbbc
-        NULL, // 0xbc0
-        NULL, // 0xbc4
-        NULL, // 0xbc8
-        NULL, // 0xbcc
-        NULL, // 0xbd0
-        NULL, // 0xbd4
-        NULL, // 0xbd8
-        NULL, // 0xbdc
+        REP4(gbaemu::gba::cpu::impl::thumb::ppr::opcode_pop), // 0xbc0
+        REP4(gbaemu::gba::cpu::impl::thumb::ppr::opcode_pop_pc), // 0xbd0
         NULL, // 0xbe0
         NULL, // 0xbe4
         NULL, // 0xbe8
