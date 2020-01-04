@@ -7,6 +7,7 @@
 #include <gbaemu/gba/cpu/impl/thumb/cb.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/hrobe.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/lbl.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/lsio.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/mcas.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/mls.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/msr.hpp>
@@ -129,134 +130,10 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         NULL, // 0x5f4
         NULL, // 0x5f8
         NULL, // 0x5fc
-        NULL, // 0x600
-        NULL, // 0x604
-        NULL, // 0x608
-        NULL, // 0x60c
-        NULL, // 0x610
-        NULL, // 0x614
-        NULL, // 0x618
-        NULL, // 0x61c
-        NULL, // 0x620
-        NULL, // 0x624
-        NULL, // 0x628
-        NULL, // 0x62c
-        NULL, // 0x630
-        NULL, // 0x634
-        NULL, // 0x638
-        NULL, // 0x63c
-        NULL, // 0x640
-        NULL, // 0x644
-        NULL, // 0x648
-        NULL, // 0x64c
-        NULL, // 0x650
-        NULL, // 0x654
-        NULL, // 0x658
-        NULL, // 0x65c
-        NULL, // 0x660
-        NULL, // 0x664
-        NULL, // 0x668
-        NULL, // 0x66c
-        NULL, // 0x670
-        NULL, // 0x674
-        NULL, // 0x678
-        NULL, // 0x67c
-        NULL, // 0x680
-        NULL, // 0x684
-        NULL, // 0x688
-        NULL, // 0x68c
-        NULL, // 0x690
-        NULL, // 0x694
-        NULL, // 0x698
-        NULL, // 0x69c
-        NULL, // 0x6a0
-        NULL, // 0x6a4
-        NULL, // 0x6a8
-        NULL, // 0x6ac
-        NULL, // 0x6b0
-        NULL, // 0x6b4
-        NULL, // 0x6b8
-        NULL, // 0x6bc
-        NULL, // 0x6c0
-        NULL, // 0x6c4
-        NULL, // 0x6c8
-        NULL, // 0x6cc
-        NULL, // 0x6d0
-        NULL, // 0x6d4
-        NULL, // 0x6d8
-        NULL, // 0x6dc
-        NULL, // 0x6e0
-        NULL, // 0x6e4
-        NULL, // 0x6e8
-        NULL, // 0x6ec
-        NULL, // 0x6f0
-        NULL, // 0x6f4
-        NULL, // 0x6f8
-        NULL, // 0x6fc
-        NULL, // 0x700
-        NULL, // 0x704
-        NULL, // 0x708
-        NULL, // 0x70c
-        NULL, // 0x710
-        NULL, // 0x714
-        NULL, // 0x718
-        NULL, // 0x71c
-        NULL, // 0x720
-        NULL, // 0x724
-        NULL, // 0x728
-        NULL, // 0x72c
-        NULL, // 0x730
-        NULL, // 0x734
-        NULL, // 0x738
-        NULL, // 0x73c
-        NULL, // 0x740
-        NULL, // 0x744
-        NULL, // 0x748
-        NULL, // 0x74c
-        NULL, // 0x750
-        NULL, // 0x754
-        NULL, // 0x758
-        NULL, // 0x75c
-        NULL, // 0x760
-        NULL, // 0x764
-        NULL, // 0x768
-        NULL, // 0x76c
-        NULL, // 0x770
-        NULL, // 0x774
-        NULL, // 0x778
-        NULL, // 0x77c
-        NULL, // 0x780
-        NULL, // 0x784
-        NULL, // 0x788
-        NULL, // 0x78c
-        NULL, // 0x790
-        NULL, // 0x794
-        NULL, // 0x798
-        NULL, // 0x79c
-        NULL, // 0x7a0
-        NULL, // 0x7a4
-        NULL, // 0x7a8
-        NULL, // 0x7ac
-        NULL, // 0x7b0
-        NULL, // 0x7b4
-        NULL, // 0x7b8
-        NULL, // 0x7bc
-        NULL, // 0x7c0
-        NULL, // 0x7c4
-        NULL, // 0x7c8
-        NULL, // 0x7cc
-        NULL, // 0x7d0
-        NULL, // 0x7d4
-        NULL, // 0x7d8
-        NULL, // 0x7dc
-        NULL, // 0x7e0
-        NULL, // 0x7e4
-        NULL, // 0x7e8
-        NULL, // 0x7ec
-        NULL, // 0x7f0
-        NULL, // 0x7f4
-        NULL, // 0x7f8
-        NULL, // 0x7fc
+        REP32(gbaemu::gba::cpu::impl::thumb::lsio::opcode_str), // 0x600
+        REP32(gbaemu::gba::cpu::impl::thumb::lsio::opcode_ldr), // 0x680
+        REP32(gbaemu::gba::cpu::impl::thumb::lsio::opcode_strb), // 0x700
+        REP32(gbaemu::gba::cpu::impl::thumb::lsio::opcode_ldrb), // 0x780
         NULL, // 0x800
         NULL, // 0x804
         NULL, // 0x808

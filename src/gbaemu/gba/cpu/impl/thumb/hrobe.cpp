@@ -1,5 +1,3 @@
-#pragma once
-
 #include <cstdint>
 
 #include <gbaemu/gba/cpu.hpp>
