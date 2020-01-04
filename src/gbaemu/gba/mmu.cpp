@@ -154,18 +154,123 @@ namespace gbaemu::gba::mmu {
     }
 
     void write8(uint32_t address, uint8_t value) {
-        UNUSED(address);
-        UNUSED(value);
+        switch((address >> 24) & 0x0f) {
+            case 0: // BIOS
+            case 1: // Unused
+                break;
+
+            case 2: // Slow WRAM
+                access8(gbaemu::gba::wramData_slow, address & 0x0003ffff) = value;
+
+            case 3: // Fast WRAM
+                access8(gbaemu::gba::wramData_fast, address & 0x00007fff) = value;
+
+            case 4: // I/O registers
+                break; // TODO
+
+            case 5: // BG/OBJ Palette RAM
+                break; // TODO
+
+            case 6: // VRAM
+                break; // TODO
+
+            case 7: // OAM
+                break; // TODO
+
+            case 8: // Game Pak ROM (wait state 0)
+            case 9:
+            case 0xa: // Game Pak ROM (wait state 1)
+            case 0xb:
+            case 0xc: // Game Pak ROM (wait state 2)
+            case 0xd:
+                break;
+
+            case 0xe: // Game Pak SRAM
+            case 0xf:
+                break; // TODO
+        }
     }
 
     void write16(uint32_t address, uint16_t value) {
-        UNUSED(address);
-        UNUSED(value);
+        address &= 0xfffffffe;
+
+        switch((address >> 24) & 0x0f) {
+            case 0: // BIOS
+            case 1: // Unused
+                break;
+
+            case 2: // Slow WRAM
+                access16(gbaemu::gba::wramData_slow, address & 0x0003ffff) = value;
+
+            case 3: // Fast WRAM
+                access16(gbaemu::gba::wramData_fast, address & 0x00007fff) = value;
+
+            case 4: // I/O registers
+                break; // TODO
+
+            case 5: // BG/OBJ Palette RAM
+                break; // TODO
+
+            case 6: // VRAM
+                break; // TODO
+
+            case 7: // OAM
+                break; // TODO
+
+            case 8: // Game Pak ROM (wait state 0)
+            case 9:
+            case 0xa: // Game Pak ROM (wait state 1)
+            case 0xb:
+            case 0xc: // Game Pak ROM (wait state 2)
+            case 0xd:
+                break;
+
+            case 0xe: // Game Pak SRAM
+            case 0xf:
+                break; // TODO
+        }
     }
 
     void write32(uint32_t address, uint32_t value) {
-        UNUSED(address);
-        UNUSED(value);
-        // TODO
+        // As stated in http://problemkaputt.de/gbatek.htm#armcpumemoryalignments,
+        // ARM CPUs do not support mis-aligned memory accesses. 32-bit access must
+        // be 32-bit aligned.
+        address &= 0xfffffffc;
+
+        switch((address >> 24) & 0x0f) {
+            case 0: // BIOS
+            case 1: // Unused
+                break;
+
+            case 2: // Slow WRAM
+                access32(gbaemu::gba::wramData_slow, address & 0x0003ffff) = value;
+
+            case 3: // Fast WRAM
+                access32(gbaemu::gba::wramData_fast, address & 0x00007fff) = value;
+
+            case 4: // I/O registers
+                break; // TODO
+
+            case 5: // BG/OBJ Palette RAM
+                break; // TODO
+
+            case 6: // VRAM
+                break; // TODO
+
+            case 7: // OAM
+                break; // TODO
+
+            case 8: // Game Pak ROM (wait state 0)
+            case 9:
+            case 0xa: // Game Pak ROM (wait state 1)
+            case 0xb:
+            case 0xc: // Game Pak ROM (wait state 2)
+            case 0xd:
+                break;
+
+            case 0xe: // Game Pak SRAM
+            case 0xf:
+                break; // TODO
+        }
     }
 }

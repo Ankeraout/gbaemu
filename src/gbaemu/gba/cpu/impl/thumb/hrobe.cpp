@@ -14,8 +14,8 @@
     }
 
 #define DEFINE_HROBE_ALU_OPCODE_VARIANTS(op, body) \
-    DEFINE_HROBE_ALU_OPCODE(op ## _Rd_Hs, , + 8, body); \
-    DEFINE_HROBE_ALU_OPCODE(op ## _Hd_Rs, + 8, , body); \
+    DEFINE_HROBE_ALU_OPCODE(op ## _Rd_Hs, , + 8, body) \
+    DEFINE_HROBE_ALU_OPCODE(op ## _Hd_Rs, + 8, , body) \
     DEFINE_HROBE_ALU_OPCODE(op ## _Hd_Hs, + 8, + 8, body)
 
 #define DEFINE_HROBE_BX_OPCODE(variant, h1off) \
