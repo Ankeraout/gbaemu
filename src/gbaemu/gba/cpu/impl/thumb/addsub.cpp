@@ -2,11 +2,6 @@
 #include <gbaemu/gba/cpu/impl/logic_inline.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/addsub.hpp>
 
-#define SUB32_FLAGC(a, b) ((a) >= (b))
-#define SUB32_FLAGV(a, b, r) (SIGN32((a) ^ (b)) && SIGN32((a) ^ (r)))
-
-#define ADD32_FLAGV(a, b, r) (!(SIGN32((a) ^ (b))) && SIGN32((a) ^ (r)))
-
 #define ADDSUB_HEADER \
     uint16_t Rn_offset3 = (opcode & 0x01c0) >> 6; \
     uint16_t Rs = (opcode & 0x0038) >> 3; \
