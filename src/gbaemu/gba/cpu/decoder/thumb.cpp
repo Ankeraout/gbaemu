@@ -7,6 +7,7 @@
 #include <gbaemu/gba/cpu/impl/thumb/cb.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/lbl.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/mcas.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/mls.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/msr.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/pcrldr.hpp>
 
@@ -511,70 +512,8 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         NULL, // 0xbf4
         NULL, // 0xbf8
         NULL, // 0xbfc
-        NULL, // 0xc00
-        NULL, // 0xc04
-        NULL, // 0xc08
-        NULL, // 0xc0c
-        NULL, // 0xc10
-        NULL, // 0xc14
-        NULL, // 0xc18
-        NULL, // 0xc1c
-        NULL, // 0xc20
-        NULL, // 0xc24
-        NULL, // 0xc28
-        NULL, // 0xc2c
-        NULL, // 0xc30
-        NULL, // 0xc34
-        NULL, // 0xc38
-        NULL, // 0xc3c
-        NULL, // 0xc40
-        NULL, // 0xc44
-        NULL, // 0xc48
-        NULL, // 0xc4c
-        NULL, // 0xc50
-        NULL, // 0xc54
-        NULL, // 0xc58
-        NULL, // 0xc5c
-        NULL, // 0xc60
-        NULL, // 0xc64
-        NULL, // 0xc68
-        NULL, // 0xc6c
-        NULL, // 0xc70
-        NULL, // 0xc74
-        NULL, // 0xc78
-        NULL, // 0xc7c
-        NULL, // 0xc80
-        NULL, // 0xc84
-        NULL, // 0xc88
-        NULL, // 0xc8c
-        NULL, // 0xc90
-        NULL, // 0xc94
-        NULL, // 0xc98
-        NULL, // 0xc9c
-        NULL, // 0xca0
-        NULL, // 0xca4
-        NULL, // 0xca8
-        NULL, // 0xcac
-        NULL, // 0xcb0
-        NULL, // 0xcb4
-        NULL, // 0xcb8
-        NULL, // 0xcbc
-        NULL, // 0xcc0
-        NULL, // 0xcc4
-        NULL, // 0xcc8
-        NULL, // 0xccc
-        NULL, // 0xcd0
-        NULL, // 0xcd4
-        NULL, // 0xcd8
-        NULL, // 0xcdc
-        NULL, // 0xce0
-        NULL, // 0xce4
-        NULL, // 0xce8
-        NULL, // 0xcec
-        NULL, // 0xcf0
-        NULL, // 0xcf4
-        NULL, // 0xcf8
-        NULL, // 0xcfc
+        REP32(gbaemu::gba::cpu::impl::thumb::mls::opcode_stmia), // 0xc00
+        REP32(gbaemu::gba::cpu::impl::thumb::mls::opcode_ldmia), // 0xc80
         REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_beq), // 0xd00
         REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_bne), // 0xd10
         REP4(gbaemu::gba::cpu::impl::thumb::cb::opcode_bcs), // 0xd20
