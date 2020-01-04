@@ -161,9 +161,11 @@ namespace gbaemu::gba::mmu {
 
             case 2: // Slow WRAM
                 access8(gbaemu::gba::wramData_slow, address & 0x0003ffff) = value;
+                break;
 
             case 3: // Fast WRAM
                 access8(gbaemu::gba::wramData_fast, address & 0x00007fff) = value;
+                break;
 
             case 4: // I/O registers
                 break; // TODO
@@ -201,9 +203,11 @@ namespace gbaemu::gba::mmu {
 
             case 2: // Slow WRAM
                 access16(gbaemu::gba::wramData_slow, address & 0x0003ffff) = value;
+                break;
 
             case 3: // Fast WRAM
                 access16(gbaemu::gba::wramData_fast, address & 0x00007fff) = value;
+                break;
 
             case 4: // I/O registers
                 break; // TODO
@@ -244,9 +248,11 @@ namespace gbaemu::gba::mmu {
 
             case 2: // Slow WRAM
                 access32(gbaemu::gba::wramData_slow, address & 0x0003ffff) = value;
+                break;
 
             case 3: // Fast WRAM
                 access32(gbaemu::gba::wramData_fast, address & 0x00007fff) = value;
+                break;
 
             case 4: // I/O registers
                 break; // TODO
