@@ -23,7 +23,7 @@ namespace gbaemu::gba::cpu::impl::arm::branch {
     }
 
     void bl(uint32_t opcode) {
-        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC));
+        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - 4);
         performJump(registerRead(CPU_REG_PC) + computeOffset(opcode));
     }
 
