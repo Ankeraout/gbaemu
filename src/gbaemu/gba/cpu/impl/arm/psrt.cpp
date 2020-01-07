@@ -16,7 +16,7 @@ namespace gbaemu::gba::cpu::impl::arm::psrt {
     void opcode_msr_cpsr(uint32_t opcode) {
         if(opcode & 0x00010000) {
             uint32_t Rm = opcode & 0x0000000f;
-            gbaemu::gba::cpu::writeCPSR(gbaemu::gba::cpu::registerRead(Rm));
+            gbaemu::gba::cpu::cpsr.value = gbaemu::gba::cpu::registerRead(Rm);
         } else {
             gbaemu::gba::cpu::impl::arm::shift::shiftImmediate(opcode);
             gbaemu::gba::cpu::cpsr.value &= 0x0fffffff;

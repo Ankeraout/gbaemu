@@ -225,24 +225,6 @@ namespace gbaemu::gba::cpu {
         fflush(stdout);
     }
 
-    void writeCPSR(psr_t value) {
-        if(cpsr.fields.mode == PSR_MODE_USR) {
-            cpsr.value &= 0x0fffffff;
-            cpsr.value |= value.value & 0xf0000000;
-        } else {
-            cpsr = value;
-        }
-    }
-
-    void writeCPSR(uint32_t value) {
-        if(cpsr.fields.mode == PSR_MODE_USR) {
-            cpsr.value &= 0x0fffffff;
-            cpsr.value |= value & 0xf0000000;
-        } else {
-            cpsr.value = value;
-        }
-    }
-
     psr_t readSPSR() {
         if((cpsr.fields.mode == PSR_MODE_USR) || (cpsr.fields.mode == PSR_MODE_SYS)) {
             fprintf(stderr, "Attempted to read SPSR in user or system mode.\n");
@@ -268,5 +250,13 @@ namespace gbaemu::gba::cpu {
         }
 
         spsr[modeMapping[cpsr.fields.mode] - 1].value = value;
+    }
+
+    void registerWrite(int reg, int mode, uint32_t value) {
+        *registerMapping[reg * 7 + modeMapping[mode]] = value;
+    }
+
+    uint32_t registerRead(int reg, int mode) {
+        return *registerMapping[reg * 7 + modeMapping[mode]];
     }
 }
