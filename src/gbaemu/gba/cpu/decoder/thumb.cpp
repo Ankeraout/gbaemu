@@ -16,6 +16,7 @@
 #include <gbaemu/gba/cpu/impl/thumb/pcrldr.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/ppr.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/sprldstr.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/swi.hpp>
 
 #define REP2(x) x, x
 #define REP4(x) REP2(x), REP2(x)
@@ -275,10 +276,7 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         NULL, // 0xde4
         NULL, // 0xde8
         NULL, // 0xdec
-        NULL, // 0xdf0
-        NULL, // 0xdf4
-        NULL, // 0xdf8
-        NULL, // 0xdfc
+        REP4(gbaemu::gba::cpu::impl::thumb::swi::opcode_swi), // 0xdf0
         NULL, // 0xe00
         NULL, // 0xe04
         NULL, // 0xe08
