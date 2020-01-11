@@ -8,6 +8,7 @@
 #include <gbaemu/gba/cpu/impl/thumb/cb.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/hrobe.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/lbl.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/ldstrhw.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/lsio.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/mcas.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/mls.hpp>
@@ -136,70 +137,8 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         REP32(gbaemu::gba::cpu::impl::thumb::lsio::opcode_ldr), // 0x680
         REP32(gbaemu::gba::cpu::impl::thumb::lsio::opcode_strb), // 0x700
         REP32(gbaemu::gba::cpu::impl::thumb::lsio::opcode_ldrb), // 0x780
-        NULL, // 0x800
-        NULL, // 0x804
-        NULL, // 0x808
-        NULL, // 0x80c
-        NULL, // 0x810
-        NULL, // 0x814
-        NULL, // 0x818
-        NULL, // 0x81c
-        NULL, // 0x820
-        NULL, // 0x824
-        NULL, // 0x828
-        NULL, // 0x82c
-        NULL, // 0x830
-        NULL, // 0x834
-        NULL, // 0x838
-        NULL, // 0x83c
-        NULL, // 0x840
-        NULL, // 0x844
-        NULL, // 0x848
-        NULL, // 0x84c
-        NULL, // 0x850
-        NULL, // 0x854
-        NULL, // 0x858
-        NULL, // 0x85c
-        NULL, // 0x860
-        NULL, // 0x864
-        NULL, // 0x868
-        NULL, // 0x86c
-        NULL, // 0x870
-        NULL, // 0x874
-        NULL, // 0x878
-        NULL, // 0x87c
-        NULL, // 0x880
-        NULL, // 0x884
-        NULL, // 0x888
-        NULL, // 0x88c
-        NULL, // 0x890
-        NULL, // 0x894
-        NULL, // 0x898
-        NULL, // 0x89c
-        NULL, // 0x8a0
-        NULL, // 0x8a4
-        NULL, // 0x8a8
-        NULL, // 0x8ac
-        NULL, // 0x8b0
-        NULL, // 0x8b4
-        NULL, // 0x8b8
-        NULL, // 0x8bc
-        NULL, // 0x8c0
-        NULL, // 0x8c4
-        NULL, // 0x8c8
-        NULL, // 0x8cc
-        NULL, // 0x8d0
-        NULL, // 0x8d4
-        NULL, // 0x8d8
-        NULL, // 0x8dc
-        NULL, // 0x8e0
-        NULL, // 0x8e4
-        NULL, // 0x8e8
-        NULL, // 0x8ec
-        NULL, // 0x8f0
-        NULL, // 0x8f4
-        NULL, // 0x8f8
-        NULL, // 0x8fc
+        REP32(gbaemu::gba::cpu::impl::thumb::ldrstrhw::opcode_strh), // 0x800
+        REP32(gbaemu::gba::cpu::impl::thumb::ldrstrhw::opcode_ldrh), // 0x880
         NULL, // 0x900
         NULL, // 0x904
         NULL, // 0x908
