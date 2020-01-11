@@ -15,6 +15,7 @@
 #include <gbaemu/gba/cpu/impl/thumb/msr.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/pcrldr.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/ppr.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/sprldstr.hpp>
 
 #define REP2(x) x, x
 #define REP4(x) REP2(x), REP2(x)
@@ -139,70 +140,8 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         REP32(gbaemu::gba::cpu::impl::thumb::lsio::opcode_ldrb), // 0x780
         REP32(gbaemu::gba::cpu::impl::thumb::ldrstrhw::opcode_strh), // 0x800
         REP32(gbaemu::gba::cpu::impl::thumb::ldrstrhw::opcode_ldrh), // 0x880
-        NULL, // 0x900
-        NULL, // 0x904
-        NULL, // 0x908
-        NULL, // 0x90c
-        NULL, // 0x910
-        NULL, // 0x914
-        NULL, // 0x918
-        NULL, // 0x91c
-        NULL, // 0x920
-        NULL, // 0x924
-        NULL, // 0x928
-        NULL, // 0x92c
-        NULL, // 0x930
-        NULL, // 0x934
-        NULL, // 0x938
-        NULL, // 0x93c
-        NULL, // 0x940
-        NULL, // 0x944
-        NULL, // 0x948
-        NULL, // 0x94c
-        NULL, // 0x950
-        NULL, // 0x954
-        NULL, // 0x958
-        NULL, // 0x95c
-        NULL, // 0x960
-        NULL, // 0x964
-        NULL, // 0x968
-        NULL, // 0x96c
-        NULL, // 0x970
-        NULL, // 0x974
-        NULL, // 0x978
-        NULL, // 0x97c
-        NULL, // 0x980
-        NULL, // 0x984
-        NULL, // 0x988
-        NULL, // 0x98c
-        NULL, // 0x990
-        NULL, // 0x994
-        NULL, // 0x998
-        NULL, // 0x99c
-        NULL, // 0x9a0
-        NULL, // 0x9a4
-        NULL, // 0x9a8
-        NULL, // 0x9ac
-        NULL, // 0x9b0
-        NULL, // 0x9b4
-        NULL, // 0x9b8
-        NULL, // 0x9bc
-        NULL, // 0x9c0
-        NULL, // 0x9c4
-        NULL, // 0x9c8
-        NULL, // 0x9cc
-        NULL, // 0x9d0
-        NULL, // 0x9d4
-        NULL, // 0x9d8
-        NULL, // 0x9dc
-        NULL, // 0x9e0
-        NULL, // 0x9e4
-        NULL, // 0x9e8
-        NULL, // 0x9ec
-        NULL, // 0x9f0
-        NULL, // 0x9f4
-        NULL, // 0x9f8
-        NULL, // 0x9fc
+        REP32(gbaemu::gba::cpu::impl::thumb::sprldstr::opcode_str), // 0x900
+        REP32(gbaemu::gba::cpu::impl::thumb::sprldstr::opcode_ldr), // 0x980
         NULL, // 0xa00
         NULL, // 0xa04
         NULL, // 0xa08
