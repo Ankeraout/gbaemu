@@ -20,6 +20,7 @@
 #include <gbaemu/gba/cpu/impl/thumb/ppr.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/sprldstr.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/swi.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/ub.hpp>
 
 #define REP2(x) x, x
 #define REP4(x) REP2(x), REP2(x)
@@ -162,70 +163,7 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         NULL, // 0xde8
         NULL, // 0xdec
         REP4(gbaemu::gba::cpu::impl::thumb::swi::opcode_swi), // 0xdf0
-        NULL, // 0xe00
-        NULL, // 0xe04
-        NULL, // 0xe08
-        NULL, // 0xe0c
-        NULL, // 0xe10
-        NULL, // 0xe14
-        NULL, // 0xe18
-        NULL, // 0xe1c
-        NULL, // 0xe20
-        NULL, // 0xe24
-        NULL, // 0xe28
-        NULL, // 0xe2c
-        NULL, // 0xe30
-        NULL, // 0xe34
-        NULL, // 0xe38
-        NULL, // 0xe3c
-        NULL, // 0xe40
-        NULL, // 0xe44
-        NULL, // 0xe48
-        NULL, // 0xe4c
-        NULL, // 0xe50
-        NULL, // 0xe54
-        NULL, // 0xe58
-        NULL, // 0xe5c
-        NULL, // 0xe60
-        NULL, // 0xe64
-        NULL, // 0xe68
-        NULL, // 0xe6c
-        NULL, // 0xe70
-        NULL, // 0xe74
-        NULL, // 0xe78
-        NULL, // 0xe7c
-        NULL, // 0xe80
-        NULL, // 0xe84
-        NULL, // 0xe88
-        NULL, // 0xe8c
-        NULL, // 0xe90
-        NULL, // 0xe94
-        NULL, // 0xe98
-        NULL, // 0xe9c
-        NULL, // 0xea0
-        NULL, // 0xea4
-        NULL, // 0xea8
-        NULL, // 0xeac
-        NULL, // 0xeb0
-        NULL, // 0xeb4
-        NULL, // 0xeb8
-        NULL, // 0xebc
-        NULL, // 0xec0
-        NULL, // 0xec4
-        NULL, // 0xec8
-        NULL, // 0xecc
-        NULL, // 0xed0
-        NULL, // 0xed4
-        NULL, // 0xed8
-        NULL, // 0xedc
-        NULL, // 0xee0
-        NULL, // 0xee4
-        NULL, // 0xee8
-        NULL, // 0xeec
-        NULL, // 0xef0
-        NULL, // 0xef4
-        NULL, // 0xef8
-        NULL, // 0xefc
+        REP64(gbaemu::gba::cpu::impl::thumb::ub::opcode_b), // 0xe00
         REP32(gbaemu::gba::cpu::impl::thumb::lbl::opcode_bl), // 0xf00
         REP32(gbaemu::gba::cpu::impl::thumb::lbl::opcode_blh), // 0xf80
     };
