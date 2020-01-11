@@ -87,10 +87,12 @@ namespace gbaemu::gba::cpu {
         if(pipeline.pipelineStage == PIPELINE_FETCH_DECODE_EXECUTE) {
             switch(cpsr.fields.flagT) {
                 case CPU_MODE_ARM:
+                    //printf("E [%08x] %08x\n", PC - 8, pipeline.decodedOpcodeARM_value);
                     pipeline.decodedOpcodeARM(pipeline.decodedOpcodeARM_value);
                     break;
 
                 case CPU_MODE_THUMB:
+                    //printf("E [%08x] %04x\n", PC - 4, pipeline.decodedOpcodeThumb_value);
                     pipeline.decodedOpcodeThumb(pipeline.decodedOpcodeThumb_value);
                     break;
             }
@@ -117,10 +119,12 @@ namespace gbaemu::gba::cpu {
         switch(cpsr.fields.flagT) {
             case CPU_MODE_ARM:
             pipeline.fetchedOpcodeARM = mmu::read32(fetchOffset);
+            //printf("F [%08x] %08x\n", fetchOffset, pipeline.fetchedOpcodeARM);
             break;
 
             case CPU_MODE_THUMB:
             pipeline.fetchedOpcodeThumb = mmu::read16(fetchOffset);
+            //printf("F [%08x] %04x\n", fetchOffset, pipeline.fetchedOpcodeThumb);
             break;
         }
 

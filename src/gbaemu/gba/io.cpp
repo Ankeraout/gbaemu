@@ -31,7 +31,7 @@ namespace gbaemu::gba::io {
     }
 
     void init() {
-        for(int address = 0x04000000; address <= 0x04000804; address += 2) {
+        for(int address = 0x04000000; address < 0x04000804; address += 2) {
             initRegister(address, IOREGNONE, 0, NULL, 0, 0);
         }
 
