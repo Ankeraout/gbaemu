@@ -10,6 +10,7 @@
 #include <gbaemu/gba/cpu/impl/thumb/lbl.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/ldstrhw.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/lsio.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/lssebh.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/mcas.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/mls.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/msr.hpp>
@@ -71,14 +72,7 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         NULL, // 0x478
         NULL, // 0x47c
         REP32(gbaemu::gba::cpu::impl::thumb::pcrldr::pcrldr), // 0x480
-        NULL, // 0x500
-        NULL, // 0x504
-        NULL, // 0x508
-        NULL, // 0x50c
-        NULL, // 0x510
-        NULL, // 0x514
-        NULL, // 0x518
-        NULL, // 0x51c
+        REP8(gbaemu::gba::cpu::impl::thumb::lssebh::opcode_strh), // 0x500
         NULL, // 0x520
         NULL, // 0x524
         NULL, // 0x528
@@ -87,14 +81,7 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         NULL, // 0x534
         NULL, // 0x538
         NULL, // 0x53c
-        NULL, // 0x540
-        NULL, // 0x544
-        NULL, // 0x548
-        NULL, // 0x54c
-        NULL, // 0x550
-        NULL, // 0x554
-        NULL, // 0x558
-        NULL, // 0x55c
+        REP8(gbaemu::gba::cpu::impl::thumb::lssebh::opcode_ldrh), // 0x540
         NULL, // 0x560
         NULL, // 0x564
         NULL, // 0x568
@@ -103,14 +90,7 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         NULL, // 0x574
         NULL, // 0x578
         NULL, // 0x57c
-        NULL, // 0x580
-        NULL, // 0x584
-        NULL, // 0x588
-        NULL, // 0x58c
-        NULL, // 0x590
-        NULL, // 0x594
-        NULL, // 0x598
-        NULL, // 0x59c
+        REP8(gbaemu::gba::cpu::impl::thumb::lssebh::opcode_ldrsb), // 0x580
         NULL, // 0x5a0
         NULL, // 0x5a4
         NULL, // 0x5a8
@@ -119,14 +99,7 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         NULL, // 0x5b4
         NULL, // 0x5b8
         NULL, // 0x5bc
-        NULL, // 0x5c0
-        NULL, // 0x5c4
-        NULL, // 0x5c8
-        NULL, // 0x5cc
-        NULL, // 0x5d0
-        NULL, // 0x5d4
-        NULL, // 0x5d8
-        NULL, // 0x5dc
+        REP8(gbaemu::gba::cpu::impl::thumb::lssebh::opcode_ldrsh), // 0x5c0
         NULL, // 0x5e0
         NULL, // 0x5e4
         NULL, // 0x5e8
