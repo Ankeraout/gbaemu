@@ -5,7 +5,7 @@
 #include <gbaemu/gba/mmu.hpp>
 
 #define OPCODE_BASE \
-    const uint16_t offset = (opcode & 0x07c0) >> 6; \
+    const uint16_t offset = (opcode & 0x07c0) >> 5; \
     const uint16_t Rb = (opcode & 0x0038) >> 3; \
     const uint16_t Rd = opcode & 0x0007; \
     \
