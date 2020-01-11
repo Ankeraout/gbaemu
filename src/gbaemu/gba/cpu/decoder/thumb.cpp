@@ -2,6 +2,7 @@
 #include <cstdint>
 
 #include <gbaemu/gba/cpu/decoder.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/addspimm.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/addsub.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/alu.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/cb.hpp>
@@ -327,10 +328,7 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         NULL, // 0xaf4
         NULL, // 0xaf8
         NULL, // 0xafc
-        NULL, // 0xb00
-        NULL, // 0xb04
-        NULL, // 0xb08
-        NULL, // 0xb0c
+        REP4(gbaemu::gba::cpu::impl::thumb::addspimm::opcode_add_sp_imm),
         NULL, // 0xb10
         NULL, // 0xb14
         NULL, // 0xb18

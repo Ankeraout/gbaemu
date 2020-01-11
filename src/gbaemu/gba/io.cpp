@@ -1,18 +1,12 @@
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 
 #include <gbaemu/gba/io.hpp>
+#include <gbaemu/gba/lcd.hpp>
 
 namespace gbaemu::gba::io {
-    typedef struct {
-        int registerNumber;
-        uint16_t value;
-        writeCallback_t *writeCallback;
-        uint16_t readMask;
-        uint16_t writeMask;
-    } ioregTableEntry_t;
-
     ioregTableEntry_t io[0x402];
 
     static inline uint32_t convertAddress(uint32_t address) {
@@ -35,7 +29,7 @@ namespace gbaemu::gba::io {
             initRegister(address, IOREGNONE, 0, NULL, 0, 0);
         }
 
-        initRegister(0x04000000, DISPCNT, 0x0000, NULL, 0xffff, 0xffff);
+        initRegister(0x04000000, DISPCNT, 0x0000, gbaemu::gba::lcd::writeCallback_dispcnt, 0xffff, 0xffff);
         initRegister(0x04000002, GREENSWP, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000004, DISPSTAT, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000006, VCOUNT, 0x0000, NULL, 0xffff, 0x0000);
@@ -204,7 +198,7 @@ namespace gbaemu::gba::io {
         io[address].value |= value & io[address].writeMask;
 
         if(io[address].writeCallback) {
-            io[address].writeCallback();
+            io[address].writeCallback(value);
         }
     }
 

@@ -3,9 +3,9 @@
 #include <cstdint>
 
 namespace gbaemu::gba::io {
-    typedef void writeCallback_t();
+    typedef void writeCallback_t(uint16_t value);
 
-    enum {
+    typedef enum {
         IOREGNONE,
         DISPCNT,
         GREENSWP,
@@ -125,7 +125,17 @@ namespace gbaemu::gba::io {
         UNKBUG,
         MEMCTL_L,
         MEMCTL_H
-    };
+    } ioreg_t;
+
+    typedef struct {
+        int registerNumber;
+        uint16_t value;
+        writeCallback_t *writeCallback;
+        uint16_t readMask;
+        uint16_t writeMask;
+    } ioregTableEntry_t;
+    
+    extern ioregTableEntry_t io[0x402];
 
     extern void init();
     extern uint8_t read8(uint32_t address);
@@ -134,4 +144,6 @@ namespace gbaemu::gba::io {
     extern void write8(uint32_t address, uint8_t value);
     extern void write16(uint32_t address, uint16_t value);
     extern void write32(uint32_t address, uint32_t value);
+    extern void set(unsigned int index, uint16_t value);
+    extern uint16_t get(unsigned int index);
 }
