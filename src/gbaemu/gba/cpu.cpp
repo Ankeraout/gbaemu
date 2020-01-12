@@ -299,6 +299,16 @@ namespace gbaemu::gba::cpu {
         cpsr.fields.mode = PSR_MODE_UND;
         registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 2 : 4));
         cpsr.fields.flagT = 0;
+        cpsr.fields.flagI = 1;
         registerWrite(CPU_REG_PC, 0x00000004);
+    }
+
+    void raiseIrq() {
+        writeSPSR(cpsr, PSR_MODE_IRQ);
+        cpsr.fields.mode = PSR_MODE_IRQ;
+        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 2 : 4));
+        cpsr.fields.flagT = 0;
+        cpsr.fields.flagI = 1;
+        registerWrite(CPU_REG_PC, 0x00000018);
     }
 }
