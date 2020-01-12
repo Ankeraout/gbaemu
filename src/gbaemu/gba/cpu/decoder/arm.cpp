@@ -2187,6 +2187,6 @@ namespace gbaemu::gba::cpu::decoder::arm {
     };
 
     armOpcodeCallback_t decode(uint32_t opcode) {
-		return opcodeDecoderTable[((opcode >> 16) & 0xff0) | ((opcode >> 4) & 0xf)];
+        return opcodeDecoderTable[((opcode >> 16) & 0xff0) | ((opcode >> 4) & 0xf)];
     }
 }
