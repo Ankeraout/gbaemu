@@ -9,6 +9,7 @@
 #include <gbaemu/gba/cpu/impl/arm/dataproc.hpp>
 #include <gbaemu/gba/cpu/impl/arm/hsdt.hpp>
 #include <gbaemu/gba/cpu/impl/arm/psrt.hpp>
+#include <gbaemu/gba/cpu/impl/arm/sds.hpp>
 #include <gbaemu/gba/cpu/impl/arm/sdt.hpp>
 #include <gbaemu/gba/cpu/impl/arm/swi.hpp>
 
@@ -288,7 +289,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x106
         NULL, // 0x107
         NULL, // 0x108
-        NULL, // 0x109
+        gbaemu::gba::cpu::impl::arm::sds::opcode_swp, // 0x109
         NULL, // 0x10a
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_strhp, // 0x10b
         NULL, // 0x10c
@@ -352,7 +353,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x146
         NULL, // 0x147
         NULL, // 0x148
-        NULL, // 0x149
+        gbaemu::gba::cpu::impl::arm::sds::opcode_swpb, // 0x149
         NULL, // 0x14a
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_strihp, // 0x14b
         NULL, // 0x14c
