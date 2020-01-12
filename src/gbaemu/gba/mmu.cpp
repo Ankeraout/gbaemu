@@ -1,5 +1,6 @@
 #include <gbaemu/gbaemu.hpp>
 #include <gbaemu/gba/gba.hpp>
+#include <gbaemu/gba/io.hpp>
 #include <gbaemu/gba/mmu.hpp>
 
 #define access8(t, i) (*((uint8_t *)&t[i]))
@@ -23,7 +24,7 @@ namespace gbaemu::gba::mmu {
                 return access8(gbaemu::gba::wramData_fast, address & 0x00007fff);
 
             case 4: // I/O registers
-                return 0; // TODO
+                return gbaemu::gba::io::read8(address);
 
             case 5: // BG/OBJ Palette RAM
                 return 0; // TODO
@@ -71,7 +72,7 @@ namespace gbaemu::gba::mmu {
                 return access16(gbaemu::gba::wramData_fast, address & 0x00007fff);
 
             case 4: // I/O registers
-                return 0; // TODO
+                return gbaemu::gba::io::read16(address);
 
             case 5: // BG/OBJ Palette RAM
                 return 0; // TODO
@@ -122,7 +123,7 @@ namespace gbaemu::gba::mmu {
                 return access32(gbaemu::gba::wramData_fast, address & 0x00007fff);
 
             case 4: // I/O registers
-                return 0; // TODO
+                return gbaemu::gba::io::read32(address);
 
             case 5: // BG/OBJ Palette RAM
                 return 0; // TODO
@@ -168,7 +169,8 @@ namespace gbaemu::gba::mmu {
                 break;
 
             case 4: // I/O registers
-                break; // TODO
+                gbaemu::gba::io::write8(address, value);
+                break;
 
             case 5: // BG/OBJ Palette RAM
                 break; // TODO
@@ -210,7 +212,8 @@ namespace gbaemu::gba::mmu {
                 break;
 
             case 4: // I/O registers
-                break; // TODO
+                gbaemu::gba::io::write16(address, value);
+                break;
 
             case 5: // BG/OBJ Palette RAM
                 break; // TODO
@@ -255,7 +258,8 @@ namespace gbaemu::gba::mmu {
                 break;
 
             case 4: // I/O registers
-                break; // TODO
+                gbaemu::gba::io::write32(address, value);
+                break;
 
             case 5: // BG/OBJ Palette RAM
                 break; // TODO
