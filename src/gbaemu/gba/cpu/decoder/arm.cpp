@@ -8,7 +8,11 @@
 #include <gbaemu/gba/cpu/impl/arm/branch.hpp>
 #include <gbaemu/gba/cpu/impl/arm/dataproc.hpp>
 #include <gbaemu/gba/cpu/impl/arm/hsdt.hpp>
+#include <gbaemu/gba/cpu/impl/arm/mlmal.hpp>
+#include <gbaemu/gba/cpu/impl/arm/mma.hpp>
+#include <gbaemu/gba/cpu/impl/arm/nop.hpp>
 #include <gbaemu/gba/cpu/impl/arm/psrt.hpp>
+#include <gbaemu/gba/cpu/impl/arm/sds.hpp>
 #include <gbaemu/gba/cpu/impl/arm/sdt.hpp>
 #include <gbaemu/gba/cpu/impl/arm/swi.hpp>
 
@@ -32,7 +36,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_ROR_Rm_0, // 0x006
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_ROR_Rm_1, // 0x007
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_LSL_Rm_0, // 0x008
-        NULL, // 0x009
+        gbaemu::gba::cpu::impl::arm::mma::opcode_mul, // 0x009
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_LSR_Rm_0, // 0x00a
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_strh, // 0x00b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_ASR_Rm_0, // 0x00c
@@ -48,7 +52,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_ROR_Rm_0, // 0x016
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_ROR_Rm_1, // 0x017
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_LSL_Rm_0, // 0x018
-        NULL, // 0x019
+        gbaemu::gba::cpu::impl::arm::mma::opcode_muls, // 0x019
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_LSR_Rm_0, // 0x01a
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrh, // 0x01b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_ASR_Rm_0, // 0x01c
@@ -64,7 +68,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_ROR_Rm_0, // 0x026
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_ROR_Rm_1, // 0x027
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_LSL_Rm_0, // 0x028
-        NULL, // 0x029
+        gbaemu::gba::cpu::impl::arm::mma::opcode_mla, // 0x029
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_LSR_Rm_0, // 0x02a
         NULL, // 0x02b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_ASR_Rm_0, // 0x02c
@@ -80,7 +84,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors_ROR_Rm_0, // 0x036
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors_ROR_Rm_1, // 0x037
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors_LSL_Rm_0, // 0x038
-        NULL, // 0x039
+        gbaemu::gba::cpu::impl::arm::mma::opcode_mlas, // 0x039
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors_LSR_Rm_0, // 0x03a
         NULL, // 0x03b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors_ASR_Rm_0, // 0x03c
@@ -160,7 +164,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_ROR_Rm_0, // 0x086
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_ROR_Rm_1, // 0x087
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_LSL_Rm_0, // 0x088
-        NULL, // 0x089
+        gbaemu::gba::cpu::impl::arm::mlmal::opcode_umull, // 0x089
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_LSR_Rm_0, // 0x08a
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_strhu, // 0x08b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_ASR_Rm_0, // 0x08c
@@ -176,7 +180,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_ROR_Rm_0, // 0x096
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_ROR_Rm_1, // 0x097
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_LSL_Rm_0, // 0x098
-        NULL, // 0x099
+        gbaemu::gba::cpu::impl::arm::mlmal::opcode_umulls, // 0x099
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_LSR_Rm_0, // 0x09a
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrhu, // 0x09b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_ASR_Rm_0, // 0x09c
@@ -192,7 +196,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_ROR_Rm_0, // 0x0a6
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_ROR_Rm_1, // 0x0a7
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_LSL_Rm_0, // 0x0a8
-        NULL, // 0x0a9
+        gbaemu::gba::cpu::impl::arm::mlmal::opcode_umlal, // 0x0a9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_LSR_Rm_0, // 0x0aa
         NULL, // 0x0ab
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_ASR_Rm_0, // 0x0ac
@@ -208,7 +212,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs_ROR_Rm_0, // 0x0b6
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs_ROR_Rm_1, // 0x0b7
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs_LSL_Rm_0, // 0x0b8
-        NULL, // 0x0b9
+        gbaemu::gba::cpu::impl::arm::mlmal::opcode_umlals, // 0x0b9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs_LSR_Rm_0, // 0x0ba
         NULL, // 0x0bb
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs_ASR_Rm_0, // 0x0bc
@@ -224,7 +228,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_ROR_Rm_0, // 0x0c6
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_ROR_Rm_1, // 0x0c7
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_LSL_Rm_0, // 0x0c8
-        NULL, // 0x0c9
+        gbaemu::gba::cpu::impl::arm::mlmal::opcode_smull, // 0x0c9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_LSR_Rm_0, // 0x0ca
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_strihu, // 0x0cb
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_ASR_Rm_0, // 0x0cc
@@ -240,7 +244,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_ROR_Rm_0, // 0x0d6
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_ROR_Rm_1, // 0x0d7
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_LSL_Rm_0, // 0x0d8
-        NULL, // 0x0d9
+        gbaemu::gba::cpu::impl::arm::mlmal::opcode_smulls, // 0x0d9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_LSR_Rm_0, // 0x0da
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrihu, // 0x0db
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_ASR_Rm_0, // 0x0dc
@@ -256,7 +260,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_ROR_Rm_0, // 0x0e6
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_ROR_Rm_1, // 0x0e7
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_LSL_Rm_0, // 0x0e8
-        NULL, // 0x0e9
+        gbaemu::gba::cpu::impl::arm::mlmal::opcode_smlal, // 0x0e9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_LSR_Rm_0, // 0x0ea
         NULL, // 0x0eb
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_ASR_Rm_0, // 0x0ec
@@ -272,7 +276,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs_ROR_Rm_0, // 0x0f6
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs_ROR_Rm_1, // 0x0f7
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs_LSL_Rm_0, // 0x0f8
-        NULL, // 0x0f9
+        gbaemu::gba::cpu::impl::arm::mlmal::opcode_smlals, // 0x0f9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs_LSR_Rm_0, // 0x0fa
         NULL, // 0x0fb
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs_ASR_Rm_0, // 0x0fc
@@ -288,7 +292,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x106
         NULL, // 0x107
         NULL, // 0x108
-        NULL, // 0x109
+        gbaemu::gba::cpu::impl::arm::sds::opcode_swp, // 0x109
         NULL, // 0x10a
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_strhp, // 0x10b
         NULL, // 0x10c
@@ -352,7 +356,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x146
         NULL, // 0x147
         NULL, // 0x148
-        NULL, // 0x149
+        gbaemu::gba::cpu::impl::arm::sds::opcode_swpb, // 0x149
         NULL, // 0x14a
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_strihp, // 0x14b
         NULL, // 0x14c
@@ -1415,774 +1419,9 @@ namespace gbaemu::gba::cpu::decoder::arm {
         REP16(gbaemu::gba::cpu::impl::arm::bdt::opcode_ldmibsw), // 0x9f0
         REP256(gbaemu::gba::cpu::impl::arm::branch::b), // 0xa00
         REP256(gbaemu::gba::cpu::impl::arm::branch::bl), // 0xb00
-        NULL, // 0xc00
-        NULL, // 0xc01
-        NULL, // 0xc02
-        NULL, // 0xc03
-        NULL, // 0xc04
-        NULL, // 0xc05
-        NULL, // 0xc06
-        NULL, // 0xc07
-        NULL, // 0xc08
-        NULL, // 0xc09
-        NULL, // 0xc0a
-        NULL, // 0xc0b
-        NULL, // 0xc0c
-        NULL, // 0xc0d
-        NULL, // 0xc0e
-        NULL, // 0xc0f
-        NULL, // 0xc10
-        NULL, // 0xc11
-        NULL, // 0xc12
-        NULL, // 0xc13
-        NULL, // 0xc14
-        NULL, // 0xc15
-        NULL, // 0xc16
-        NULL, // 0xc17
-        NULL, // 0xc18
-        NULL, // 0xc19
-        NULL, // 0xc1a
-        NULL, // 0xc1b
-        NULL, // 0xc1c
-        NULL, // 0xc1d
-        NULL, // 0xc1e
-        NULL, // 0xc1f
-        NULL, // 0xc20
-        NULL, // 0xc21
-        NULL, // 0xc22
-        NULL, // 0xc23
-        NULL, // 0xc24
-        NULL, // 0xc25
-        NULL, // 0xc26
-        NULL, // 0xc27
-        NULL, // 0xc28
-        NULL, // 0xc29
-        NULL, // 0xc2a
-        NULL, // 0xc2b
-        NULL, // 0xc2c
-        NULL, // 0xc2d
-        NULL, // 0xc2e
-        NULL, // 0xc2f
-        NULL, // 0xc30
-        NULL, // 0xc31
-        NULL, // 0xc32
-        NULL, // 0xc33
-        NULL, // 0xc34
-        NULL, // 0xc35
-        NULL, // 0xc36
-        NULL, // 0xc37
-        NULL, // 0xc38
-        NULL, // 0xc39
-        NULL, // 0xc3a
-        NULL, // 0xc3b
-        NULL, // 0xc3c
-        NULL, // 0xc3d
-        NULL, // 0xc3e
-        NULL, // 0xc3f
-        NULL, // 0xc40
-        NULL, // 0xc41
-        NULL, // 0xc42
-        NULL, // 0xc43
-        NULL, // 0xc44
-        NULL, // 0xc45
-        NULL, // 0xc46
-        NULL, // 0xc47
-        NULL, // 0xc48
-        NULL, // 0xc49
-        NULL, // 0xc4a
-        NULL, // 0xc4b
-        NULL, // 0xc4c
-        NULL, // 0xc4d
-        NULL, // 0xc4e
-        NULL, // 0xc4f
-        NULL, // 0xc50
-        NULL, // 0xc51
-        NULL, // 0xc52
-        NULL, // 0xc53
-        NULL, // 0xc54
-        NULL, // 0xc55
-        NULL, // 0xc56
-        NULL, // 0xc57
-        NULL, // 0xc58
-        NULL, // 0xc59
-        NULL, // 0xc5a
-        NULL, // 0xc5b
-        NULL, // 0xc5c
-        NULL, // 0xc5d
-        NULL, // 0xc5e
-        NULL, // 0xc5f
-        NULL, // 0xc60
-        NULL, // 0xc61
-        NULL, // 0xc62
-        NULL, // 0xc63
-        NULL, // 0xc64
-        NULL, // 0xc65
-        NULL, // 0xc66
-        NULL, // 0xc67
-        NULL, // 0xc68
-        NULL, // 0xc69
-        NULL, // 0xc6a
-        NULL, // 0xc6b
-        NULL, // 0xc6c
-        NULL, // 0xc6d
-        NULL, // 0xc6e
-        NULL, // 0xc6f
-        NULL, // 0xc70
-        NULL, // 0xc71
-        NULL, // 0xc72
-        NULL, // 0xc73
-        NULL, // 0xc74
-        NULL, // 0xc75
-        NULL, // 0xc76
-        NULL, // 0xc77
-        NULL, // 0xc78
-        NULL, // 0xc79
-        NULL, // 0xc7a
-        NULL, // 0xc7b
-        NULL, // 0xc7c
-        NULL, // 0xc7d
-        NULL, // 0xc7e
-        NULL, // 0xc7f
-        NULL, // 0xc80
-        NULL, // 0xc81
-        NULL, // 0xc82
-        NULL, // 0xc83
-        NULL, // 0xc84
-        NULL, // 0xc85
-        NULL, // 0xc86
-        NULL, // 0xc87
-        NULL, // 0xc88
-        NULL, // 0xc89
-        NULL, // 0xc8a
-        NULL, // 0xc8b
-        NULL, // 0xc8c
-        NULL, // 0xc8d
-        NULL, // 0xc8e
-        NULL, // 0xc8f
-        NULL, // 0xc90
-        NULL, // 0xc91
-        NULL, // 0xc92
-        NULL, // 0xc93
-        NULL, // 0xc94
-        NULL, // 0xc95
-        NULL, // 0xc96
-        NULL, // 0xc97
-        NULL, // 0xc98
-        NULL, // 0xc99
-        NULL, // 0xc9a
-        NULL, // 0xc9b
-        NULL, // 0xc9c
-        NULL, // 0xc9d
-        NULL, // 0xc9e
-        NULL, // 0xc9f
-        NULL, // 0xca0
-        NULL, // 0xca1
-        NULL, // 0xca2
-        NULL, // 0xca3
-        NULL, // 0xca4
-        NULL, // 0xca5
-        NULL, // 0xca6
-        NULL, // 0xca7
-        NULL, // 0xca8
-        NULL, // 0xca9
-        NULL, // 0xcaa
-        NULL, // 0xcab
-        NULL, // 0xcac
-        NULL, // 0xcad
-        NULL, // 0xcae
-        NULL, // 0xcaf
-        NULL, // 0xcb0
-        NULL, // 0xcb1
-        NULL, // 0xcb2
-        NULL, // 0xcb3
-        NULL, // 0xcb4
-        NULL, // 0xcb5
-        NULL, // 0xcb6
-        NULL, // 0xcb7
-        NULL, // 0xcb8
-        NULL, // 0xcb9
-        NULL, // 0xcba
-        NULL, // 0xcbb
-        NULL, // 0xcbc
-        NULL, // 0xcbd
-        NULL, // 0xcbe
-        NULL, // 0xcbf
-        NULL, // 0xcc0
-        NULL, // 0xcc1
-        NULL, // 0xcc2
-        NULL, // 0xcc3
-        NULL, // 0xcc4
-        NULL, // 0xcc5
-        NULL, // 0xcc6
-        NULL, // 0xcc7
-        NULL, // 0xcc8
-        NULL, // 0xcc9
-        NULL, // 0xcca
-        NULL, // 0xccb
-        NULL, // 0xccc
-        NULL, // 0xccd
-        NULL, // 0xcce
-        NULL, // 0xccf
-        NULL, // 0xcd0
-        NULL, // 0xcd1
-        NULL, // 0xcd2
-        NULL, // 0xcd3
-        NULL, // 0xcd4
-        NULL, // 0xcd5
-        NULL, // 0xcd6
-        NULL, // 0xcd7
-        NULL, // 0xcd8
-        NULL, // 0xcd9
-        NULL, // 0xcda
-        NULL, // 0xcdb
-        NULL, // 0xcdc
-        NULL, // 0xcdd
-        NULL, // 0xcde
-        NULL, // 0xcdf
-        NULL, // 0xce0
-        NULL, // 0xce1
-        NULL, // 0xce2
-        NULL, // 0xce3
-        NULL, // 0xce4
-        NULL, // 0xce5
-        NULL, // 0xce6
-        NULL, // 0xce7
-        NULL, // 0xce8
-        NULL, // 0xce9
-        NULL, // 0xcea
-        NULL, // 0xceb
-        NULL, // 0xcec
-        NULL, // 0xced
-        NULL, // 0xcee
-        NULL, // 0xcef
-        NULL, // 0xcf0
-        NULL, // 0xcf1
-        NULL, // 0xcf2
-        NULL, // 0xcf3
-        NULL, // 0xcf4
-        NULL, // 0xcf5
-        NULL, // 0xcf6
-        NULL, // 0xcf7
-        NULL, // 0xcf8
-        NULL, // 0xcf9
-        NULL, // 0xcfa
-        NULL, // 0xcfb
-        NULL, // 0xcfc
-        NULL, // 0xcfd
-        NULL, // 0xcfe
-        NULL, // 0xcff
-        NULL, // 0xd00
-        NULL, // 0xd01
-        NULL, // 0xd02
-        NULL, // 0xd03
-        NULL, // 0xd04
-        NULL, // 0xd05
-        NULL, // 0xd06
-        NULL, // 0xd07
-        NULL, // 0xd08
-        NULL, // 0xd09
-        NULL, // 0xd0a
-        NULL, // 0xd0b
-        NULL, // 0xd0c
-        NULL, // 0xd0d
-        NULL, // 0xd0e
-        NULL, // 0xd0f
-        NULL, // 0xd10
-        NULL, // 0xd11
-        NULL, // 0xd12
-        NULL, // 0xd13
-        NULL, // 0xd14
-        NULL, // 0xd15
-        NULL, // 0xd16
-        NULL, // 0xd17
-        NULL, // 0xd18
-        NULL, // 0xd19
-        NULL, // 0xd1a
-        NULL, // 0xd1b
-        NULL, // 0xd1c
-        NULL, // 0xd1d
-        NULL, // 0xd1e
-        NULL, // 0xd1f
-        NULL, // 0xd20
-        NULL, // 0xd21
-        NULL, // 0xd22
-        NULL, // 0xd23
-        NULL, // 0xd24
-        NULL, // 0xd25
-        NULL, // 0xd26
-        NULL, // 0xd27
-        NULL, // 0xd28
-        NULL, // 0xd29
-        NULL, // 0xd2a
-        NULL, // 0xd2b
-        NULL, // 0xd2c
-        NULL, // 0xd2d
-        NULL, // 0xd2e
-        NULL, // 0xd2f
-        NULL, // 0xd30
-        NULL, // 0xd31
-        NULL, // 0xd32
-        NULL, // 0xd33
-        NULL, // 0xd34
-        NULL, // 0xd35
-        NULL, // 0xd36
-        NULL, // 0xd37
-        NULL, // 0xd38
-        NULL, // 0xd39
-        NULL, // 0xd3a
-        NULL, // 0xd3b
-        NULL, // 0xd3c
-        NULL, // 0xd3d
-        NULL, // 0xd3e
-        NULL, // 0xd3f
-        NULL, // 0xd40
-        NULL, // 0xd41
-        NULL, // 0xd42
-        NULL, // 0xd43
-        NULL, // 0xd44
-        NULL, // 0xd45
-        NULL, // 0xd46
-        NULL, // 0xd47
-        NULL, // 0xd48
-        NULL, // 0xd49
-        NULL, // 0xd4a
-        NULL, // 0xd4b
-        NULL, // 0xd4c
-        NULL, // 0xd4d
-        NULL, // 0xd4e
-        NULL, // 0xd4f
-        NULL, // 0xd50
-        NULL, // 0xd51
-        NULL, // 0xd52
-        NULL, // 0xd53
-        NULL, // 0xd54
-        NULL, // 0xd55
-        NULL, // 0xd56
-        NULL, // 0xd57
-        NULL, // 0xd58
-        NULL, // 0xd59
-        NULL, // 0xd5a
-        NULL, // 0xd5b
-        NULL, // 0xd5c
-        NULL, // 0xd5d
-        NULL, // 0xd5e
-        NULL, // 0xd5f
-        NULL, // 0xd60
-        NULL, // 0xd61
-        NULL, // 0xd62
-        NULL, // 0xd63
-        NULL, // 0xd64
-        NULL, // 0xd65
-        NULL, // 0xd66
-        NULL, // 0xd67
-        NULL, // 0xd68
-        NULL, // 0xd69
-        NULL, // 0xd6a
-        NULL, // 0xd6b
-        NULL, // 0xd6c
-        NULL, // 0xd6d
-        NULL, // 0xd6e
-        NULL, // 0xd6f
-        NULL, // 0xd70
-        NULL, // 0xd71
-        NULL, // 0xd72
-        NULL, // 0xd73
-        NULL, // 0xd74
-        NULL, // 0xd75
-        NULL, // 0xd76
-        NULL, // 0xd77
-        NULL, // 0xd78
-        NULL, // 0xd79
-        NULL, // 0xd7a
-        NULL, // 0xd7b
-        NULL, // 0xd7c
-        NULL, // 0xd7d
-        NULL, // 0xd7e
-        NULL, // 0xd7f
-        NULL, // 0xd80
-        NULL, // 0xd81
-        NULL, // 0xd82
-        NULL, // 0xd83
-        NULL, // 0xd84
-        NULL, // 0xd85
-        NULL, // 0xd86
-        NULL, // 0xd87
-        NULL, // 0xd88
-        NULL, // 0xd89
-        NULL, // 0xd8a
-        NULL, // 0xd8b
-        NULL, // 0xd8c
-        NULL, // 0xd8d
-        NULL, // 0xd8e
-        NULL, // 0xd8f
-        NULL, // 0xd90
-        NULL, // 0xd91
-        NULL, // 0xd92
-        NULL, // 0xd93
-        NULL, // 0xd94
-        NULL, // 0xd95
-        NULL, // 0xd96
-        NULL, // 0xd97
-        NULL, // 0xd98
-        NULL, // 0xd99
-        NULL, // 0xd9a
-        NULL, // 0xd9b
-        NULL, // 0xd9c
-        NULL, // 0xd9d
-        NULL, // 0xd9e
-        NULL, // 0xd9f
-        NULL, // 0xda0
-        NULL, // 0xda1
-        NULL, // 0xda2
-        NULL, // 0xda3
-        NULL, // 0xda4
-        NULL, // 0xda5
-        NULL, // 0xda6
-        NULL, // 0xda7
-        NULL, // 0xda8
-        NULL, // 0xda9
-        NULL, // 0xdaa
-        NULL, // 0xdab
-        NULL, // 0xdac
-        NULL, // 0xdad
-        NULL, // 0xdae
-        NULL, // 0xdaf
-        NULL, // 0xdb0
-        NULL, // 0xdb1
-        NULL, // 0xdb2
-        NULL, // 0xdb3
-        NULL, // 0xdb4
-        NULL, // 0xdb5
-        NULL, // 0xdb6
-        NULL, // 0xdb7
-        NULL, // 0xdb8
-        NULL, // 0xdb9
-        NULL, // 0xdba
-        NULL, // 0xdbb
-        NULL, // 0xdbc
-        NULL, // 0xdbd
-        NULL, // 0xdbe
-        NULL, // 0xdbf
-        NULL, // 0xdc0
-        NULL, // 0xdc1
-        NULL, // 0xdc2
-        NULL, // 0xdc3
-        NULL, // 0xdc4
-        NULL, // 0xdc5
-        NULL, // 0xdc6
-        NULL, // 0xdc7
-        NULL, // 0xdc8
-        NULL, // 0xdc9
-        NULL, // 0xdca
-        NULL, // 0xdcb
-        NULL, // 0xdcc
-        NULL, // 0xdcd
-        NULL, // 0xdce
-        NULL, // 0xdcf
-        NULL, // 0xdd0
-        NULL, // 0xdd1
-        NULL, // 0xdd2
-        NULL, // 0xdd3
-        NULL, // 0xdd4
-        NULL, // 0xdd5
-        NULL, // 0xdd6
-        NULL, // 0xdd7
-        NULL, // 0xdd8
-        NULL, // 0xdd9
-        NULL, // 0xdda
-        NULL, // 0xddb
-        NULL, // 0xddc
-        NULL, // 0xddd
-        NULL, // 0xdde
-        NULL, // 0xddf
-        NULL, // 0xde0
-        NULL, // 0xde1
-        NULL, // 0xde2
-        NULL, // 0xde3
-        NULL, // 0xde4
-        NULL, // 0xde5
-        NULL, // 0xde6
-        NULL, // 0xde7
-        NULL, // 0xde8
-        NULL, // 0xde9
-        NULL, // 0xdea
-        NULL, // 0xdeb
-        NULL, // 0xdec
-        NULL, // 0xded
-        NULL, // 0xdee
-        NULL, // 0xdef
-        NULL, // 0xdf0
-        NULL, // 0xdf1
-        NULL, // 0xdf2
-        NULL, // 0xdf3
-        NULL, // 0xdf4
-        NULL, // 0xdf5
-        NULL, // 0xdf6
-        NULL, // 0xdf7
-        NULL, // 0xdf8
-        NULL, // 0xdf9
-        NULL, // 0xdfa
-        NULL, // 0xdfb
-        NULL, // 0xdfc
-        NULL, // 0xdfd
-        NULL, // 0xdfe
-        NULL, // 0xdff
-        NULL, // 0xe00
-        NULL, // 0xe01
-        NULL, // 0xe02
-        NULL, // 0xe03
-        NULL, // 0xe04
-        NULL, // 0xe05
-        NULL, // 0xe06
-        NULL, // 0xe07
-        NULL, // 0xe08
-        NULL, // 0xe09
-        NULL, // 0xe0a
-        NULL, // 0xe0b
-        NULL, // 0xe0c
-        NULL, // 0xe0d
-        NULL, // 0xe0e
-        NULL, // 0xe0f
-        NULL, // 0xe10
-        NULL, // 0xe11
-        NULL, // 0xe12
-        NULL, // 0xe13
-        NULL, // 0xe14
-        NULL, // 0xe15
-        NULL, // 0xe16
-        NULL, // 0xe17
-        NULL, // 0xe18
-        NULL, // 0xe19
-        NULL, // 0xe1a
-        NULL, // 0xe1b
-        NULL, // 0xe1c
-        NULL, // 0xe1d
-        NULL, // 0xe1e
-        NULL, // 0xe1f
-        NULL, // 0xe20
-        NULL, // 0xe21
-        NULL, // 0xe22
-        NULL, // 0xe23
-        NULL, // 0xe24
-        NULL, // 0xe25
-        NULL, // 0xe26
-        NULL, // 0xe27
-        NULL, // 0xe28
-        NULL, // 0xe29
-        NULL, // 0xe2a
-        NULL, // 0xe2b
-        NULL, // 0xe2c
-        NULL, // 0xe2d
-        NULL, // 0xe2e
-        NULL, // 0xe2f
-        NULL, // 0xe30
-        NULL, // 0xe31
-        NULL, // 0xe32
-        NULL, // 0xe33
-        NULL, // 0xe34
-        NULL, // 0xe35
-        NULL, // 0xe36
-        NULL, // 0xe37
-        NULL, // 0xe38
-        NULL, // 0xe39
-        NULL, // 0xe3a
-        NULL, // 0xe3b
-        NULL, // 0xe3c
-        NULL, // 0xe3d
-        NULL, // 0xe3e
-        NULL, // 0xe3f
-        NULL, // 0xe40
-        NULL, // 0xe41
-        NULL, // 0xe42
-        NULL, // 0xe43
-        NULL, // 0xe44
-        NULL, // 0xe45
-        NULL, // 0xe46
-        NULL, // 0xe47
-        NULL, // 0xe48
-        NULL, // 0xe49
-        NULL, // 0xe4a
-        NULL, // 0xe4b
-        NULL, // 0xe4c
-        NULL, // 0xe4d
-        NULL, // 0xe4e
-        NULL, // 0xe4f
-        NULL, // 0xe50
-        NULL, // 0xe51
-        NULL, // 0xe52
-        NULL, // 0xe53
-        NULL, // 0xe54
-        NULL, // 0xe55
-        NULL, // 0xe56
-        NULL, // 0xe57
-        NULL, // 0xe58
-        NULL, // 0xe59
-        NULL, // 0xe5a
-        NULL, // 0xe5b
-        NULL, // 0xe5c
-        NULL, // 0xe5d
-        NULL, // 0xe5e
-        NULL, // 0xe5f
-        NULL, // 0xe60
-        NULL, // 0xe61
-        NULL, // 0xe62
-        NULL, // 0xe63
-        NULL, // 0xe64
-        NULL, // 0xe65
-        NULL, // 0xe66
-        NULL, // 0xe67
-        NULL, // 0xe68
-        NULL, // 0xe69
-        NULL, // 0xe6a
-        NULL, // 0xe6b
-        NULL, // 0xe6c
-        NULL, // 0xe6d
-        NULL, // 0xe6e
-        NULL, // 0xe6f
-        NULL, // 0xe70
-        NULL, // 0xe71
-        NULL, // 0xe72
-        NULL, // 0xe73
-        NULL, // 0xe74
-        NULL, // 0xe75
-        NULL, // 0xe76
-        NULL, // 0xe77
-        NULL, // 0xe78
-        NULL, // 0xe79
-        NULL, // 0xe7a
-        NULL, // 0xe7b
-        NULL, // 0xe7c
-        NULL, // 0xe7d
-        NULL, // 0xe7e
-        NULL, // 0xe7f
-        NULL, // 0xe80
-        NULL, // 0xe81
-        NULL, // 0xe82
-        NULL, // 0xe83
-        NULL, // 0xe84
-        NULL, // 0xe85
-        NULL, // 0xe86
-        NULL, // 0xe87
-        NULL, // 0xe88
-        NULL, // 0xe89
-        NULL, // 0xe8a
-        NULL, // 0xe8b
-        NULL, // 0xe8c
-        NULL, // 0xe8d
-        NULL, // 0xe8e
-        NULL, // 0xe8f
-        NULL, // 0xe90
-        NULL, // 0xe91
-        NULL, // 0xe92
-        NULL, // 0xe93
-        NULL, // 0xe94
-        NULL, // 0xe95
-        NULL, // 0xe96
-        NULL, // 0xe97
-        NULL, // 0xe98
-        NULL, // 0xe99
-        NULL, // 0xe9a
-        NULL, // 0xe9b
-        NULL, // 0xe9c
-        NULL, // 0xe9d
-        NULL, // 0xe9e
-        NULL, // 0xe9f
-        NULL, // 0xea0
-        NULL, // 0xea1
-        NULL, // 0xea2
-        NULL, // 0xea3
-        NULL, // 0xea4
-        NULL, // 0xea5
-        NULL, // 0xea6
-        NULL, // 0xea7
-        NULL, // 0xea8
-        NULL, // 0xea9
-        NULL, // 0xeaa
-        NULL, // 0xeab
-        NULL, // 0xeac
-        NULL, // 0xead
-        NULL, // 0xeae
-        NULL, // 0xeaf
-        NULL, // 0xeb0
-        NULL, // 0xeb1
-        NULL, // 0xeb2
-        NULL, // 0xeb3
-        NULL, // 0xeb4
-        NULL, // 0xeb5
-        NULL, // 0xeb6
-        NULL, // 0xeb7
-        NULL, // 0xeb8
-        NULL, // 0xeb9
-        NULL, // 0xeba
-        NULL, // 0xebb
-        NULL, // 0xebc
-        NULL, // 0xebd
-        NULL, // 0xebe
-        NULL, // 0xebf
-        NULL, // 0xec0
-        NULL, // 0xec1
-        NULL, // 0xec2
-        NULL, // 0xec3
-        NULL, // 0xec4
-        NULL, // 0xec5
-        NULL, // 0xec6
-        NULL, // 0xec7
-        NULL, // 0xec8
-        NULL, // 0xec9
-        NULL, // 0xeca
-        NULL, // 0xecb
-        NULL, // 0xecc
-        NULL, // 0xecd
-        NULL, // 0xece
-        NULL, // 0xecf
-        NULL, // 0xed0
-        NULL, // 0xed1
-        NULL, // 0xed2
-        NULL, // 0xed3
-        NULL, // 0xed4
-        NULL, // 0xed5
-        NULL, // 0xed6
-        NULL, // 0xed7
-        NULL, // 0xed8
-        NULL, // 0xed9
-        NULL, // 0xeda
-        NULL, // 0xedb
-        NULL, // 0xedc
-        NULL, // 0xedd
-        NULL, // 0xede
-        NULL, // 0xedf
-        NULL, // 0xee0
-        NULL, // 0xee1
-        NULL, // 0xee2
-        NULL, // 0xee3
-        NULL, // 0xee4
-        NULL, // 0xee5
-        NULL, // 0xee6
-        NULL, // 0xee7
-        NULL, // 0xee8
-        NULL, // 0xee9
-        NULL, // 0xeea
-        NULL, // 0xeeb
-        NULL, // 0xeec
-        NULL, // 0xeed
-        NULL, // 0xeee
-        NULL, // 0xeef
-        NULL, // 0xef0
-        NULL, // 0xef1
-        NULL, // 0xef2
-        NULL, // 0xef3
-        NULL, // 0xef4
-        NULL, // 0xef5
-        NULL, // 0xef6
-        NULL, // 0xef7
-        NULL, // 0xef8
-        NULL, // 0xef9
-        NULL, // 0xefa
-        NULL, // 0xefb
-        NULL, // 0xefc
-        NULL, // 0xefd
-        NULL, // 0xefe
-        NULL, // 0xeff
+        REP256(gbaemu::gba::cpu::impl::arm::nop::opcode_nop), // 0xc00
+        REP256(gbaemu::gba::cpu::impl::arm::nop::opcode_nop), // 0xd00
+        REP256(gbaemu::gba::cpu::impl::arm::nop::opcode_nop), // 0xe00
         REP256(gbaemu::gba::cpu::impl::arm::swi::swi) // 0xf00
     };
 

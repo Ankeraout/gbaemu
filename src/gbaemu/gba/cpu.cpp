@@ -87,11 +87,25 @@ namespace gbaemu::gba::cpu {
         if(pipeline.pipelineStage == PIPELINE_FETCH_DECODE_EXECUTE) {
             switch(cpsr.fields.flagT) {
                 case CPU_MODE_ARM:
-                    pipeline.decodedOpcodeARM(pipeline.decodedOpcodeARM_value);
+                    //printf("E [%08x] %08x\n", PC - 8, pipeline.decodedOpcodeARM_value);
+                    if(checkCondition(pipeline.decodedOpcodeARM_value)) {
+                        if(!pipeline.decodedOpcodeARM) {
+                            raiseUnd();
+                        } else {
+                            pipeline.decodedOpcodeARM(pipeline.decodedOpcodeARM_value);
+                        }
+                    }
+
                     break;
 
                 case CPU_MODE_THUMB:
-                    pipeline.decodedOpcodeThumb(pipeline.decodedOpcodeThumb_value);
+                    //printf("E [%08x] %04x\n", PC - 4, pipeline.decodedOpcodeThumb_value);
+                    if(!pipeline.decodedOpcodeThumb) {
+                        raiseUnd();
+                    } else {
+                        pipeline.decodedOpcodeThumb(pipeline.decodedOpcodeThumb_value);
+                    }
+
                     break;
             }
         }
@@ -117,10 +131,12 @@ namespace gbaemu::gba::cpu {
         switch(cpsr.fields.flagT) {
             case CPU_MODE_ARM:
             pipeline.fetchedOpcodeARM = mmu::read32(fetchOffset);
+            //printf("F [%08x] %08x\n", fetchOffset, pipeline.fetchedOpcodeARM);
             break;
 
             case CPU_MODE_THUMB:
             pipeline.fetchedOpcodeThumb = mmu::read16(fetchOffset);
+            //printf("F [%08x] %04x\n", fetchOffset, pipeline.fetchedOpcodeThumb);
             break;
         }
 
@@ -258,5 +274,31 @@ namespace gbaemu::gba::cpu {
 
     uint32_t registerRead(int reg, int mode) {
         return *registerMapping[reg * 7 + modeMapping[mode]];
+    }
+
+    void writeSPSR(psr_t value, int mode) {
+        if((mode == MODE_USR) || (mode == MODE_SYS)) {
+            fprintf(stderr, "Attempted to write user or system SPSR.\n");
+            exit(1);
+        }
+
+        spsr[modeMapping[mode] - 1] = value;
+    }
+
+    void writeSPSR(uint32_t value, int mode) {
+        if((mode == MODE_USR) || (mode == MODE_SYS)) {
+            fprintf(stderr, "Attempted to write user or system SPSR.\n");
+            exit(1);
+        }
+
+        spsr[modeMapping[mode] - 1].value = value;
+    }
+
+    void raiseUnd() {
+        writeSPSR(cpsr, PSR_MODE_UND);
+        cpsr.fields.mode = PSR_MODE_UND;
+        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 2 : 4));
+        cpsr.fields.flagT = 0;
+        registerWrite(CPU_REG_PC, 0x00000004);
     }
 }

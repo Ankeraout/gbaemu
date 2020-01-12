@@ -142,6 +142,9 @@ namespace gbaemu::gba::cpu {
     extern psr_t readSPSR();
     extern void writeSPSR(psr_t value);
     extern void writeSPSR(uint32_t value);
+    extern void writeSPSR(psr_t value, int mode);
+    extern void writeSPSR(uint32_t value, int mode);
+    extern void raiseUnd();
 
     // Debug API
     extern void displayState();

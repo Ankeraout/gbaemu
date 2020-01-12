@@ -1,5 +1,7 @@
 #include <gbaemu/gbaemu.hpp>
 #include <gbaemu/gba/gba.hpp>
+#include <gbaemu/gba/io.hpp>
+#include <gbaemu/gba/lcd.hpp>
 #include <gbaemu/gba/mmu.hpp>
 
 #define access8(t, i) (*((uint8_t *)&t[i]))
@@ -23,16 +25,20 @@ namespace gbaemu::gba::mmu {
                 return access8(gbaemu::gba::wramData_fast, address & 0x00007fff);
 
             case 4: // I/O registers
-                return 0; // TODO
+                return gbaemu::gba::io::read8(address);
 
             case 5: // BG/OBJ Palette RAM
-                return 0; // TODO
+                return access8(gbaemu::gba::lcd::palette, address & 0x000003ff);
 
             case 6: // VRAM
-                return 0; // TODO
+                if((address & 0x0001ffff) <= 0x00017fff) {
+                    return access8(gbaemu::gba::lcd::vram, address & 0x0001ffff);
+                } else {
+                    return 0;
+                }
 
             case 7: // OAM
-                return 0; // TODO
+                return access8(gbaemu::gba::lcd::oam, address & 0x000003ff);
 
             case 8: // Game Pak ROM (wait state 0)
             case 9:
@@ -71,16 +77,20 @@ namespace gbaemu::gba::mmu {
                 return access16(gbaemu::gba::wramData_fast, address & 0x00007fff);
 
             case 4: // I/O registers
-                return 0; // TODO
+                return gbaemu::gba::io::read16(address);
 
             case 5: // BG/OBJ Palette RAM
-                return 0; // TODO
+                return access16(gbaemu::gba::lcd::palette, address & 0x000003ff);
 
             case 6: // VRAM
-                return 0; // TODO
+                if((address & 0x0001ffff) <= 0x00017fff) {
+                    return access16(gbaemu::gba::lcd::vram, address & 0x0001ffff);
+                } else {
+                    return 0;
+                }
 
             case 7: // OAM
-                return 0; // TODO
+                return access16(gbaemu::gba::lcd::oam, address & 0x000003ff);
 
             case 8: // Game Pak ROM (wait state 0)
             case 9:
@@ -122,16 +132,20 @@ namespace gbaemu::gba::mmu {
                 return access32(gbaemu::gba::wramData_fast, address & 0x00007fff);
 
             case 4: // I/O registers
-                return 0; // TODO
+                return gbaemu::gba::io::read32(address);
 
             case 5: // BG/OBJ Palette RAM
-                return 0; // TODO
+                return access32(gbaemu::gba::lcd::palette, address & 0x000003ff);
 
             case 6: // VRAM
-                return 0; // TODO
+                if((address & 0x0001ffff) <= 0x00017fff) {
+                    return access32(gbaemu::gba::lcd::vram, address & 0x0001ffff);
+                } else {
+                    return 0;
+                }
             
             case 7: // OAM
-                return 0; // TODO
+                return access32(gbaemu::gba::lcd::oam, address & 0x000003ff);
 
             case 8: // Game Pak ROM (wait state 0)
             case 9:
@@ -168,16 +182,23 @@ namespace gbaemu::gba::mmu {
                 break;
 
             case 4: // I/O registers
-                break; // TODO
+                gbaemu::gba::io::write8(address, value);
+                break;
 
             case 5: // BG/OBJ Palette RAM
-                break; // TODO
+                access8(gbaemu::gba::lcd::palette, address & 0x000003ff) = value;
+                break;
 
             case 6: // VRAM
-                break; // TODO
+                if((address & 0x0001ffff) <= 0x00017fff) {
+                    access8(gbaemu::gba::lcd::vram, address & 0x0001ffff) = value;
+                }
+
+                break;
 
             case 7: // OAM
-                break; // TODO
+                access8(gbaemu::gba::lcd::oam, address & 0x000003ff) = value;
+                break;
 
             case 8: // Game Pak ROM (wait state 0)
             case 9:
@@ -210,16 +231,23 @@ namespace gbaemu::gba::mmu {
                 break;
 
             case 4: // I/O registers
-                break; // TODO
+                gbaemu::gba::io::write16(address, value);
+                break;
 
             case 5: // BG/OBJ Palette RAM
-                break; // TODO
+                access16(gbaemu::gba::lcd::palette, address & 0x000003ff) = value;
+                break;
 
             case 6: // VRAM
-                break; // TODO
+                if((address & 0x0001ffff) <= 0x00017fff) {
+                    access16(gbaemu::gba::lcd::vram, address & 0x0001ffff) = value;
+                }
+                
+                break;
 
             case 7: // OAM
-                break; // TODO
+                access16(gbaemu::gba::lcd::oam, address & 0x000003ff) = value;
+                break;
 
             case 8: // Game Pak ROM (wait state 0)
             case 9:
@@ -255,16 +283,23 @@ namespace gbaemu::gba::mmu {
                 break;
 
             case 4: // I/O registers
-                break; // TODO
+                gbaemu::gba::io::write32(address, value);
+                break;
 
             case 5: // BG/OBJ Palette RAM
-                break; // TODO
+                access32(gbaemu::gba::lcd::palette, address & 0x000003ff) = value;
+                break;
 
             case 6: // VRAM
-                break; // TODO
+                if((address & 0x0001ffff) <= 0x00017fff) {
+                    access32(gbaemu::gba::lcd::vram, address & 0x0001ffff) = value;
+                }
+
+                break;
 
             case 7: // OAM
-                break; // TODO
+                access32(gbaemu::gba::lcd::oam, address & 0x000003ff) = value;
+                break;
 
             case 8: // Game Pak ROM (wait state 0)
             case 9:
