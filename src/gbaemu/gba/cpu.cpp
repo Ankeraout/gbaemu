@@ -266,4 +266,22 @@ namespace gbaemu::gba::cpu {
     uint32_t registerRead(int reg, int mode) {
         return *registerMapping[reg * 7 + modeMapping[mode]];
     }
+
+    void writeSPSR(psr_t value, int mode) {
+        if((cpsr.fields.mode == PSR_MODE_USR) || (cpsr.fields.mode == PSR_MODE_SYS)) {
+            fprintf(stderr, "Attempted to write user or system SPSR.\n");
+            exit(1);
+        }
+
+        spsr[modeMapping[mode] - 1] = value;
+    }
+
+    void writeSPSR(uint32_t value, int mode) {
+        if((cpsr.fields.mode == PSR_MODE_USR) || (cpsr.fields.mode == PSR_MODE_SYS)) {
+            fprintf(stderr, "Attempted to write user or system SPSR.\n");
+            exit(1);
+        }
+
+        spsr[modeMapping[mode] - 1].value = value;
+    }
 }
