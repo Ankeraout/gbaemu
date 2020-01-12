@@ -277,7 +277,7 @@ namespace gbaemu::gba::cpu {
     }
 
     void writeSPSR(psr_t value, int mode) {
-        if((cpsr.fields.mode == PSR_MODE_USR) || (cpsr.fields.mode == PSR_MODE_SYS)) {
+        if((mode == MODE_USR) || (mode == MODE_SYS)) {
             fprintf(stderr, "Attempted to write user or system SPSR.\n");
             exit(1);
         }
@@ -286,7 +286,7 @@ namespace gbaemu::gba::cpu {
     }
 
     void writeSPSR(uint32_t value, int mode) {
-        if((cpsr.fields.mode == PSR_MODE_USR) || (cpsr.fields.mode == PSR_MODE_SYS)) {
+        if((mode == MODE_USR) || (mode == MODE_SYS)) {
             fprintf(stderr, "Attempted to write user or system SPSR.\n");
             exit(1);
         }
