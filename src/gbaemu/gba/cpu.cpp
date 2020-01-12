@@ -88,7 +88,10 @@ namespace gbaemu::gba::cpu {
             switch(cpsr.fields.flagT) {
                 case CPU_MODE_ARM:
                     //printf("E [%08x] %08x\n", PC - 8, pipeline.decodedOpcodeARM_value);
-                    pipeline.decodedOpcodeARM(pipeline.decodedOpcodeARM_value);
+                    if(checkCondition(pipeline.decodedOpcodeARM_value)) {
+                        pipeline.decodedOpcodeARM(pipeline.decodedOpcodeARM_value);
+                    }
+
                     break;
 
                 case CPU_MODE_THUMB:
