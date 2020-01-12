@@ -89,14 +89,23 @@ namespace gbaemu::gba::cpu {
                 case CPU_MODE_ARM:
                     //printf("E [%08x] %08x\n", PC - 8, pipeline.decodedOpcodeARM_value);
                     if(checkCondition(pipeline.decodedOpcodeARM_value)) {
-                        pipeline.decodedOpcodeARM(pipeline.decodedOpcodeARM_value);
+                        if(!pipeline.decodedOpcodeARM) {
+                            raiseUnd();
+                        } else {
+                            pipeline.decodedOpcodeARM(pipeline.decodedOpcodeARM_value);
+                        }
                     }
 
                     break;
 
                 case CPU_MODE_THUMB:
                     //printf("E [%08x] %04x\n", PC - 4, pipeline.decodedOpcodeThumb_value);
-                    pipeline.decodedOpcodeThumb(pipeline.decodedOpcodeThumb_value);
+                    if(!pipeline.decodedOpcodeThumb) {
+                        raiseUnd();
+                    } else {
+                        pipeline.decodedOpcodeThumb(pipeline.decodedOpcodeThumb_value);
+                    }
+
                     break;
             }
         }
@@ -283,5 +292,13 @@ namespace gbaemu::gba::cpu {
         }
 
         spsr[modeMapping[mode] - 1].value = value;
+    }
+
+    void raiseUnd() {
+        writeSPSR(cpsr, PSR_MODE_UND);
+        cpsr.fields.mode = PSR_MODE_UND;
+        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 2 : 4));
+        cpsr.fields.flagT = 0;
+        registerWrite(CPU_REG_PC, 0x00000004);
     }
 }
