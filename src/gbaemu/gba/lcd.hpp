@@ -24,5 +24,9 @@ namespace gbaemu::gba::lcd {
         uint16_t objWin : 1;
     ) dispcnt_t;
 
+    extern uint8_t palette[1024];
+    extern uint8_t vram[98304];
+    extern uint8_t oam[1024];
+
     extern void writeCallback_dispcnt(uint16_t value);
 }
