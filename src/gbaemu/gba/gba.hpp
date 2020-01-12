@@ -15,4 +15,5 @@ namespace gbaemu::gba {
     extern uint8_t wramData_fast[];
 
     extern void init(const char *biosFilePath, const char *romFilePath);
+    extern void cycle();
 }

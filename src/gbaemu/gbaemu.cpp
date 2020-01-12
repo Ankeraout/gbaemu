@@ -55,7 +55,7 @@ namespace gbaemu {
         gbaemu::gba::cpu::cpsr.fields.mode = gbaemu::gba::cpu::PSR_MODE_USR;
 
         while(true) {
-            gbaemu::gba::cpu::cycle();
+            gbaemu::gba::cycle();
         }
 
         gbaemu::gba::cpu::displayState();

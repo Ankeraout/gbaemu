@@ -120,6 +120,23 @@ namespace gbaemu::gba::cpu {
         CPU_REG_LR,
         CPU_REG_PC,
     };
+
+    enum {
+        IRQ_VBLANK = 0x0001,
+        IRQ_HBLANK = 0x0002,
+        IRQ_VCOUNTER = 0x0004,
+        IRQ_TIMER_0 = 0x0008,
+        IRQ_TIMER_1 = 0x0010,
+        IRQ_TIMER_2 = 0x0020,
+        IRQ_TIMER_3 = 0x0040,
+        IRQ_SERIAL = 0x0080,
+        IRQ_DMA_0 = 0x0100,
+        IRQ_DMA_1 = 0x0200,
+        IRQ_DMA_2 = 0x0400,
+        IRQ_DMA_3 = 0x0800,
+        IRQ_KEYPAD = 0x1000,
+        IRQ_GAMEPAK = 0x2000
+    };
     
     typedef struct {
         bool flagC;

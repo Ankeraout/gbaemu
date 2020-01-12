@@ -3,6 +3,7 @@
 #include <cstdlib>
 
 #include <gbaemu/gba/cpu.hpp>
+#include <gbaemu/gba/io.hpp>
 #include <gbaemu/gba/mmu.hpp>
 #include <gbaemu/gba/cpu/decoder/arm.hpp>
 #include <gbaemu/gba/cpu/decoder/thumb.hpp>
@@ -20,7 +21,6 @@ namespace gbaemu::gba::cpu {
     psr_t cpsr;
     psr_t spsr[5];
     pipeline_t pipeline;
-    long long unsigned int cycleCounter = 0;
     shifter_t shifter;
     
     static inline const int modeMapping[] = {
@@ -52,6 +52,8 @@ namespace gbaemu::gba::cpu {
         &r8_15_usr[6],  &r8_14_fiq[6],  &r13_14_svc[1], &r13_14_abt[1], &r13_14_irq[1], &r13_14_und[1], &r8_15_usr[6],
         &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7],  &r8_15_usr[7]
     };
+
+    void raiseIRQ();
 
     void init() {
         // Reset CPSR
@@ -144,6 +146,10 @@ namespace gbaemu::gba::cpu {
     }
 
     void cycle() {
+        if((io::get(io::IME) & 0x00000001) && (io::get(io::IF) & io::get(io::IE))) {
+            raiseIRQ();
+        }
+
         uint32_t cycleFetchOffset = PC;
 
         execute();
@@ -163,8 +169,6 @@ namespace gbaemu::gba::cpu {
             pipeline.pipelineStage = PIPELINE_FETCH_DECODE_EXECUTE;
             break;
         }
-
-        cycleCounter++;
     }
 
     bool checkCondition(uint32_t opcode) {
@@ -303,7 +307,7 @@ namespace gbaemu::gba::cpu {
         registerWrite(CPU_REG_PC, 0x00000004);
     }
 
-    void raiseIrq() {
+    void raiseIRQ() {
         writeSPSR(cpsr, PSR_MODE_IRQ);
         cpsr.fields.mode = PSR_MODE_IRQ;
         registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 2 : 4));

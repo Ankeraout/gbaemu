@@ -207,4 +207,12 @@ namespace gbaemu::gba::io {
         write16(address, value & 0x0000ffff);
         write16(address | 2, value >> 16);
     }
+    
+    void set(unsigned int index, uint16_t value) {
+        io[index >> 1].value = value;
+    }
+
+    uint16_t get(unsigned int index) {
+        return io[index >> 1].value;
+    }
 }

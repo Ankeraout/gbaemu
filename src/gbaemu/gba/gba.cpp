@@ -7,6 +7,7 @@
 #include <gbaemu/gba/cpu.hpp>
 #include <gbaemu/gba/gba.hpp>
 #include <gbaemu/gba/io.hpp>
+#include <gbaemu/gba/lcd.hpp>
 
 using namespace std;
 
@@ -54,5 +55,10 @@ namespace gbaemu::gba {
         }
 
         biosFile.close();
+    }
+
+    void cycle() {
+        cpu::cycle();
+        lcd::cycle();
     }
 }
