@@ -1,4 +1,5 @@
 dist: bionic
 language: cpp
 compiler: gcc
+before_script: sudo apt-get install libsdl2-dev
 script: make all
