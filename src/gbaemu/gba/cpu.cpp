@@ -146,8 +146,9 @@ namespace gbaemu::gba::cpu {
     }
 
     void cycle() {
-        if((io::get(io::IME) & 0x00000001) && (io::get(io::IF) & io::get(io::IE))) {
+        if((io::get(io::IME) & 0x00000001) && (io::get(io::IF) & io::get(io::IE) & 0x3fff)) {
             raiseIRQ();
+            printf("IRQ\n");
         }
 
         uint32_t cycleFetchOffset = PC;

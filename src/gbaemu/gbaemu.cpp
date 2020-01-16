@@ -5,6 +5,8 @@
 #include <gbaemu/gba/cpu.hpp>
 #include <gbaemu/gba/gba.hpp>
 
+#include <gbaemu/frontend.hpp>
+
 using namespace std;
 
 namespace gbaemu {
@@ -45,6 +47,12 @@ namespace gbaemu {
 
         if(checkConfiguration()) {
             cerr << "Error: the application configuration is incorrect." << endl;
+            return EXIT_FAILURE;
+        }
+
+        // Init front-end
+        if(gbaemu::frontend::init()) {
+            cerr << "Error: front-end initialization failed." << endl;
             return EXIT_FAILURE;
         }
 

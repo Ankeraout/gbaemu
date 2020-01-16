@@ -1,7 +1,7 @@
 CXX=g++ -c
-CXXFLAGS=-W -Wall -Wextra -pedantic -Isrc -std=c++17
+CXXFLAGS=-W -Wall -Wextra -pedantic -Isrc -std=c++17 `sdl2-config --cflags`
 LD=g++
-LDFLAGS=
+LDFLAGS=`sdl2-config --libs`
 
 SOURCES:=$(shell find src/ -type f -name '*.cpp')
 OBJECTS=$(SOURCES:src/%.cpp=obj/%.cpp.o)

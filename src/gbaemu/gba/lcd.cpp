@@ -5,10 +5,13 @@
 #include <gbaemu/gba/io.hpp>
 #include <gbaemu/gba/lcd.hpp>
 
+#include <gbaemu/frontend.hpp>
+
 namespace gbaemu::gba::lcd {
     uint8_t palette[1024];
     uint8_t vram[98304];
     uint8_t oam[1024];
+    uint32_t frameBuffer[screenWidth * screenHeight];
 
     unsigned int currentRow = 0;
     unsigned int currentColumn = 0;
@@ -47,6 +50,8 @@ namespace gbaemu::gba::lcd {
                     if(stat.fields.irq_vblank) {
                         io::set(io::IF, io::get(io::IF) | cpu::IRQ_VBLANK);
                     }
+
+                    gbaemu::frontend::update();
                 }
             } else if(currentColumn == 240) {
                 // HBlank
@@ -61,5 +66,20 @@ namespace gbaemu::gba::lcd {
         }
 
         cycleCounter++;
+    }
+
+    const uint32_t *getFramebuffer() {
+        uint16_t dispcnt_int = io::get(io::DISPCNT);
+        dispcnt_t dispcnt;
+
+        dispcnt.value = dispcnt_int;
+
+        for(unsigned int y = 0; y < screenHeight; y++) {
+            for(unsigned int x = 0; x < screenWidth; x++) {
+                frameBuffer[y * screenWidth + x] = getPaletteColor(vram[y * screenWidth + x]);
+            }
+        }
+
+        return frameBuffer;
     }
 }

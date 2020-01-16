@@ -188,6 +188,8 @@ namespace gbaemu::gba::io {
     }
 
     void write16(uint32_t address, uint16_t value) {
+        printf("[%08x] %04x\n", address, value);
+
         address = convertAddress(address & 0xfffffffe);
 
         if(address == UINT32_MAX) {
