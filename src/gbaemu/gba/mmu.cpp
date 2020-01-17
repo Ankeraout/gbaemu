@@ -188,12 +188,10 @@ namespace gbaemu::gba::mmu {
                 break;
 
             case 5: // BG/OBJ Palette RAM
-                printf("Write8 0x%02x to palette at 0x%08x\n", value, address);
                 access8(gbaemu::gba::lcd::palette, address & 0x000003ff) = value;
                 break;
 
             case 6: // VRAM
-                printf("Write8 0x%02x to VRAM at 0x%08x\n", value, address);
                 if((address & 0x0001ffff) <= 0x00017fff) {
                     access8(gbaemu::gba::lcd::vram, address & 0x0001ffff) = value;
                 }
@@ -239,12 +237,10 @@ namespace gbaemu::gba::mmu {
                 break;
 
             case 5: // BG/OBJ Palette RAM
-                printf("Write16 0x%04x to palette at 0x%08x\n", value, address);
                 access16(gbaemu::gba::lcd::palette, address & 0x000003ff) = value;
                 break;
 
             case 6: // VRAM
-                printf("Write16 0x%04x to VRAM at 0x%08x\n", value, address);
                 if((address & 0x0001ffff) <= 0x00017fff) {
                     access16(gbaemu::gba::lcd::vram, address & 0x0001ffff) = value;
                 }
@@ -293,12 +289,10 @@ namespace gbaemu::gba::mmu {
                 break;
 
             case 5: // BG/OBJ Palette RAM
-                printf("Write32 0x%08x to palette at 0x%08x\n", value, address);
                 access32(gbaemu::gba::lcd::palette, address & 0x000003ff) = value;
                 break;
 
             case 6: // VRAM
-                printf("Write32 0x%08x to VRAM at 0x%08x\n", value, address);
                 if((address & 0x0001ffff) <= 0x00017fff) {
                     access32(gbaemu::gba::lcd::vram, address & 0x0001ffff) = value;
                 }

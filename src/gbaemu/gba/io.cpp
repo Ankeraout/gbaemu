@@ -11,9 +11,9 @@ namespace gbaemu::gba::io {
 
     static inline uint32_t convertAddress(uint32_t address) {
         if((address & 0xff00fffc) == 0x04000800) {
-            return 0x800 | (address & 0x00000003);
+            return (0x800 | (address & 0x00000003)) >> 1;
         } else if(address < 0x04000800) {
-            return address & 0x000007ff;
+            return (address & 0x000007ff) >> 1;
         } else {
             return UINT32_MAX;
         }
@@ -188,8 +188,6 @@ namespace gbaemu::gba::io {
     }
 
     void write16(uint32_t address, uint16_t value) {
-        printf("[%08x] %04x\n", address, value);
-
         address = convertAddress(address & 0xfffffffe);
 
         if(address == UINT32_MAX) {

@@ -71,7 +71,10 @@ namespace gbaemu::gba::cpu {
         }
 
         registerWrite(0, 0x00000ca5);
-        registerWrite(13, 0x03007f00);
+
+        for(int mode = 0; mode < 7; mode++) {
+            registerWrite(13, mode, 0x03007f00);
+        }
         
         // Reset pipeline
         pipeline.pipelineStage = PIPELINE_FETCH;
