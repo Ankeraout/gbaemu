@@ -170,10 +170,6 @@ namespace gbaemu::gba::io {
             return 0x0000;
         }
 
-        if(address == (io::KEYINPUT >> 1)) {
-            printf("keyinput=%04x (true=%04x)\n", io[address].value & io[address].readMask);
-        }
-
         return io[address].value & io[address].readMask;
     }
 
