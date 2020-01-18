@@ -11,7 +11,7 @@
 namespace gbaemu::gba::cpu::impl::thumb::la {
     void opcode_add_pc(uint16_t opcode) {
         OPCODE_BASE;
-        registerWrite(Rd, registerRead(CPU_REG_PC) + immediate);
+        registerWrite(Rd, (registerRead(CPU_REG_PC) & 0xfffffffc) + immediate);
     }
 
     void opcode_add_sp(uint16_t opcode) {

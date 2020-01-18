@@ -36,13 +36,13 @@ namespace gbaemu::gba::cpu::impl::thumb::mcas {
 
     DEFINE_MCAS_OPCODE(
         add,
-        uint32_t Rd_v = registerRead(Rd);
-        uint32_t result = Rd_v + immediate;
+        uint64_t Rd_v = registerRead(Rd);
+        uint64_t result = Rd_v + immediate;
 
-        cpsr.fields.flagZ = !result;
+        cpsr.fields.flagZ = !((uint32_t)result);
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = ADD32_FLAGV(Rd_v, immediate, (uint32_t)result);
-        cpsr.fields.flagC = result > UINT32_MAX;
+        cpsr.fields.flagC = result >> 32;
 
         registerWrite(Rd, (uint32_t)result)
     )

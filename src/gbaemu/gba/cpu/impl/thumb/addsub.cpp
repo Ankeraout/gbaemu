@@ -6,19 +6,19 @@
     uint16_t Rn_offset3 = (opcode & 0x01c0) >> 6; \
     uint16_t Rs = (opcode & 0x0038) >> 3; \
     uint16_t Rd = opcode & 0x0007; \
-    uint32_t Rs_v = registerRead(Rs)
+    uint64_t Rs_v = registerRead(Rs)
 
 namespace gbaemu::gba::cpu::impl::thumb::addsub {
     void opcode_add_Rn(uint16_t opcode) {
         ADDSUB_HEADER;
 
-        uint32_t Rn_v = registerRead(Rn_offset3);
+        uint64_t Rn_v = registerRead(Rn_offset3);
         uint64_t result = Rs_v + Rn_v;
 
-        cpsr.fields.flagZ = !result;
+        cpsr.fields.flagZ = !((uint32_t)result);
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = ADD32_FLAGV(Rs_v, Rn_v, (uint32_t)result);
-        cpsr.fields.flagC = result > UINT32_MAX;
+        cpsr.fields.flagC = result >> 32;
 
         registerWrite(Rd, (uint32_t)result);
     }
@@ -28,10 +28,10 @@ namespace gbaemu::gba::cpu::impl::thumb::addsub {
 
         uint64_t result = Rs_v + Rn_offset3;
 
-        cpsr.fields.flagZ = !result;
+        cpsr.fields.flagZ = !((uint32_t)result);
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = ADD32_FLAGV(Rs_v, Rn_offset3, (uint32_t)result);
-        cpsr.fields.flagC = result > UINT32_MAX;
+        cpsr.fields.flagC = result >> 32;
 
         registerWrite(Rd, (uint32_t)result);
     }
@@ -39,8 +39,8 @@ namespace gbaemu::gba::cpu::impl::thumb::addsub {
     void opcode_sub_Rn(uint16_t opcode) {
         ADDSUB_HEADER;
 
-        uint32_t Rn_v = registerRead(Rn_offset3);
-        uint32_t result = Rs_v - Rn_v;
+        uint64_t Rn_v = registerRead(Rn_offset3);
+        uint64_t result = Rs_v - Rn_v;
 
         cpsr.fields.flagZ = !result;
         cpsr.fields.flagN = SIGN32(result);
@@ -53,7 +53,7 @@ namespace gbaemu::gba::cpu::impl::thumb::addsub {
     void opcode_sub_Offset(uint16_t opcode) {
         ADDSUB_HEADER;
 
-        uint32_t result = Rs_v - Rn_offset3;
+        uint64_t result = Rs_v - Rn_offset3;
 
         cpsr.fields.flagZ = !result;
         cpsr.fields.flagN = SIGN32(result);
