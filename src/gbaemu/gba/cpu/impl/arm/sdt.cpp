@@ -73,7 +73,10 @@
     address += op2
 
 #define DO_LOAD \
-    registerWrite(Rd, gbaemu::gba::mmu::read32(address))
+    const uint32_t loadedValue = gbaemu::gba::mmu::read32(address); \
+    const uint32_t rotation = (address & 0x03) << 3; \
+    \
+    registerWrite(Rd, (loadedValue << (32 - rotation)) | (loadedValue >> rotation)); \
 
 #define DO_LOAD_B \
     registerWrite(Rd, gbaemu::gba::mmu::read8(address))
