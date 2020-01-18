@@ -85,7 +85,11 @@ namespace gbaemu::gba::cpu {
     }
 
     void registerWrite(int reg, uint32_t value) {
-        *registerMapping[reg * 7 + modeMapping[cpsr.fields.mode]] = value;
+        if(reg == 15) {
+            performJump(value);
+        } else {
+            *registerMapping[reg * 7 + modeMapping[cpsr.fields.mode]] = value;
+        }
     }
 
     static inline void execute() {
@@ -230,7 +234,7 @@ namespace gbaemu::gba::cpu {
     void performJump(uint32_t address) {
         address -= 4;
 
-        registerWrite(CPU_REG_PC, address);
+        PC = address;
         pipeline.pipelineStage = PIPELINE_FLUSH;
     }
 

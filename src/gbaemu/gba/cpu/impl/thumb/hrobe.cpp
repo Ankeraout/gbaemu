@@ -7,15 +7,15 @@
 #define DEFINE_HROBE_ALU_OPCODE(op, h1off, h2off, body) \
     void opcode_ ## op(uint16_t opcode) { \
         uint16_t Rs = ((opcode & 0x0038) >> 3) h1off; \
-        uint16_t Rd = ((opcode & 0x0007) >> 3) h2off; \
+        uint16_t Rd = (opcode & 0x0007) h2off; \
         uint32_t Rs_v = registerRead(Rs); \
         \
         body \
     }
 
 #define DEFINE_HROBE_ALU_OPCODE_VARIANTS(op, body) \
-    DEFINE_HROBE_ALU_OPCODE(op ## _Rd_Hs, , + 8, body) \
-    DEFINE_HROBE_ALU_OPCODE(op ## _Hd_Rs, + 8, , body) \
+    DEFINE_HROBE_ALU_OPCODE(op ## _Rd_Hs, + 8, , body) \
+    DEFINE_HROBE_ALU_OPCODE(op ## _Hd_Rs, , + 8, body) \
     DEFINE_HROBE_ALU_OPCODE(op ## _Hd_Hs, + 8, + 8, body)
 
 #define DEFINE_HROBE_BX_OPCODE(variant, h1off) \
