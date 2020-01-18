@@ -57,6 +57,12 @@
 
 #define DO_WRITEBACK \
     registerWrite(Rn, address)
+    
+#define DO_POSTINDEX_LDR \
+    registerWrite(Rn, address - op2);
+
+#define DO_POSTINDEX_U_LDR \
+    registerWrite(Rn, address + op2);
 
 #define DO_POSTINDEX \
     address -= op2; \
@@ -76,7 +82,7 @@
     const uint32_t loadedValue = gbaemu::gba::mmu::read32(address); \
     const uint32_t rotation = (address & 0x03) << 3; \
     \
-    registerWrite(Rd, (loadedValue << (32 - rotation)) | (loadedValue >> rotation)); \
+    registerWrite(Rd, (loadedValue << (32 - rotation)) | (loadedValue >> rotation))
 
 #define DO_LOAD_B \
     registerWrite(Rd, gbaemu::gba::mmu::read8(address))
@@ -95,16 +101,16 @@ namespace gbaemu::gba::cpu::impl::arm::sdt {
     DEFINE_STR_OPCODE(pub, DO_PREINDEX_U; DO_STORE_B)
     DEFINE_STR_OPCODE(pubw, DO_PREINDEX_U; DO_STORE_B; DO_WRITEBACK)
 
-    DEFINE_LDR_OPCODE(, DO_LOAD; DO_POSTINDEX)
-    DEFINE_LDR_OPCODE(b, DO_LOAD_B; DO_POSTINDEX)
-    DEFINE_LDR_OPCODE(u, DO_LOAD; DO_POSTINDEX_U)
-    DEFINE_LDR_OPCODE(ub, DO_LOAD_B; DO_POSTINDEX_U)
+    DEFINE_LDR_OPCODE(, DO_POSTINDEX_LDR; DO_LOAD)
+    DEFINE_LDR_OPCODE(b, DO_POSTINDEX_LDR; DO_LOAD_B)
+    DEFINE_LDR_OPCODE(u, DO_POSTINDEX_U_LDR; DO_LOAD)
+    DEFINE_LDR_OPCODE(ub, DO_POSTINDEX_U_LDR; DO_LOAD_B)
     DEFINE_LDR_OPCODE(p, DO_PREINDEX; DO_LOAD)
-    DEFINE_LDR_OPCODE(pw, DO_PREINDEX; DO_LOAD; DO_WRITEBACK)
+    DEFINE_LDR_OPCODE(pw, DO_PREINDEX; DO_WRITEBACK; DO_LOAD)
     DEFINE_LDR_OPCODE(pb, DO_PREINDEX; DO_LOAD_B)
-    DEFINE_LDR_OPCODE(pbw, DO_PREINDEX; DO_LOAD_B; DO_WRITEBACK)
+    DEFINE_LDR_OPCODE(pbw, DO_PREINDEX; DO_WRITEBACK; DO_LOAD_B)
     DEFINE_LDR_OPCODE(pu, DO_PREINDEX_U; DO_LOAD)
-    DEFINE_LDR_OPCODE(puw, DO_PREINDEX_U; DO_LOAD; DO_WRITEBACK)
+    DEFINE_LDR_OPCODE(puw, DO_PREINDEX_U; DO_WRITEBACK; DO_LOAD)
     DEFINE_LDR_OPCODE(pub, DO_PREINDEX_U; DO_LOAD_B)
-    DEFINE_LDR_OPCODE(pubw, DO_PREINDEX_U; DO_LOAD_B; DO_WRITEBACK)
+    DEFINE_LDR_OPCODE(pubw, DO_PREINDEX_U; DO_WRITEBACK; DO_LOAD_B)
 }
