@@ -20,7 +20,7 @@ namespace gbaemu::gba::io {
     }
 
     void initRegister(uint32_t address, int registerNumber, uint16_t initialValue, writeCallback_t *writeCallback, uint16_t readMask, uint16_t writeMask) {
-        address = convertAddress(address) >> 1;
+        address = convertAddress(address);
         io[address] = {registerNumber, initialValue, writeCallback, readMask, writeMask};
     }
 
@@ -135,8 +135,8 @@ namespace gbaemu::gba::io {
         initRegister(0x04000126, SIOMULTI3, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000128, SIOCNT, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x0400012a, SIOMLT_SEND, 0x0000, NULL, 0xffff, 0xffff);
-        initRegister(0x04000130, KEYINPUT, 0x0000, NULL, 0xffff, 0x0000);
-        initRegister(0x04000132, KEYCNT, 0x0000, NULL, 0xffff, 0xffff);
+        initRegister(0x04000130, KEYINPUT, 0x0000, NULL, 0x03ff, 0x0000);
+        initRegister(0x04000132, KEYCNT, 0x0000, NULL, 0xc3ff, 0xc3ff);
         initRegister(0x04000134, RCNT, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000136, IR, 0x0000, NULL, 0x0000, 0x0000);
         initRegister(0x04000140, JOYCNT, 0x0000, NULL, 0xffff, 0xffff);
@@ -168,6 +168,10 @@ namespace gbaemu::gba::io {
 
         if(address == UINT32_MAX) {
             return 0x0000;
+        }
+
+        if(address == (io::KEYINPUT >> 1)) {
+            printf("keyinput=%04x (true=%04x)\n", io[address].value & io[address].readMask);
         }
 
         return io[address].value & io[address].readMask;
