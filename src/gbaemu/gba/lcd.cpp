@@ -73,10 +73,11 @@ namespace gbaemu::gba::lcd {
         dispcnt_t dispcnt;
 
         dispcnt.value = dispcnt_int;
+        uint32_t frameBufferOffset = (gbaemu::gba::io::get(io::DISPCNT) & 0x00000010) ? 0x0000a000 : 0x00000000;
 
         for(unsigned int y = 0; y < screenHeight; y++) {
             for(unsigned int x = 0; x < screenWidth; x++) {
-                frameBuffer[y * screenWidth + x] = getPaletteColor(vram[y * screenWidth + x]);
+                frameBuffer[y * screenWidth + x] = getPaletteColor(vram[frameBufferOffset + y * screenWidth + x]);
             }
         }
 

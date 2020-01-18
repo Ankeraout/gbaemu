@@ -99,6 +99,7 @@ namespace gbaemu::gba::cpu {
                     //printf("E [%08x] %08x\n", PC - 8, pipeline.decodedOpcodeARM_value);
                     if(checkCondition(pipeline.decodedOpcodeARM_value)) {
                         if(!pipeline.decodedOpcodeARM) {
+                            printf("Warning: undefined opcode %08x at %08x\n", pipeline.decodedOpcodeARM_value, PC - 8);
                             raiseUnd();
                         } else {
                             pipeline.decodedOpcodeARM(pipeline.decodedOpcodeARM_value);
@@ -110,6 +111,7 @@ namespace gbaemu::gba::cpu {
                 case CPU_MODE_THUMB:
                     //printf("E [%08x] %04x\n", PC - 4, pipeline.decodedOpcodeThumb_value);
                     if(!pipeline.decodedOpcodeThumb) {
+                        printf("Warning: undefined opcode %04x at %08x\n", pipeline.decodedOpcodeARM_value, PC - 4);
                         raiseUnd();
                     } else {
                         pipeline.decodedOpcodeThumb(pipeline.decodedOpcodeThumb_value);

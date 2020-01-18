@@ -15,10 +15,12 @@
     void opcode_ ## name ## _ ## suffix (uint32_t opcode) { \
         uint32_t Rn = (opcode & 0x000f0000) >> 16; \
         uint32_t Rd = (opcode & 0x0000f000) >> 12; \
-        uint32_t Rn_v = registerRead(Rn); \
-        uint32_t &op2 = shifter.result; \
+        uint64_t Rn_v = registerRead(Rn); \
         \
         gbaemu::gba::cpu::impl::arm::shift::shift ## suffix (opcode); \
+        \
+        uint64_t op2 = shifter.result; \
+        \
         body \
     }
 
@@ -103,10 +105,10 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         adds,
         uint64_t result = Rn_v + op2;
 
-        cpsr.fields.flagZ = !result;
+        cpsr.fields.flagZ = !((uint32_t)result);
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = ADD32_FLAGV(op2, Rn_v, (uint32_t)result);
-        cpsr.fields.flagC = result > UINT32_MAX;
+        cpsr.fields.flagC = result >> 32;
 
         registerWrite(Rd, (uint32_t)result);
     )
@@ -120,10 +122,10 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         adcs,
         uint64_t result = Rn_v + op2 + cpsr.fields.flagC;
 
-        cpsr.fields.flagZ = !result;
+        cpsr.fields.flagZ = !((uint32_t)result);
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = ADD32_FLAGV(op2, Rn_v, (uint32_t)result);
-        cpsr.fields.flagC = result > UINT32_MAX;
+        cpsr.fields.flagC = result >> 32;
 
         registerWrite(Rd, (uint32_t)result);
     )
