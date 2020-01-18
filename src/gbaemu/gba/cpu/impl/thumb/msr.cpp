@@ -20,18 +20,12 @@ namespace gbaemu::gba::cpu::impl::thumb::msr {
 
         uint32_t result;
 
-        if(!offset) {
-            result = Rs_v;
-            gbaemu::gba::cpu::cpsr.fields.flagC = cpsr.fields.flagC;
-        } else if(offset < 32) {
+        if(offset) {
             result = Rs_v << offset;
-            gbaemu::gba::cpu::cpsr.fields.flagC = (Rs_v >> (32 - offset)) & 0x00000001;
-        } else if(offset == 32) {
-            result = 0;
-            gbaemu::gba::cpu::cpsr.fields.flagC = Rs_v & 0x00000001;
+            cpsr.fields.flagC = (Rs_v >> (32 - offset)) & 0x00000001;
         } else {
-            result = 0;
-            gbaemu::gba::cpu::cpsr.fields.flagC = false;
+            result = Rs_v;
+            cpsr.fields.flagC = Rs_v & 0x00000001;
         }
 
         logicSetFlags(result);
@@ -43,18 +37,12 @@ namespace gbaemu::gba::cpu::impl::thumb::msr {
 
         uint32_t result;
 
-        if(!offset) {
-            result = Rs_v;
-            gbaemu::gba::cpu::cpsr.fields.flagC = cpsr.fields.flagC;
-        } else if(offset < 32) {
+        if(offset) {
             result = Rs_v >> offset;
-            gbaemu::gba::cpu::cpsr.fields.flagC = (Rs_v >> (offset - 1)) & 0x00000001;
-        } else if(offset == 32) {
-            result = 0;
-            gbaemu::gba::cpu::cpsr.fields.flagC = SIGN32(Rs_v);
+            cpsr.fields.flagC = (Rs_v >> (offset - 1)) & 0x00000001;
         } else {
             result = 0;
-            gbaemu::gba::cpu::cpsr.fields.flagC = false;
+            cpsr.fields.flagC = SIGN32(Rs_v);
         }
 
         logicSetFlags(result);
@@ -66,18 +54,12 @@ namespace gbaemu::gba::cpu::impl::thumb::msr {
 
         uint32_t result;
 
-        if(!offset) {
-            result = Rs_v;
-            gbaemu::gba::cpu::cpsr.fields.flagC = cpsr.fields.flagC;
-        } else if(offset < 32) {
-            result = Rs_v >> offset;
-            gbaemu::gba::cpu::cpsr.fields.flagC = (Rs_v >> (offset - 1)) & 0x00000001;
-        } else if(SIGN32(Rs_v)) {
-            result = 0xffffffff;
-            gbaemu::gba::cpu::cpsr.fields.flagC = true;
+        if(offset) {
+            result = (int32_t)Rs_v >> offset;
+            cpsr.fields.flagC = (Rs_v >> (offset - 1)) & 0x00000001;
         } else {
-            result = 0;
-            gbaemu::gba::cpu::cpsr.fields.flagC = false;
+            result = (int32_t)Rs_v >> 31;
+            cpsr.fields.flagC = SIGN32(Rs_v);
         }
 
         logicSetFlags(result);
