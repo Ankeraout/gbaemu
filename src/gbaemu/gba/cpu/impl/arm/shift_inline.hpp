@@ -98,8 +98,8 @@ namespace gbaemu::gba::cpu::impl::arm::shift {
             shifter.result = (int32_t)Rm_v >> immediate;
             shifter.flagC = (Rm_v >> (immediate - 1)) & 0x00000001;
         } else {
-            shifter.result = SIGN32(Rm_v);
-            shifter.flagC = shifter.flagC;
+            shifter.result = (int32_t)Rm_v >> 31;
+            shifter.flagC = SIGN32(Rm_v);
         }
     }
 
