@@ -1,5 +1,4 @@
 #include <cstdint>
-#include <cstdio>
 
 #include <gbaemu/gbaemu.hpp>
 #include <gbaemu/gba/cpu.hpp>

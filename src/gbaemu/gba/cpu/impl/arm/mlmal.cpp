@@ -11,8 +11,8 @@
     const uint32_t Rs = (opcode & 0x00000f00) >> 8; \
     const uint32_t Rm = opcode & 0x0000000f; \
     \
-    const uint32_t Rm_v = registerRead(Rm); \
-    const uint32_t Rs_v = registerRead(Rs); \
+    const uint64_t Rm_v = registerRead(Rm); \
+    const uint64_t Rs_v = registerRead(Rs); \
 
 #define ACCUMULATE_BASE \
     const uint64_t RdHi_v = registerRead(RdHi); \
@@ -28,11 +28,11 @@
     const uint64_t result = Rm_v * Rs_v + Rd_v
 
 #define SMULL_BASE \
-    const uint64_t result = (int32_t)Rm_v * (int32_t)Rs_v
+    const uint64_t result = (int64_t)Rm_v * (int64_t)Rs_v
 
 #define SMLAL_BASE \
     ACCUMULATE_BASE; \
-    const uint64_t result = (int32_t)Rm_v * (int32_t)Rs_v + Rd_v
+    const uint64_t result = (int64_t)Rm_v * (int64_t)Rs_v + Rd_v
 
 #define COMPUTE_FLAGS \
     cpsr.fields.flagZ = !result; \
