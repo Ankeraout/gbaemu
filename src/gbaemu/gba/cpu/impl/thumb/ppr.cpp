@@ -54,7 +54,7 @@ namespace gbaemu::gba::cpu::impl::thumb::ppr {
     DEFINE_PPR_POP_OPCODE(,)
     DEFINE_PPR_POP_OPCODE(
         _pc,
-        performJump(mmu::read32(sp) - 2);
+        performJump(mmu::read32(sp));
         sp += 4;
     )
 }

@@ -6,6 +6,12 @@
 
 namespace gbaemu::gba::cpu::impl::thumb::ub {
     void opcode_b(uint16_t opcode) {
-        performJump(registerRead(CPU_REG_PC) + ((opcode & 0x07ff) << 1));
+        int32_t offset = opcode & 0x07ff;
+
+        if(opcode & 0x0400) {
+            offset |= 0xfffff800;
+        }
+
+        performJump(registerRead(CPU_REG_PC) + (offset << 1));
     }
 }

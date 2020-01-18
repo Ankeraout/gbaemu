@@ -25,7 +25,6 @@
         \
         if(dest & 0x00000001) { \
             dest &= 0xfffffffe; \
-            dest += 2; \
         } else { \
             dest &= 0xfffffffc; \
         } \

@@ -234,7 +234,7 @@ namespace gbaemu::gba::cpu {
     }
 
     void performJump(uint32_t address) {
-        address -= 4;
+        address -= (cpsr.fields.flagT) ? 2 : 4;
 
         PC = address;
         pipeline.pipelineStage = PIPELINE_FLUSH;

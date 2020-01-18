@@ -14,7 +14,7 @@ namespace gbaemu::gba::cpu::impl::thumb::lbl {
         uint16_t offset = opcode & 0x07ff;
         uint32_t temp = registerRead(CPU_REG_PC) - 2;
 
-        performJump(registerRead(CPU_REG_LR) + (offset << 1) + 2);
+        performJump(registerRead(CPU_REG_LR) + (offset << 1));
         registerWrite(CPU_REG_LR, temp | 1);
     }
 }

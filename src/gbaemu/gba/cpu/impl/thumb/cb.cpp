@@ -7,7 +7,7 @@
         int32_t offset = ((int8_t)(opcode & 0x00ff)) << 1; \
         \
         if(cond) { \
-            gbaemu::gba::cpu::performJump(registerRead(CPU_REG_PC) + offset + 2); \
+            gbaemu::gba::cpu::performJump(registerRead(CPU_REG_PC) + offset); \
         } \
     }
 
