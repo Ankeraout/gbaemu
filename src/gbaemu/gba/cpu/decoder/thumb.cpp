@@ -78,9 +78,9 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         REP8(gbaemu::gba::cpu::impl::thumb::lsro::opcode_str), // 0x500
         REP8(gbaemu::gba::cpu::impl::thumb::lssebh::opcode_strh), // 0x520
         REP8(gbaemu::gba::cpu::impl::thumb::lsro::opcode_strb), // 0x540
-        REP8(gbaemu::gba::cpu::impl::thumb::lssebh::opcode_ldrh), // 0x560
+        REP8(gbaemu::gba::cpu::impl::thumb::lssebh::opcode_ldrsb), // 0x560
         REP8(gbaemu::gba::cpu::impl::thumb::lsro::opcode_ldr), // 0x580
-        REP8(gbaemu::gba::cpu::impl::thumb::lssebh::opcode_ldrsb), // 0x5a0
+        REP8(gbaemu::gba::cpu::impl::thumb::lssebh::opcode_ldrh), // 0x5a0
         REP8(gbaemu::gba::cpu::impl::thumb::lsro::opcode_ldrb), // 0x5c0
         REP8(gbaemu::gba::cpu::impl::thumb::lssebh::opcode_ldrsh), // 0x5e0
         REP32(gbaemu::gba::cpu::impl::thumb::lsio::opcode_str), // 0x600

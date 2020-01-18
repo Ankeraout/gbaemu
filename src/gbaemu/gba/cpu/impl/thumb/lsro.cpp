@@ -29,7 +29,10 @@ namespace gbaemu::gba::cpu::impl::thumb::lsro {
     
     void opcode_ldr(uint16_t opcode) {
         OPCODE_BASE;
-        registerWrite(Rd, mmu::read32(address));
+        const uint32_t loadedValue = gbaemu::gba::mmu::read32(address);
+        const uint32_t rotation = (address & 0x03) << 3;
+        
+        registerWrite(Rd, (loadedValue << (32 - rotation)) | (loadedValue >> rotation));
     }
     
     void opcode_ldrb(uint16_t opcode) {

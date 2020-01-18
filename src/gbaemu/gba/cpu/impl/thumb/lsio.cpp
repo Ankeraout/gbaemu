@@ -17,7 +17,16 @@
 
 namespace gbaemu::gba::cpu::impl::thumb::lsio {
     DEFINE_LSIO_OPCODE(str, mmu::write32(address, registerRead(Rd)), << 2)
-    DEFINE_LSIO_OPCODE(ldr, registerWrite(Rd, mmu::read32(address)), << 2)
+
+    DEFINE_LSIO_OPCODE(
+        ldr,
+        const uint32_t loadedValue = gbaemu::gba::mmu::read32(address);
+        const uint32_t rotation = (address & 0x03) << 3;
+
+        registerWrite(Rd, (loadedValue << (32 - rotation)) | (loadedValue >> rotation)),
+        << 2
+    )
+
     DEFINE_LSIO_OPCODE(strb, mmu::write8(address, registerRead(Rd)), )
     DEFINE_LSIO_OPCODE(ldrb, registerWrite(Rd, mmu::read8(address)), )
 }
