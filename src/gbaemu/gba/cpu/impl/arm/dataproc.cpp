@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <cstdio>
 
 #include <gbaemu/gbaemu.hpp>
 #include <gbaemu/gba/cpu.hpp>
@@ -132,12 +133,12 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
 
     DECLARE_DATAPROC_OPCODE(
         sbc,
-        registerWrite(Rd, Rn_v - op2 - !cpsr.fields.flagC);
+        registerWrite(Rd, Rn_v - op2 + cpsr.fields.flagC - 1);
     )
 
     DECLARE_DATAPROC_OPCODE(
         sbcs,
-        uint32_t result = Rn_v - op2 - !cpsr.fields.flagC;
+        uint32_t result = Rn_v - op2 + cpsr.fields.flagC - 1;
 
         cpsr.fields.flagZ = !result;
         cpsr.fields.flagN = SIGN32(result);

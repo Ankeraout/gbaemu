@@ -24,6 +24,6 @@ namespace gbaemu::gba::cpu::impl::arm::sds {
         OPCODE_BASE;
         const uint8_t Rd_v = mmu::read8(Rn_v);
         mmu::write8(Rn_v, Rm_v);
-        registerWrite(Rd, (registerRead(Rd) & 0xffffff00) | Rd_v);
+        registerWrite(Rd, Rd_v);
     }
 }
