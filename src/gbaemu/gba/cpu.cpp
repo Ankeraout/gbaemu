@@ -328,4 +328,17 @@ namespace gbaemu::gba::cpu {
     void if_writeCallback(uint16_t value) {
         io::set(io::IF, io::get(io::IF) & ~value);
     }
+
+    void writeCPSR(uint32_t value) {
+        uint32_t mask;
+
+        if(cpsr.fields.mode == PSR_MODE_USR) {
+            mask = 0xff000000;
+        } else {
+            mask = 0xffffffff;
+        }
+
+        cpsr.value &= ~mask;
+        cpsr.value |= value & mask;
+    }
 }

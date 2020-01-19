@@ -197,7 +197,7 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         UNUSED(Rd);
         uint64_t result = Rn_v + op2;
 
-        cpsr.fields.flagZ = !result;
+        cpsr.fields.flagZ = !((uint32_t)result);
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = ADD32_FLAGV(op2, Rn_v, (uint32_t)result);
         cpsr.fields.flagC = result > UINT32_MAX;
