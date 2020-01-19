@@ -21,6 +21,19 @@ namespace gbaemu::gba::cartridge {
     void readForcedSaveType();
     void allocateSave();
 
+    uint32_t getRomSize(uint32_t fileSize) {
+        uint32_t maxIndex = fileSize - 1;
+        uint32_t currentRomSize = 0x00000080;
+        uint32_t currentMask = 0xffffff80;
+
+        while(maxIndex & currentMask) {
+            currentRomSize <<= 1;
+            currentMask <<= 1;
+        }
+
+        return currentRomSize;
+    }
+
     void init(const char *romFilePath) {
         saveFilePath = NULL;
         saveData = NULL;
@@ -34,8 +47,8 @@ namespace gbaemu::gba::cartridge {
         }
 
         size_t romFileSize(gbaemu::getFileSize(romFilePath));
-
-        romData = new uint8_t[romFileSize];
+        romSize = getRomSize(romFileSize);
+        romData = new uint8_t[romSize];
 
         if(!romData) {
             throw runtime_error("memory allocation failed.");
@@ -59,7 +72,9 @@ namespace gbaemu::gba::cartridge {
 
         romFile.close();
 
-        romSize = romFileSize;
+        // Pad the remaining bytes with 0s
+        memset(romData + romFileSize, 0, romSize - romFileSize);
+
         romAddressMask = romSize - 1;
 
         if(gbaemu::conf.forcedSaveType) {
