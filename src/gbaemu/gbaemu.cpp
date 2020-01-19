@@ -7,27 +7,30 @@
 
 #include <gbaemu/frontend.hpp>
 
+#include <SDL2/SDL.h>
+
 using namespace std;
 
 namespace gbaemu {
     conf_t conf;
 
-    int _main(int argc, const char *argv[]);
+    int _main(int argc, char *argv[]);
     void resetConfiguration();
-    int readCommandLineArguments(int argc, const char *argv[]);
+    int readCommandLineArguments(int argc, char *argv[]);
     int checkConfiguration();
 }
 
-int main(int argc, const char *argv[]) {
+int main(int argc, char *argv[]) {
     try {
-        gbaemu::_main(argc, argv);
+        return gbaemu::_main(argc, argv);
     } catch(runtime_error &e) {
         cerr << "Error: " << e.what() << endl;
+        return EXIT_FAILURE;
     }
 }
 
 namespace gbaemu {
-    int _main(int argc, const char *argv[]) {
+    int _main(int argc, char *argv[]) {
         resetConfiguration();
 
         if(readCommandLineArguments(argc, argv)) {
@@ -75,7 +78,7 @@ namespace gbaemu {
         memset(&gbaemu::conf, 0, sizeof(gbaemu::conf));
     }
 
-    int readCommandLineArguments(int argc, const char *argv[]) {
+    int readCommandLineArguments(int argc, char *argv[]) {
         bool flag_bios = false;
         bool flag_rom = false;
 
