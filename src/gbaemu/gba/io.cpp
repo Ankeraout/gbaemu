@@ -7,6 +7,7 @@
 #include <gbaemu/gba/dma.hpp>
 #include <gbaemu/gba/io.hpp>
 #include <gbaemu/gba/lcd.hpp>
+#include <gbaemu/gba/timer.hpp>
 
 namespace gbaemu::gba::io {
     ioregTableEntry_t io[0x402];
@@ -123,14 +124,14 @@ namespace gbaemu::gba::io {
         initRegister(0x040000da, DMA3DAD_H, 0x0000, NULL, 0x0000, 0xffff);
         initRegister(0x040000dc, DMA3CNT_L, 0x0000, NULL, 0x0000, 0xffff);
         initRegister(0x040000de, DMA3CNT_H, 0x0000, gbaemu::gba::dma::writeCallback_dma3cnt, 0xffff, 0xffff);
-        initRegister(0x04000100, TM0CNT_L, 0x0000, NULL, 0xffff, 0xffff);
-        initRegister(0x04000102, TM0CNT_H, 0x0000, NULL, 0xffff, 0xffff);
-        initRegister(0x04000104, TM1CNT_L, 0x0000, NULL, 0xffff, 0xffff);
-        initRegister(0x04000106, TM1CNT_H, 0x0000, NULL, 0xffff, 0xffff);
-        initRegister(0x04000108, TM2CNT_L, 0x0000, NULL, 0xffff, 0xffff);
-        initRegister(0x0400010a, TM2CNT_H, 0x0000, NULL, 0xffff, 0xffff);
-        initRegister(0x0400010c, TM3CNT_L, 0x0000, NULL, 0xffff, 0xffff);
-        initRegister(0x0400010e, TM3CNT_H, 0x0000, NULL, 0xffff, 0xffff);
+        initRegister(0x04000100, TM0CNT_L, 0x0000, gbaemu::gba::timer::writeCallback_tm0cnt_l, 0xffff, 0xffff);
+        initRegister(0x04000102, TM0CNT_H, 0x0000, gbaemu::gba::timer::writeCallback_tm0cnt_h, 0xffff, 0xffff);
+        initRegister(0x04000104, TM1CNT_L, 0x0000, gbaemu::gba::timer::writeCallback_tm1cnt_l, 0xffff, 0xffff);
+        initRegister(0x04000106, TM1CNT_H, 0x0000, gbaemu::gba::timer::writeCallback_tm1cnt_h, 0xffff, 0xffff);
+        initRegister(0x04000108, TM2CNT_L, 0x0000, gbaemu::gba::timer::writeCallback_tm2cnt_l, 0xffff, 0xffff);
+        initRegister(0x0400010a, TM2CNT_H, 0x0000, gbaemu::gba::timer::writeCallback_tm2cnt_h, 0xffff, 0xffff);
+        initRegister(0x0400010c, TM3CNT_L, 0x0000, gbaemu::gba::timer::writeCallback_tm3cnt_l, 0xffff, 0xffff);
+        initRegister(0x0400010e, TM3CNT_H, 0x0000, gbaemu::gba::timer::writeCallback_tm3cnt_h, 0xffff, 0xffff);
         initRegister(0x04000120, SIOMULTI0, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000122, SIOMULTI1, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000124, SIOMULTI2, 0x0000, NULL, 0xffff, 0xffff);
