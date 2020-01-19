@@ -157,7 +157,6 @@ namespace gbaemu::gba::cpu {
     void cycle() {
         if((io::get(io::IME) & 0x00000001) && (io::get(io::IF) & io::get(io::IE) & 0x3fff)) {
             raiseIRQ();
-            printf("IRQ\n");
         }
 
         uint32_t cycleFetchOffset = PC;
@@ -324,5 +323,9 @@ namespace gbaemu::gba::cpu {
         cpsr.fields.flagT = 0;
         cpsr.fields.flagI = 1;
         registerWrite(CPU_REG_PC, 0x00000018);
+    }
+
+    void if_writeCallback(uint16_t value) {
+        io::set(io::IF, io::get(io::IF) & ~value);
     }
 }

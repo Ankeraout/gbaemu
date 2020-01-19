@@ -6,9 +6,10 @@ One of the goals of this project is portability.
 Here are the supported platforms:
 
 - PC:
-    - Windows (x86/x64) : Supported
+    - Windows (x86/x64) : Untested SDL2 dependency
     - Linux (x86/x64) : Supported
     - Mac OS X : Probably working, untested
 
 ## Dependencies
-For now this project has no dependencies as the front-end is not even started, but it will probably need a library such as [SDL2](https://www.libsdl.org/) or [Dear ImGui](https://github.com/ocornut/imgui).
+For now this project relies on [SDL2](https://www.libsdl.org/) for display and controls.
+Because packed structures are used in the code, only GCC or Microsoft Visual C++ 2019 may be able to compile it, as there was no porting effort made for other compilers.

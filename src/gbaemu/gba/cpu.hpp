@@ -165,4 +165,7 @@ namespace gbaemu::gba::cpu {
 
     // Debug API
     extern void displayState();
+
+    // Interrupt I/O ports
+    extern void if_writeCallback(uint16_t value);
 }

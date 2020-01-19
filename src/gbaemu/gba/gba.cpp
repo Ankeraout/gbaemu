@@ -5,6 +5,7 @@
 #include <gbaemu/fs.hpp>
 #include <gbaemu/gba/cartridge.hpp>
 #include <gbaemu/gba/cpu.hpp>
+#include <gbaemu/gba/dma.hpp>
 #include <gbaemu/gba/gba.hpp>
 #include <gbaemu/gba/io.hpp>
 #include <gbaemu/gba/keypad.hpp>
@@ -23,6 +24,7 @@ namespace gbaemu::gba {
         loadBIOS(biosFilePath);
         cartridge::init(romFilePath);
         cpu::init();
+        dma::init();
         io::init();
         keypad::init();
     }
@@ -60,7 +62,10 @@ namespace gbaemu::gba {
     }
 
     void cycle() {
-        cpu::cycle();
+        if(!dma::cycle()) {
+            cpu::cycle();
+        }
+
         lcd::cycle();
     }
 }

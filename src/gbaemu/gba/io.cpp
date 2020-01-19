@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <cstring>
 
+#include <gbaemu/gba/cpu.hpp>
+#include <gbaemu/gba/dma.hpp>
 #include <gbaemu/gba/io.hpp>
 #include <gbaemu/gba/lcd.hpp>
 
@@ -102,25 +104,25 @@ namespace gbaemu::gba::io {
         initRegister(0x040000b4, DMA0DAD_L, 0x0000, NULL, 0x0000, 0xffff);
         initRegister(0x040000b6, DMA0DAD_H, 0x0000, NULL, 0x0000, 0xffff);
         initRegister(0x040000b8, DMA0CNT_L, 0x0000, NULL, 0x0000, 0xffff);
-        initRegister(0x040000ba, DMA0CNT_H, 0x0000, NULL, 0xffff, 0xffff);
+        initRegister(0x040000ba, DMA0CNT_H, 0x0000, gbaemu::gba::dma::writeCallback_dma0cnt, 0xffff, 0xffff);
         initRegister(0x040000bc, DMA1SAD_L, 0x0000, NULL, 0x0000, 0xffff);
         initRegister(0x040000be, DMA1SAD_H, 0x0000, NULL, 0x0000, 0xffff);
         initRegister(0x040000c0, DMA1DAD_L, 0x0000, NULL, 0x0000, 0xffff);
         initRegister(0x040000c2, DMA1DAD_H, 0x0000, NULL, 0x0000, 0xffff);
         initRegister(0x040000c4, DMA1CNT_L, 0x0000, NULL, 0x0000, 0xffff);
-        initRegister(0x040000c6, DMA1CNT_H, 0x0000, NULL, 0xffff, 0xffff);
+        initRegister(0x040000c6, DMA1CNT_H, 0x0000, gbaemu::gba::dma::writeCallback_dma1cnt, 0xffff, 0xffff);
         initRegister(0x040000c8, DMA2SAD_L, 0x0000, NULL, 0x0000, 0xffff);
         initRegister(0x040000ca, DMA2SAD_H, 0x0000, NULL, 0x0000, 0xffff);
         initRegister(0x040000cc, DMA2DAD_L, 0x0000, NULL, 0x0000, 0xffff);
         initRegister(0x040000ce, DMA2DAD_H, 0x0000, NULL, 0x0000, 0xffff);
         initRegister(0x040000d0, DMA2CNT_L, 0x0000, NULL, 0x0000, 0xffff);
-        initRegister(0x040000d2, DMA2CNT_H, 0x0000, NULL, 0xffff, 0xffff);
+        initRegister(0x040000d2, DMA2CNT_H, 0x0000, gbaemu::gba::dma::writeCallback_dma2cnt, 0xffff, 0xffff);
         initRegister(0x040000d4, DMA3SAD_L, 0x0000, NULL, 0x0000, 0xffff);
         initRegister(0x040000d6, DMA3SAD_H, 0x0000, NULL, 0x0000, 0xffff);
         initRegister(0x040000d8, DMA3DAD_L, 0x0000, NULL, 0x0000, 0xffff);
         initRegister(0x040000da, DMA3DAD_H, 0x0000, NULL, 0x0000, 0xffff);
         initRegister(0x040000dc, DMA3CNT_L, 0x0000, NULL, 0x0000, 0xffff);
-        initRegister(0x040000de, DMA3CNT_H, 0x0000, NULL, 0xffff, 0xffff);
+        initRegister(0x040000de, DMA3CNT_H, 0x0000, gbaemu::gba::dma::writeCallback_dma3cnt, 0xffff, 0xffff);
         initRegister(0x04000100, TM0CNT_L, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000102, TM0CNT_H, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000104, TM1CNT_L, 0x0000, NULL, 0xffff, 0xffff);
@@ -145,7 +147,7 @@ namespace gbaemu::gba::io {
         initRegister(0x04000154, JOY_TRANS_L, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000156, JOY_TRANS_H, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000158, JOYSTAT, 0x0000, NULL, 0xffff, 0xffff);
-        initRegister(0x04000200, IE, 0x0000, NULL, 0xffff, 0xffff);
+        initRegister(0x04000200, IE, 0x0000, cpu::if_writeCallback, 0xffff, 0xffff);
         initRegister(0x04000202, IF, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000204, WAITCNT, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000208, IME, 0x0000, NULL, 0xffff, 0xffff);
@@ -212,7 +214,16 @@ namespace gbaemu::gba::io {
         io[index >> 1].value = value;
     }
 
+    void set32(unsigned int index, uint32_t value) {
+        set(index, value & 0x0000ffff);
+        set(index + 1, value >> 16);
+    }
+
     uint16_t get(unsigned int index) {
         return io[index >> 1].value;
+    }
+
+    uint32_t get32(unsigned int index) {
+        return get(index) | (get(index + 1) << 16);
     }
 }
