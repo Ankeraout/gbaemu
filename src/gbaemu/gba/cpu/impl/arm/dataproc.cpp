@@ -11,29 +11,41 @@
     cpsr.fields.flagN = SIGN32(result); \
     cpsr.fields.flagC = shifter.flagC
 
-#define DECLARE_DATAPROC_OPCODE_SINGLE(name, suffix, body) \
+#define S_FOOTER \
+    if(Rd == 15) { \
+        cpsr = readSPSR(); \
+    }
+
+#define DECLARE_DATAPROC_OPCODE_SINGLE(name, suffix, rncheck, body) \
     void opcode_ ## name ## _ ## suffix (uint32_t opcode) { \
         uint32_t Rn = (opcode & 0x000f0000) >> 16; \
         uint32_t Rd = (opcode & 0x0000f000) >> 12; \
         uint64_t Rn_v = registerRead(Rn); \
         \
+        rncheck; \
+        \
         gbaemu::gba::cpu::impl::arm::shift::shift ## suffix (opcode); \
         \
         uint64_t op2 = shifter.result; \
         \
-        body \
+        body; \
+    }
+
+#define CHECK_RN_SHIFTREG \
+    if(Rn == 15) { \
+        Rn += 4; \
     }
 
 #define DECLARE_DATAPROC_OPCODE(name, body) \
-    DECLARE_DATAPROC_OPCODE_SINGLE(name, LSL_Rm_0, body) \
-    DECLARE_DATAPROC_OPCODE_SINGLE(name, LSL_Rm_1, body) \
-    DECLARE_DATAPROC_OPCODE_SINGLE(name, LSR_Rm_0, body) \
-    DECLARE_DATAPROC_OPCODE_SINGLE(name, LSR_Rm_1, body) \
-    DECLARE_DATAPROC_OPCODE_SINGLE(name, ASR_Rm_0, body) \
-    DECLARE_DATAPROC_OPCODE_SINGLE(name, ASR_Rm_1, body) \
-    DECLARE_DATAPROC_OPCODE_SINGLE(name, ROR_Rm_0, body) \
-    DECLARE_DATAPROC_OPCODE_SINGLE(name, ROR_Rm_1, body) \
-    DECLARE_DATAPROC_OPCODE_SINGLE(name, Immediate, body)
+    DECLARE_DATAPROC_OPCODE_SINGLE(name, LSL_Rm_0, CHECK_RN_SHIFTREG, body) \
+    DECLARE_DATAPROC_OPCODE_SINGLE(name, LSL_Rm_1, CHECK_RN_SHIFTREG, body) \
+    DECLARE_DATAPROC_OPCODE_SINGLE(name, LSR_Rm_0, CHECK_RN_SHIFTREG, body) \
+    DECLARE_DATAPROC_OPCODE_SINGLE(name, LSR_Rm_1, CHECK_RN_SHIFTREG, body) \
+    DECLARE_DATAPROC_OPCODE_SINGLE(name, ASR_Rm_0, CHECK_RN_SHIFTREG, body) \
+    DECLARE_DATAPROC_OPCODE_SINGLE(name, ASR_Rm_1, CHECK_RN_SHIFTREG, body) \
+    DECLARE_DATAPROC_OPCODE_SINGLE(name, ROR_Rm_0, CHECK_RN_SHIFTREG, body) \
+    DECLARE_DATAPROC_OPCODE_SINGLE(name, ROR_Rm_1, CHECK_RN_SHIFTREG, body) \
+    DECLARE_DATAPROC_OPCODE_SINGLE(name, Immediate, , body)
 
 namespace gbaemu::gba::cpu::impl::arm::dataproc {
     DECLARE_DATAPROC_OPCODE(
@@ -47,6 +59,8 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         
         logicSetFlags(result);
         registerWrite(Rd, result);
+
+        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -60,6 +74,8 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         
         logicSetFlags(result);
         registerWrite(Rd, result);
+
+        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -77,6 +93,8 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         cpsr.fields.flagC = SUB32_FLAGC(Rn_v, op2);
 
         registerWrite(Rd, result);
+
+        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -94,6 +112,8 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         cpsr.fields.flagC = SUB32_FLAGC(op2, Rn_v);
 
         registerWrite(Rd, result);
+
+        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -111,6 +131,8 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         cpsr.fields.flagC = result >> 32;
 
         registerWrite(Rd, (uint32_t)result);
+
+        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -128,6 +150,8 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         cpsr.fields.flagC = result >> 32;
 
         registerWrite(Rd, (uint32_t)result);
+
+        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -145,6 +169,8 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         cpsr.fields.flagC = SBC32_FLAGC(Rn_v, op2, !cpsr.fields.flagC);
 
         registerWrite(Rd, result);
+
+        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -162,6 +188,8 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         cpsr.fields.flagC = SBC32_FLAGC(op2, Rn_v, !cpsr.fields.flagC);
 
         registerWrite(Rd, result);
+
+        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -170,6 +198,8 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         
         logicSetFlags(result);
         registerWrite(Rd, result);
+
+        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -178,6 +208,8 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         
         logicSetFlags(result);
         registerWrite(Rd, result);
+
+        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -190,6 +222,8 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = SUB32_FLAGV(Rn_v, op2, result);
         cpsr.fields.flagC = SUB32_FLAGC(Rn_v, op2);
+
+        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -201,6 +235,8 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = ADD32_FLAGV(op2, Rn_v, (uint32_t)result);
         cpsr.fields.flagC = result > UINT32_MAX;
+
+        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -214,6 +250,8 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         
         logicSetFlags(result);
         registerWrite(Rd, result);
+
+        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -229,6 +267,8 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
 
         logicSetFlags(op2);
         registerWrite(Rd, op2);
+
+        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -242,6 +282,8 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         
         logicSetFlags(result);
         registerWrite(Rd, result);
+
+        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -258,5 +300,7 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
 
         logicSetFlags(result);
         registerWrite(Rd, result);
+
+        S_FOOTER;
     )
 }
