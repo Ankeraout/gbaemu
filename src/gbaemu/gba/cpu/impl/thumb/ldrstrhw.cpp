@@ -1,7 +1,7 @@
 #include <cstdint>
 
 #include <gbaemu/gba/cpu.hpp>
-#include <gbaemu/gba/cpu/impl/thumb/ldstrhw.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/ldrstrhw.hpp>
 #include <gbaemu/gba/mmu.hpp>
 
 #define OPCODE_BASE \

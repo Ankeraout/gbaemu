@@ -9,7 +9,7 @@
 #include <gbaemu/gba/cpu/impl/thumb/hrobe.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/la.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/lbl.hpp>
-#include <gbaemu/gba/cpu/impl/thumb/ldstrhw.hpp>
+#include <gbaemu/gba/cpu/impl/thumb/ldrstrhw.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/lsio.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/lsro.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/lssebh.hpp>
@@ -93,7 +93,8 @@ namespace gbaemu::gba::cpu::decoder::thumb {
         REP32(gbaemu::gba::cpu::impl::thumb::sprldstr::opcode_ldr), // 0x980
         REP32(gbaemu::gba::cpu::impl::thumb::la::opcode_add_pc), // 0xa00
         REP32(gbaemu::gba::cpu::impl::thumb::la::opcode_add_sp), // 0xa80
-        REP4(gbaemu::gba::cpu::impl::thumb::addspimm::opcode_add_sp_imm),
+        REP2(gbaemu::gba::cpu::impl::thumb::addspimm::opcode_add_sp_imm),
+        REP2(gbaemu::gba::cpu::impl::thumb::addspimm::opcode_sub_sp_imm),
         NULL, // 0xb10
         NULL, // 0xb14
         NULL, // 0xb18

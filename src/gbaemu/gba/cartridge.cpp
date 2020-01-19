@@ -20,6 +20,7 @@ namespace gbaemu::gba::cartridge {
     void detectSaveType();
     void readForcedSaveType();
     void allocateSave();
+    void checkChecksum();
 
     uint32_t getRomSize(uint32_t fileSize) {
         uint32_t maxIndex = fileSize - 1;
@@ -76,6 +77,9 @@ namespace gbaemu::gba::cartridge {
         memset(romData + romFileSize, 0, romSize - romFileSize);
 
         romAddressMask = romSize - 1;
+
+        // Check header checksum
+        checkChecksum();
 
         if(gbaemu::conf.forcedSaveType) {
             readForcedSaveType();
@@ -209,6 +213,20 @@ namespace gbaemu::gba::cartridge {
 
         if(saveSize > 0) {
             saveData = new uint8_t[saveSize];
+        }
+    }
+
+    void checkChecksum() {
+        uint8_t chk = 0;
+
+        for(int i = 0xa0; i <= 0xbc; i++) {
+            chk -= romData[i];
+        }
+
+        chk -= 0x19;
+
+        if(romData[0xbd] != chk) {
+            printf("Warning! Wrong cartridge header checksum. Expected 0x%02x, got 0x%02x.\n", chk, romData[0xbd]);
         }
     }
 }

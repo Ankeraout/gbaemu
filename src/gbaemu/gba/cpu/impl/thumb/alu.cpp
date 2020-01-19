@@ -93,13 +93,13 @@ namespace gbaemu::gba::cpu::impl::thumb::alu {
             result = Rd_v;
             gbaemu::gba::cpu::cpsr.fields.flagC = cpsr.fields.flagC;
         } else if(Rs_v < 32) {
-            result = Rd_v >> Rs_v;
+            result = (int32_t)Rd_v >> Rs_v;
             gbaemu::gba::cpu::cpsr.fields.flagC = (Rd_v >> (Rs_v - 1)) & 0x00000001;
         } else if(SIGN32(Rd_v)) {
             result = 0xffffffff;
             gbaemu::gba::cpu::cpsr.fields.flagC = true;
         } else {
-            result = 0;
+            result = Rd_v >> 31;
             gbaemu::gba::cpu::cpsr.fields.flagC = false;
         }
 
