@@ -33,7 +33,7 @@
 
 #define CHECK_RN_SHIFTREG \
     if(Rn == 15) { \
-        Rn += 4; \
+        Rn_v += 4; \
     }
 
 #define DECLARE_DATAPROC_OPCODE(name, body) \
