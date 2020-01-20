@@ -257,29 +257,22 @@ namespace gbaemu::gba::cpu {
 
     psr_t readSPSR() {
         if((cpsr.fields.mode == PSR_MODE_USR) || (cpsr.fields.mode == PSR_MODE_SYS)) {
-            fprintf(stderr, "Attempted to read SPSR in user or system mode.\n");
-            exit(1);
+            return cpsr;
         }
 
         return spsr[modeMapping[cpsr.fields.mode] - 1];
     }
 
     void writeSPSR(psr_t value) {
-        if((cpsr.fields.mode == PSR_MODE_USR) || (cpsr.fields.mode == PSR_MODE_SYS)) {
-            fprintf(stderr, "Attempted to write SPSR in user or system mode.\n");
-            exit(1);
+        if((cpsr.fields.mode != PSR_MODE_USR) && (cpsr.fields.mode != PSR_MODE_SYS)) {
+            spsr[modeMapping[cpsr.fields.mode] - 1] = value;
         }
-
-        spsr[modeMapping[cpsr.fields.mode] - 1] = value;
     }
 
     void writeSPSR(uint32_t value) {
-        if((cpsr.fields.mode == PSR_MODE_USR) || (cpsr.fields.mode == PSR_MODE_SYS)) {
-            fprintf(stderr, "Attempted to write SPSR in user or system mode.\n");
-            exit(1);
+        if((cpsr.fields.mode != PSR_MODE_USR) && (cpsr.fields.mode != PSR_MODE_SYS)) {
+            spsr[modeMapping[cpsr.fields.mode] - 1].value = value;
         }
-
-        spsr[modeMapping[cpsr.fields.mode] - 1].value = value;
     }
 
     void registerWrite(int reg, int mode, uint32_t value) {
@@ -291,21 +284,15 @@ namespace gbaemu::gba::cpu {
     }
 
     void writeSPSR(psr_t value, int mode) {
-        if((mode == MODE_USR) || (mode == MODE_SYS)) {
-            fprintf(stderr, "Attempted to write user or system SPSR.\n");
-            exit(1);
+        if((mode != MODE_USR) && (mode != MODE_SYS)) {
+            spsr[modeMapping[mode] - 1] = value;
         }
-
-        spsr[modeMapping[mode] - 1] = value;
     }
 
     void writeSPSR(uint32_t value, int mode) {
-        if((mode == MODE_USR) || (mode == MODE_SYS)) {
-            fprintf(stderr, "Attempted to write user or system SPSR.\n");
-            exit(1);
+        if((mode != MODE_USR) && (mode != MODE_SYS)) {
+            spsr[modeMapping[mode] - 1].value = value;
         }
-
-        spsr[modeMapping[mode] - 1].value = value;
     }
 
     void raiseUnd() {
