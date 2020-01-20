@@ -125,7 +125,7 @@ namespace gbaemu::gba::cpu::impl::arm::shift {
         HEADER_SHIFT_RM_0;
 
         if(immediate) {
-            shifter.result = ROR(Rm_v, immediate);
+            shifter.result = ROR32(Rm_v, immediate);
             shifter.flagC = (Rm_v >> (immediate - 1)) & 0x00000001;
         } else {
             // RRX
@@ -143,7 +143,7 @@ namespace gbaemu::gba::cpu::impl::arm::shift {
             shifter.result = value;
             shifter.flagC = cpsr.fields.flagC;
         } else if(rotation) {
-            shifter.result = ROR(value, rotation);
+            shifter.result = ROR32(value, rotation);
             shifter.flagC = (value >> (rotation - 1)) & 0x00000001;
         } else {
             shifter.result = value;
@@ -156,7 +156,7 @@ namespace gbaemu::gba::cpu::impl::arm::shift {
         unsigned int immediate = opcode & 0x000000ff;
 
         if(rotation) {
-            shifter.result = ROR(immediate, rotation);
+            shifter.result = ROR32(immediate, rotation);
             shifter.flagC = SIGN32(shifter.result);
         } else {
             shifter.result = immediate;

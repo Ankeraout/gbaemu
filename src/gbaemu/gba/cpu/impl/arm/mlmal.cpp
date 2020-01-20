@@ -5,8 +5,6 @@
 #include <gbaemu/gba/cpu/impl/logic_inline.hpp>
 #include <gbaemu/gba/mmu.hpp>
 
-#define S32TO64(x) ((int64_t)((int32_t)x))
-
 #define OPCODE_BASE \
     const uint32_t RdHi = (opcode & 0x000f0000) >> 16; \
     const uint32_t RdLo = (opcode & 0x0000f000) >> 12; \
@@ -30,11 +28,11 @@
     const uint64_t result = Rm_v * Rs_v + Rd_v
 
 #define SMULL_BASE \
-    const uint64_t result = S32TO64(Rm_v) * S32TO64(Rs_v)
+    const uint64_t result = SIGN32TO64(Rm_v) * SIGN32TO64(Rs_v)
 
 #define SMLAL_BASE \
     ACCUMULATE_BASE; \
-    const uint64_t result = S32TO64(Rm_v) * S32TO64(Rs_v) + Rd_v
+    const uint64_t result = SIGN32TO64(Rm_v) * SIGN32TO64(Rs_v) + Rd_v
 
 #define COMPUTE_FLAGS \
     cpsr.fields.flagZ = !result; \

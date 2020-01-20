@@ -1,6 +1,7 @@
 #include <cstdint>
 
 #include <gbaemu/gba/cpu.hpp>
+#include <gbaemu/gba/cpu/impl/logic_inline.hpp>
 #include <gbaemu/gba/cpu/impl/arm/hsdt.hpp>
 #include <gbaemu/gba/mmu.hpp>
 
@@ -80,13 +81,14 @@
     mmu::write16(address & 0xfffffffe, (uint16_t)value)
 
 #define DO_LOAD_H \
-    const uint32_t value = mmu::read16(address & 0xfffffffe)
+    const uint32_t value = ROR32(mmu::read16(address & 0xfffffffe), (address & 0x00000001) << 3)
 
 #define DO_LOAD_S \
     const uint32_t value = (uint32_t)((int8_t)mmu::read8(address))
 
 #define DO_LOAD_SH \
-    const uint32_t value = (uint32_t)((int16_t)mmu::read16(address & 0xfffffffe))
+    const uint32_t read = mmu::read16(address & 0xfffffffe); \
+    const uint32_t value = (address & 0x00000001) ? SIGN8TO32(read >> 8) : SIGN16TO32(read)
 
 #define DO_WRITEBACK \
     registerWrite(Rn, address)

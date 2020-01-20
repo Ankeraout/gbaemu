@@ -141,7 +141,7 @@ namespace gbaemu::gba::cpu::impl::thumb::alu {
             result = Rd_v;
             gbaemu::gba::cpu::cpsr.fields.flagC = cpsr.fields.flagC;
         } else if(rotation) {
-            result = ROR(Rd_v, rotation);
+            result = ROR32(Rd_v, rotation);
             gbaemu::gba::cpu::cpsr.fields.flagC = (Rd_v >> (rotation - 1)) & 0x00000001;
         } else {
             result = Rd_v;

@@ -40,6 +40,11 @@
     DEFINE_SDT_OPCODE( \
         str ## suffix, \
         uint32_t Rd_v = registerRead(Rd); \
+        \
+        if(Rd == 15) { \
+            Rd_v += 4; \
+        } \
+        \
         body \
     )
 
