@@ -1,6 +1,7 @@
 #include <cstdint>
 
 #include <gbaemu/gba/cpu.hpp>
+#include <gbaemu/gba/cpu/impl/logic_inline.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/lsio.hpp>
 #include <gbaemu/gba/mmu.hpp>
 
@@ -20,10 +21,7 @@ namespace gbaemu::gba::cpu::impl::thumb::lsio {
 
     DEFINE_LSIO_OPCODE(
         ldr,
-        const uint32_t loadedValue = gbaemu::gba::mmu::read32(address);
-        const uint32_t rotation = (address & 0x03) << 3;
-
-        registerWrite(Rd, (loadedValue << (32 - rotation)) | (loadedValue >> rotation)),
+        registerWrite(Rd, ROR32(gbaemu::gba::mmu::read32(address), (address & 0x03) << 3)),
         << 2
     )
 
