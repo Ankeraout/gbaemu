@@ -1,6 +1,7 @@
 #include <cstdint>
 
 #include <gbaemu/gba/cpu.hpp>
+#include <gbaemu/gba/cpu/impl/logic_inline.hpp>
 #include <gbaemu/gba/cpu/impl/arm/sds.hpp>
 #include <gbaemu/gba/mmu.hpp>
 
@@ -15,7 +16,7 @@
 namespace gbaemu::gba::cpu::impl::arm::sds {
     void opcode_swp(uint32_t opcode) {
         OPCODE_BASE;
-        const uint32_t Rd_v = mmu::read32(Rn_v);
+        const uint32_t Rd_v = ROR32(mmu::read32(Rn_v), (Rn_v & 0x03) << 3);
         mmu::write32(Rn_v, Rm_v);
         registerWrite(Rd, Rd_v);
     }
