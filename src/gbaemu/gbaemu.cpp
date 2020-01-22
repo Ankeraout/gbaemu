@@ -63,6 +63,7 @@ namespace gbaemu {
 
         // Jump directly to ROM
         gbaemu::gba::cpu::registerWrite(15, 0x08000000);
+
         gbaemu::gba::cpu::cpsr.fields.mode = gbaemu::gba::cpu::PSR_MODE_SYS;
 
         while(true) {
@@ -127,7 +128,10 @@ namespace gbaemu {
     }
 
     void quit() {
+        gbaemu::gba::cpu::displayState();
+        
         SDL_Quit();
+
         exit(0);
     }
 }

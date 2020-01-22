@@ -2,6 +2,7 @@
 
 #include <gbaemu/gba/cpu.hpp>
 #include <gbaemu/gba/cpu/impl/thumb/ldrstrhw.hpp>
+#include <gbaemu/gba/cpu/impl/logic_inline.hpp>
 #include <gbaemu/gba/mmu.hpp>
 
 #define OPCODE_BASE \
@@ -14,7 +15,8 @@
 namespace gbaemu::gba::cpu::impl::thumb::ldrstrhw {
     void opcode_ldrh(uint16_t opcode) {
         OPCODE_BASE;
-        registerWrite(Rd, mmu::read16(address));
+        uint16_t read = mmu::read16(address);
+        registerWrite(Rd, ROR32(read, ((address & 0x00000001) ? 8 : 0)));
     }
 
     void opcode_strh(uint16_t opcode) {
