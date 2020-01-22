@@ -1,5 +1,9 @@
 dist: bionic
 language: cpp
 compiler: gcc
-before_script: sudo apt-get install libsdl2-dev
+before_script: 
+    - sudo apt-get install libsdl2-dev unzip
+    - wget https://arm.flatassembler.net/FASMARM_full.ZIP
+    - unzip FASMARM_full.ZIP -d fasmarm
+    - export PATH=`pwd`/fasmarm:$PATH
 script: make all
