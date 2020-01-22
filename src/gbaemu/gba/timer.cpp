@@ -22,13 +22,14 @@ namespace gbaemu::gba::timer {
             timer[i].operate = false;
         }
     }
+    
     void cycle() {
         prescaler++;
 
         bool countUp = false;
 
         for(int i = 0; i < 4; i++) {
-            if(timer[i].operate && (((i == 0 || !timer[i].countUp) && ((prescaler % timer[i].prescaler) == 0))) || (timer[i].countUp && countUp)) {
+            if(timer[i].operate && ((((i == 0 || !timer[i].countUp) && ((prescaler % timer[i].prescaler) == 0))) || (timer[i].countUp && countUp))) {
                 timer[i].counter++;
 
                 if(timer[i].counter == 0) {

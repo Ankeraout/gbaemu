@@ -4,11 +4,15 @@
 
 #include <gbaemu/gba/keypad.hpp>
 #include <gbaemu/gba/lcd.hpp>
-
+#include <gbaemu/gbaemu.hpp>
 #include <gbaemu/frontend.hpp>
 
 namespace gbaemu::frontend {
     SDL_Window *window;
+    Uint32 nextFrameTime;
+    Uint32 framerateCounterUpdateTime;
+    Uint32 framerateCounter;
+    Uint32 currentFramerate;
 
     SDL_Keycode keyBindings[] = {
         SDLK_a,
@@ -31,7 +35,7 @@ namespace gbaemu::frontend {
         }
 
         window = SDL_CreateWindow(
-            "gbaemu",
+            "gbaemu [60 fps, 100%]",
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
             gbaemu::gba::lcd::screenWidth,
@@ -39,12 +43,43 @@ namespace gbaemu::frontend {
             SDL_WINDOW_SHOWN
         );
 
+        nextFrameTime = SDL_GetTicks();
+        framerateCounter = 0;
+        framerateCounterUpdateTime = SDL_GetTicks() + 1000;
+        currentFramerate = 0;
+
         return !window;
     }
 
     int close() {
         SDL_Quit();
         return 0;
+    }
+
+    void limitFramerate() {
+        while(nextFrameTime > SDL_GetTicks()) {
+            SDL_Delay(1);
+        }
+
+        nextFrameTime = SDL_GetTicks() + 16;
+    }
+
+    void updateFramerate() {
+        char buf[256];
+
+        Uint32 currentTime = SDL_GetTicks();
+
+        if(framerateCounterUpdateTime <= currentTime) {
+            currentFramerate = framerateCounter + 1;
+            framerateCounter = 0;
+            framerateCounterUpdateTime = currentTime + 1000;
+
+            sprintf(buf, "gbaemu [%d fps, %d%%]", currentFramerate, (currentFramerate * 100) / 60);
+
+            SDL_SetWindowTitle(window, buf);
+        } else {
+            framerateCounter++;
+        }
     }
 
     int update() {
@@ -76,6 +111,11 @@ namespace gbaemu::frontend {
 
                     break;
 
+                case SDL_WINDOWEVENT:
+                    if(event.window.event == SDL_WINDOWEVENT_CLOSE) {
+                        quit();
+                    }
+
                 default:
                 break;
             }
@@ -83,6 +123,11 @@ namespace gbaemu::frontend {
 
         memcpy(surface->pixels, framebuffer, gbaemu::gba::lcd::screenWidth * gbaemu::gba::lcd::screenHeight * 4);
 
-        return SDL_UpdateWindowSurface(window);
+        int result = SDL_UpdateWindowSurface(window);
+
+        updateFramerate();
+        limitFramerate();
+
+        return result;
     }
 }

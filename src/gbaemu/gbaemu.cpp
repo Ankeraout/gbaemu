@@ -125,4 +125,9 @@ namespace gbaemu {
 
         return 0;
     }
+
+    void quit() {
+        SDL_Quit();
+        exit(0);
+    }
 }

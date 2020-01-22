@@ -18,5 +18,7 @@ namespace gbaemu {
     } conf_t;
 
     extern conf_t conf;
+
+    extern void quit();
 }
 
