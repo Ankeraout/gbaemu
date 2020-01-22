@@ -1,3 +1,8 @@
+format binary as 'gba'
+org 0x08000000
+processor 0xfe
+coprocessor 0x0
+
 gba_header:
         ; Branch to 0x080000C0 (4 bytes)
         dw      0xEA00002E

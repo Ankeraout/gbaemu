@@ -9,7 +9,7 @@
         uint32_t Rn = (opcode & 0x000f0000) >> 16; \
         uint32_t Rn_v = registerRead(Rn); \
         uint32_t Rlist = opcode & 0x0000ffff; \
-        uint16_t Rcount = hammingWeight16(Rlist); \
+        uint16_t Rcount = (Rlist == 0) ? 16 : hammingWeight16(Rlist); \
         \
         header; \
         \
@@ -25,21 +25,26 @@
         footer; \
     }
 
+#define HEADER_LDM \
+    if(Rlist == 0) { \
+        registerWrite(CPU_REG_PC, mmu::read32(accessAddress)); \
+    }
+
 #define HEADER_DA \
     Rn_v -= Rcount << 2; \
     uint32_t accessAddress = Rn_v + 4
 
 #define HEADER_DB \
     Rn_v -= Rcount << 2; \
-    uint32_t accessAddress = Rn_v;
-    
+    uint32_t accessAddress = Rn_v
+
 #define HEADER_IA \
     uint32_t accessAddress = Rn_v; \
-    Rn_v += Rcount << 2;
+    Rn_v += Rcount << 2
 
 #define HEADER_IB \
     uint32_t accessAddress = Rn_v + 4; \
-    Rn_v += Rcount << 2;
+    Rn_v += Rcount << 2
 
 #define HEADER_LDM_S \
     int accessMode; \
@@ -88,22 +93,22 @@ namespace gbaemu::gba::cpu::impl::arm::bdt {
         return hammingWeight;
     }
 
-    DEFINE_BDT_OPCODE(ldmda, HEADER_DA, BODY_LDM, )
-    DEFINE_BDT_OPCODE(ldmdaw, HEADER_DA; DO_WRITEBACK, BODY_LDM, )
-    DEFINE_BDT_OPCODE(ldmdas, HEADER_DA; HEADER_LDM_S, BODY_LDM_S, FOOTER_LDM_S)
-    DEFINE_BDT_OPCODE(ldmdasw, HEADER_DA; HEADER_LDM_S; DO_WRITEBACK, BODY_LDM_S, FOOTER_LDM_S)
-    DEFINE_BDT_OPCODE(ldmia, HEADER_IA, BODY_LDM, )
-    DEFINE_BDT_OPCODE(ldmiaw, HEADER_IA; DO_WRITEBACK, BODY_LDM, )
-    DEFINE_BDT_OPCODE(ldmias, HEADER_IA; HEADER_LDM_S, BODY_LDM_S, FOOTER_LDM_S)
-    DEFINE_BDT_OPCODE(ldmiasw, HEADER_IA; HEADER_LDM_S; DO_WRITEBACK, BODY_LDM_S, FOOTER_LDM_S)
-    DEFINE_BDT_OPCODE(ldmdb, HEADER_DB, BODY_LDM, )
-    DEFINE_BDT_OPCODE(ldmdbw, HEADER_DB; DO_WRITEBACK, BODY_LDM, )
-    DEFINE_BDT_OPCODE(ldmdbs, HEADER_DB; HEADER_LDM_S, BODY_LDM_S, FOOTER_LDM_S)
-    DEFINE_BDT_OPCODE(ldmdbsw, HEADER_DB; HEADER_LDM_S; DO_WRITEBACK, BODY_LDM_S, FOOTER_LDM_S)
-    DEFINE_BDT_OPCODE(ldmib, HEADER_IB, BODY_LDM, )
-    DEFINE_BDT_OPCODE(ldmibw, HEADER_IB; DO_WRITEBACK, BODY_LDM, )
-    DEFINE_BDT_OPCODE(ldmibs, HEADER_IB; HEADER_LDM_S, BODY_LDM_S, FOOTER_LDM_S)
-    DEFINE_BDT_OPCODE(ldmibsw, HEADER_IB; HEADER_LDM_S; DO_WRITEBACK, BODY_LDM_S, FOOTER_LDM_S)
+    DEFINE_BDT_OPCODE(ldmda, HEADER_DA; HEADER_LDM, BODY_LDM, )
+    DEFINE_BDT_OPCODE(ldmdaw, HEADER_DA; HEADER_LDM; DO_WRITEBACK, BODY_LDM, )
+    DEFINE_BDT_OPCODE(ldmdas, HEADER_DA; HEADER_LDM; HEADER_LDM_S, BODY_LDM_S, FOOTER_LDM_S)
+    DEFINE_BDT_OPCODE(ldmdasw, HEADER_DA; HEADER_LDM; HEADER_LDM_S; DO_WRITEBACK, BODY_LDM_S, FOOTER_LDM_S)
+    DEFINE_BDT_OPCODE(ldmia, HEADER_IA; HEADER_LDM, BODY_LDM, )
+    DEFINE_BDT_OPCODE(ldmiaw, HEADER_IA; HEADER_LDM; DO_WRITEBACK, BODY_LDM, )
+    DEFINE_BDT_OPCODE(ldmias, HEADER_IA; HEADER_LDM; HEADER_LDM_S, BODY_LDM_S, FOOTER_LDM_S)
+    DEFINE_BDT_OPCODE(ldmiasw, HEADER_IA; HEADER_LDM; HEADER_LDM_S; DO_WRITEBACK, BODY_LDM_S, FOOTER_LDM_S)
+    DEFINE_BDT_OPCODE(ldmdb, HEADER_DB; HEADER_LDM, BODY_LDM, )
+    DEFINE_BDT_OPCODE(ldmdbw, HEADER_DB; HEADER_LDM; DO_WRITEBACK, BODY_LDM, )
+    DEFINE_BDT_OPCODE(ldmdbs, HEADER_DB; HEADER_LDM; HEADER_LDM_S, BODY_LDM_S, FOOTER_LDM_S)
+    DEFINE_BDT_OPCODE(ldmdbsw, HEADER_DB; HEADER_LDM; HEADER_LDM_S; DO_WRITEBACK, BODY_LDM_S, FOOTER_LDM_S)
+    DEFINE_BDT_OPCODE(ldmib, HEADER_IB; HEADER_LDM, BODY_LDM, )
+    DEFINE_BDT_OPCODE(ldmibw, HEADER_IB; HEADER_LDM; DO_WRITEBACK, BODY_LDM, )
+    DEFINE_BDT_OPCODE(ldmibs, HEADER_IB; HEADER_LDM; HEADER_LDM_S, BODY_LDM_S, FOOTER_LDM_S)
+    DEFINE_BDT_OPCODE(ldmibsw, HEADER_IB; HEADER_LDM; HEADER_LDM_S; DO_WRITEBACK, BODY_LDM_S, FOOTER_LDM_S)
 
     DEFINE_BDT_OPCODE(stmda, HEADER_DA, BODY_STM, )
     DEFINE_BDT_OPCODE(stmdaw, HEADER_DA, BODY_STM, DO_WRITEBACK)
