@@ -197,7 +197,6 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         uint32_t result = Rn_v & op2;
         
         logicSetFlags(result);
-        registerWrite(Rd, result);
 
         S_FOOTER;
     )
@@ -207,7 +206,6 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         uint32_t result = Rn_v ^ op2;
         
         logicSetFlags(result);
-        registerWrite(Rd, result);
 
         S_FOOTER;
     )
