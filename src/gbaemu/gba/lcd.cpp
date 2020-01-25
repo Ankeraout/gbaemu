@@ -21,6 +21,91 @@ namespace gbaemu::gba::lcd {
         printf("Wrote %04x to DISPCNT\n", value);
     }
 
+    void sortLayersByPriority(int *layers) {
+        layers[0] = 3;
+        layers[1] = 2;
+        layers[2] = 1;
+        layers[3] = 0;
+
+        for(int i = 0; i < 3; i++) {
+            int layerPriority = io::get(io::BG0CNT + 2 * i);
+            int maxPriority = layerPriority;
+            int maxPriorityIndex = i;
+
+            for(int j = i + 1; j < 4; j++) {
+                int currentLayerPriority = io::get(io::BG0CNT + 2 * j);
+                
+                if(currentLayerPriority > maxPriority) {
+                    maxPriorityIndex = j;
+                    maxPriority = currentLayerPriority;
+                }
+            }
+
+            int exchange = layers[i];
+            layers[i] = layers[maxPriorityIndex];
+            layers[maxPriorityIndex] = exchange;
+        }
+    }
+
+    static inline void drawMode0() {
+
+    }
+
+    static inline void drawMode1() {
+        
+    }
+
+    static inline void drawMode2() {
+        
+    }
+
+    static inline void drawMode3() {
+        for(unsigned int x = 0; x < 240; x++) {
+            frameBuffer[currentRow * screenWidth + x] = colorToRgb(((uint16_t *)vram)[currentRow * screenWidth + x]);
+        }
+    }
+
+    static inline void drawMode4() {
+        dispcnt_t dispcnt;
+        dispcnt.value = io::get(io::DISPCNT);
+
+        uint32_t offset = dispcnt.fields.displayFrameSelect ? 0x0000a000 : 0x00000000;
+
+        for(unsigned int x = 0; x < 240; x++) {
+            frameBuffer[currentRow * screenWidth + x] = getPaletteColor(vram[currentRow * screenWidth + x + offset]);
+        }
+    }
+
+    static inline void drawMode5() {
+        dispcnt_t dispcnt;
+        dispcnt.value = io::get(io::DISPCNT);
+
+        uint32_t offset = dispcnt.fields.displayFrameSelect ? 0x00005000 : 0x00000000;
+
+        if(currentRow < 128) {
+            for(unsigned int x = 0; x < 160; x++) {
+                frameBuffer[currentRow * screenWidth + x] = colorToRgb(((uint16_t *)vram)[currentRow * 160 + x + offset]);
+            }
+        }
+    }
+
+    void drawLine() {
+        dispcnt_t dispcnt;
+        dispcnt.value = io::get(io::DISPCNT);
+
+        switch(dispcnt.fields.bgMode) {
+            case 0: drawMode0(); break;
+            case 1: drawMode1(); break;
+            case 2: drawMode2(); break;
+            case 3: drawMode3(); break;
+            case 4: drawMode4(); break;
+            case 5: drawMode5(); break;
+
+            default:
+            break;
+        }
+    }
+
     void cycle() {
         if((cycleCounter & 0x03) == 0x03) {
             dispstat_t stat;
@@ -53,12 +138,18 @@ namespace gbaemu::gba::lcd {
 
                     gbaemu::frontend::update();
                 }
+
+                io::set(io::VCOUNT, currentRow);
             } else if(currentColumn == 240) {
                 // HBlank
                 stat.fields.hblank = 1;
 
                 if(stat.fields.irq_hblank) {
                     io::set(io::IF, io::get(io::IF) | cpu::IRQ_HBLANK);
+                }
+
+                if(currentRow < 160) {
+                    drawLine();
                 }
             }
 
@@ -69,18 +160,6 @@ namespace gbaemu::gba::lcd {
     }
 
     const uint32_t *getFramebuffer() {
-        uint16_t dispcnt_int = io::get(io::DISPCNT);
-        dispcnt_t dispcnt;
-
-        dispcnt.value = dispcnt_int;
-        uint32_t frameBufferOffset = (gbaemu::gba::io::get(io::DISPCNT) & 0x00000010) ? 0x0000a000 : 0x00000000;
-
-        for(unsigned int y = 0; y < screenHeight; y++) {
-            for(unsigned int x = 0; x < screenWidth; x++) {
-                frameBuffer[y * screenWidth + x] = getPaletteColor(vram[frameBufferOffset + y * screenWidth + x]);
-            }
-        }
-
         return frameBuffer;
     }
 }
