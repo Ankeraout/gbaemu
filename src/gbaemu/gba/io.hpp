@@ -146,4 +146,5 @@ namespace gbaemu::gba::io {
     extern void write32(uint32_t address, uint32_t value);
     extern void set(unsigned int index, uint16_t value);
     extern uint16_t get(unsigned int index);
+    extern uint32_t get32(unsigned int index);
 }

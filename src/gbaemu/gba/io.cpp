@@ -225,6 +225,6 @@ namespace gbaemu::gba::io {
     }
 
     uint32_t get32(unsigned int index) {
-        return get(index) | (get(index + 1) << 16);
+        return get(index) | (get(index + 2) << 16);
     }
 }

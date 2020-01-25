@@ -37,7 +37,6 @@ namespace gbaemu::gba::cpu::impl::arm::branch {
 
         if(cpsr.fields.flagT) {
             dest &= 0xfffffffe;
-            dest += 2;
         } else {
             dest &= 0xfffffffc;
         }

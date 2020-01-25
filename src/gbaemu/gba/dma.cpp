@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <cstdio>
 
+#include <gbaemu/gba/cpu.hpp>
 #include <gbaemu/gba/dma.hpp>
 #include <gbaemu/gba/io.hpp>
 #include <gbaemu/gba/lcd.hpp>
@@ -96,7 +97,7 @@ namespace gbaemu::gba::dma {
                 if(dma[i].mode32) {
                     mmu::write32(dma[i].dad + dma[i].dstOffset, mmu::read32(dma[i].sad + dma[i].srcOffset));
                 } else {
-                    mmu::write32(dma[i].dad + dma[i].dstOffset, mmu::read32(dma[i].sad + dma[i].srcOffset));
+                    mmu::write16(dma[i].dad + dma[i].dstOffset, mmu::read16(dma[i].sad + dma[i].srcOffset));
                 }
 
                 dma[i].current++;
@@ -104,9 +105,9 @@ namespace gbaemu::gba::dma {
                 switch(dma[i].dadc) {
                     case DMA_INCREMENT:
                         if(dma[i].mode32) {
-                            dma[i].dstOffset -= 4;
+                            dma[i].dstOffset += 4;
                         } else {
-                            dma[i].dstOffset -= 2;
+                            dma[i].dstOffset += 2;
                         }
 
                         break;
@@ -136,9 +137,9 @@ namespace gbaemu::gba::dma {
                 switch(dma[i].sadc) {
                     case DMA_INCREMENT:
                         if(dma[i].mode32) {
-                            dma[i].srcOffset -= 4;
+                            dma[i].srcOffset += 4;
                         } else {
-                            dma[i].srcOffset -= 2;
+                            dma[i].srcOffset += 2;
                         }
 
                         break;
@@ -167,17 +168,19 @@ namespace gbaemu::gba::dma {
 
                 if(dma[i].current == dma[i].cnt) {
                     if(dma[i].repeat) {
-                        dma[i].cnt = io::read32(0x040000b8 + 12 * i);
+                        dma[i].cnt = io::get32(io::DMA0CNT_L + 12 * i);
 
                         if(dma[i].cnt == 0) {
                             dma[i].cnt = (i == 3) ? 0x00010000 : 0x00004000;
                         }
 
                         if(dma[i].dadc == DMA_INCREMENT_AND_RELOAD) {
-                            dma[i].dad = io::read32(0x040000b4 + 12 * i) & (i == 3) ? 0x0fffffff : 0x07ffffff;
+                            dma[i].dad = io::get32(io::DMA0DAD_L + 12 * i) & (i == 3) ? 0x0fffffff : 0x07ffffff;
                         }
 
                         dma[i].running = false;
+
+                        printf("DMA %d reloaded, SAD=%08x DAD=%08x CNT=%04x\n", i, dma[i].sad, dma[i].dad, dma[i].cnt);
                     } else {
                         dma[i].enable = false;
                         dma[i].running = false;
@@ -197,9 +200,9 @@ namespace gbaemu::gba::dma {
 
     static inline void writeCallback_dma_base(int n, uint16_t value) {
         if(!dma[n].enable && (value & 0x8000)) {
-            dma[n].sad = io::read32(0x040000b0 + 12 * n) & (n == 3) ? 0x0fffffff : 0x07ffffff;
-            dma[n].dad = io::read32(0x040000b4 + 12 * n) & (n == 3) ? 0x0fffffff : 0x07ffffff;
-            dma[n].cnt = io::read16(0x040000b8 + 12 * n);
+            dma[n].sad = io::get32(io::DMA0SAD_L + 12 * n) & ((n == 3) ? 0x0fffffff : 0x07ffffff);
+            dma[n].dad = io::get32(io::DMA0DAD_L + 12 * n) & ((n == 3) ? 0x0fffffff : 0x07ffffff);
+            dma[n].cnt = io::get(io::DMA0CNT_L + 12 * n);
 
             if(dma[n].cnt == 0) {
                 dma[n].cnt = (n == 3) ? 0x00010000 : 0x00004000;
@@ -214,7 +217,7 @@ namespace gbaemu::gba::dma {
             dma[n].irq = (value & 0x4000) >> 14;
             dma[n].enable = value >> 15;
 
-            printf("DMA channel %d was enabled.\n", n);
+            printf("[%08x] DMA %d enabled, SAD=%08x DAD=%08x CNT=%04x\n", cpu::registerRead(cpu::CPU_REG_PC), n, dma[n].sad, dma[n].dad, dma[n].cnt);
         }
     }
 
