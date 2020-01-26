@@ -9,9 +9,9 @@ namespace gbaemu::gba::cpu::impl::arm::swi {
         UNUSED(opcode);
 
         writeSPSR(cpsr, PSR_MODE_SVC);
-        
-        performJump(0x08);
         cpsr.fields.mode = PSR_MODE_SVC;
+
         registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - 4);
+        performJump(0x08);
     }
 }

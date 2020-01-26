@@ -35,12 +35,6 @@ namespace gbaemu::gba::cpu::impl::arm::branch {
         uint32_t dest = registerRead(opcode & 0x0000000f);
         cpsr.fields.flagT = dest & 0x00000001;
 
-        if(cpsr.fields.flagT) {
-            dest &= 0xfffffffe;
-        } else {
-            dest &= 0xfffffffc;
-        }
-
         performJump(dest);
     }
 }

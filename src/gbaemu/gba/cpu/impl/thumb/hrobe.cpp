@@ -23,12 +23,6 @@
         uint32_t dest = registerRead(((opcode & 0x0038) >> 3) h1off); \
         cpsr.fields.flagT = dest & 0x00000001; \
         \
-        if(dest & 0x00000001) { \
-            dest &= 0xfffffffe; \
-        } else { \
-            dest &= 0xfffffffc; \
-        } \
-        \
         performJump(dest); \
     }
 
