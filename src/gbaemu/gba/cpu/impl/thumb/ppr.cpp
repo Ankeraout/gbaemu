@@ -6,21 +6,27 @@
 #include <gbaemu/gba/cpu/impl/thumb/ppr.hpp>
 #include <gbaemu/gba/mmu.hpp>
 
-#define DEFINE_PPR_PUSH_OPCODE(optName, optCode) \
+#define DEFINE_PPR_PUSH_OPCODE(optName, optHeader, optFooter) \
     void opcode_push ## optName(uint16_t opcode) { \
         uint32_t sp = registerRead(CPU_REG_SP); \
         uint32_t Rlist = opcode & 0x00ff; \
+        unsigned int Rcount = hammingWeight8(Rlist); \
         \
-        optCode \
+        optHeader; \
         \
-        for(int i = 7; i >= 0; i--) { \
-            if(Rlist & 0x0080) { \
-                sp -= 4; \
-                mmu::write32(sp, registerRead(i));\
+        sp -= (Rcount << 2); \
+        uint32_t accessAddress = sp; \
+        \
+        for(int i = 0; i < 8; i++) { \
+            if(Rlist & 0x0001) { \
+                mmu::write32(accessAddress, registerRead(i)); \
+                accessAddress += 4; \
             } \
             \
-            Rlist <<= 1; \
+            Rlist >>= 1; \
         } \
+        \
+        optFooter; \
         \
         registerWrite(CPU_REG_SP, sp); \
     }
@@ -45,11 +51,25 @@
     }
 
 namespace gbaemu::gba::cpu::impl::thumb::ppr {
-    DEFINE_PPR_PUSH_OPCODE(,)
+    static inline unsigned int hammingWeight8(unsigned int v) {
+        unsigned int hammingWeight = 0;
+
+        for(unsigned int i = 0; i < 8; i++) {
+            if(v & 0x01) {
+                hammingWeight++;
+            }
+
+            v >>= 1;
+        }
+
+        return hammingWeight;
+    }
+
+    DEFINE_PPR_PUSH_OPCODE(,,)
     DEFINE_PPR_PUSH_OPCODE(
         _lr,
-        sp -= 4;
-        mmu::write32(sp, registerRead(CPU_REG_LR));
+        Rcount++,
+        mmu::write32(accessAddress, registerRead(CPU_REG_LR));
     )
     DEFINE_PPR_POP_OPCODE(,)
     DEFINE_PPR_POP_OPCODE(

@@ -157,6 +157,11 @@ namespace gbaemu::gba::cpu {
     }
 
     void cycle() {
+        if(modeMapping[cpsr.fields.mode] == MODE_INV) {
+            fprintf(stderr, "Error: PSR mode 0x%02x not allowed.\n", cpsr.fields.mode);
+            exit(0);
+        }
+
         if((io::get(io::IME) & 0x00000001) && (io::get(io::IF) & io::get(io::IE) & 0x3fff) && (!cpsr.fields.flagI)) {
             raiseIRQ();
         }
