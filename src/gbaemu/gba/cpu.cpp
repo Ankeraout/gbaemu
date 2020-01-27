@@ -73,9 +73,9 @@ namespace gbaemu::gba::cpu {
         registerWrite(0, 0x00000ca5);
         registerWrite(13, PSR_MODE_USR, 0x03007f00);
         registerWrite(13, PSR_MODE_FIQ, 0x03007f00);
-        registerWrite(13, PSR_MODE_SVC, 0x03007f00);
+        registerWrite(13, PSR_MODE_SVC, 0x03007fe0);
         registerWrite(13, PSR_MODE_ABT, 0x03007f00);
-        registerWrite(13, PSR_MODE_IRQ, 0x03007f00);
+        registerWrite(13, PSR_MODE_IRQ, 0x03007fa0);
         registerWrite(13, PSR_MODE_UND, 0x03007f00);
         
         // Reset pipeline
@@ -98,7 +98,7 @@ namespace gbaemu::gba::cpu {
         if(pipeline.pipelineStage == PIPELINE_FETCH_DECODE_EXECUTE) {
             switch(cpsr.fields.flagT) {
                 case CPU_MODE_ARM:
-                    //printf("E [%08x] %08x\n", PC - 8, pipeline.decodedOpcodeARM_value);
+                    //printf("E [%08x] %08x SP=%08x LR=%08x\n", PC - 8, pipeline.decodedOpcodeARM_value, registerRead(13), registerRead(14));
                     if(checkCondition(pipeline.decodedOpcodeARM_value)) {
                         if(!pipeline.decodedOpcodeARM) {
                             printf("Warning: undefined opcode %08x at %08x\n", pipeline.decodedOpcodeARM_value, PC - 8);
@@ -111,7 +111,7 @@ namespace gbaemu::gba::cpu {
                     break;
 
                 case CPU_MODE_THUMB:
-                    //printf("E [%08x] %04x\n", PC - 4, pipeline.decodedOpcodeThumb_value);
+                    //printf("E [%08x] %04x SP=%08x LR=%08x\n", PC - 4, pipeline.decodedOpcodeThumb_value, registerRead(13), registerRead(14));
                     if(!pipeline.decodedOpcodeThumb) {
                         printf("Warning: undefined opcode %04x at %08x\n", pipeline.decodedOpcodeARM_value, PC - 4);
                         raiseUnd();

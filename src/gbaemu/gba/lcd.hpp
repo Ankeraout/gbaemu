@@ -67,7 +67,7 @@ namespace gbaemu::gba::lcd {
         uint16_t green = getGreen(color);
         uint16_t blue = getBlue(color);
 
-        return (red << 19) | (green << 11) | (blue << 3);
+        return 0xff000000 | (blue << 19) | (green << 11) | (red << 3);
     }
 
     static inline uint32_t getPaletteColor(uint8_t paletteIndex) {

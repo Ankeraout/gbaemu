@@ -8,11 +8,17 @@
 #include <gbaemu/frontend.hpp>
 
 namespace gbaemu::frontend {
+    static const unsigned int screenScale = 2;
+
     SDL_Window *window;
+    SDL_Surface *screenSurface;
+    SDL_Surface *windowSurface;
     Uint32 nextFrameTime;
     Uint32 framerateCounterUpdateTime;
     Uint32 framerateCounter;
     Uint32 currentFramerate;
+    SDL_Rect srcRect = {0, 0, gbaemu::gba::lcd::screenWidth, gbaemu::gba::lcd::screenHeight};
+    SDL_Rect dstRect = {0, 0, gbaemu::gba::lcd::screenWidth * screenScale, gbaemu::gba::lcd::screenHeight * screenScale};
 
     SDL_Keycode keyBindings[] = {
         SDLK_a,
@@ -38,8 +44,8 @@ namespace gbaemu::frontend {
             "gbaemu [60 fps, 100%]",
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
-            gbaemu::gba::lcd::screenWidth,
-            gbaemu::gba::lcd::screenHeight,
+            gbaemu::gba::lcd::screenWidth * screenScale,
+            gbaemu::gba::lcd::screenHeight * screenScale,
             SDL_WINDOW_SHOWN
         );
 
@@ -48,7 +54,32 @@ namespace gbaemu::frontend {
         framerateCounterUpdateTime = SDL_GetTicks() + 1000;
         currentFramerate = 0;
 
-        return !window;
+        if(!window) {
+            return 1;
+        }
+        
+        windowSurface = SDL_GetWindowSurface(window);
+
+        if(!windowSurface) {
+            return 1;
+        }
+
+        screenSurface = SDL_CreateRGBSurface(
+            0,
+            gbaemu::gba::lcd::screenWidth,
+            gbaemu::gba::lcd::screenHeight,
+            32,
+            0x000000ff,
+            0x0000ff00,
+            0x00ff0000,
+            0xff000000
+        );
+
+        if(!screenSurface) {
+            return 1;
+        }
+
+        return 0;
     }
 
     int close() {
@@ -84,7 +115,6 @@ namespace gbaemu::frontend {
 
     int update() {
         SDL_Event event;
-        SDL_Surface *surface = SDL_GetWindowSurface(window);
         const uint32_t *framebuffer = gbaemu::gba::lcd::getFramebuffer();
 
         //memset((void *)framebuffer, 255, 240 * 160 * 4);
@@ -121,13 +151,23 @@ namespace gbaemu::frontend {
             }
         }
 
-        memcpy(surface->pixels, framebuffer, gbaemu::gba::lcd::screenWidth * gbaemu::gba::lcd::screenHeight * 4);
+        memcpy(screenSurface->pixels, framebuffer, gbaemu::gba::lcd::screenWidth * gbaemu::gba::lcd::screenHeight * 4);
 
-        int result = SDL_UpdateWindowSurface(window);
+        int result = SDL_BlitScaled(screenSurface, &srcRect, windowSurface, &dstRect);
+
+        if(result) {
+            return result;
+        }
+
+        result = SDL_UpdateWindowSurface(window);
+
+        if(result) {
+            return result;
+        }
 
         updateFramerate();
         limitFramerate();
 
-        return result;
+        return 0;
     }
 }
