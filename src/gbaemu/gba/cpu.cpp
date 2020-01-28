@@ -118,16 +118,7 @@ namespace gbaemu::gba::cpu {
     }
 
     static inline void execute() {
-        static int counter = 0;
-
         if(pipeline.pipelineStage == PIPELINE_FETCH_DECODE_EXECUTE) {
-            if(counter == 200) {
-                exit(0);
-            } else {
-                displayState();
-                counter++;
-            }
-
             switch(cpsr.fields.flagT) {
                 case CPU_MODE_ARM:
                     //printf("E [%08x] %08x SP=%08x LR=%08x\n", PC - 8, pipeline.decodedOpcodeARM_value, registerRead(13), registerRead(14));
