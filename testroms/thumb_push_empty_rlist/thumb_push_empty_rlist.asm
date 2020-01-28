@@ -2,6 +2,10 @@ org 0x08000000
 
 include '../header.inc'
 
+b _start
+
+include '../libtext.inc'
+
 _start:
     mov r0, 0x04000000
     mov r1, 0x00000400
@@ -16,7 +20,7 @@ _start:
     bx r0
 
 test1_arm:
-    teq sp, r12
+    teq r12, sp
     orreq r1, 0x03e0
     orrne r1, 0x001f
 
