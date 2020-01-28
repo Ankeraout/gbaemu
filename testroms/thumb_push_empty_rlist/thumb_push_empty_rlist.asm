@@ -7,10 +7,7 @@ b _start
 include '../libtext.inc'
 
 _start:
-    mov r0, 0x04000000
-    mov r1, 0x00000400
-    orr r1, 0x00000004
-    strh r1, [r0]
+    bl libtext_init
 
     adr r0, test1_thumb
     orr r0, 1
@@ -20,13 +17,10 @@ _start:
     bx r0
 
 test1_arm:
-    teq r12, sp
-    orreq r1, 0x03e0
-    orrne r1, 0x001f
-
-displayResult:
-    mov r0, 0x05000000
-    strh r1, [r0]
+    mov r2, sp
+    mov r0, 0
+    mov r1, 0
+    bl libtext_putHex
     
 halt:
     b halt
