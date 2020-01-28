@@ -55,6 +55,42 @@ namespace gbaemu::gba::cpu {
 
     void raiseIRQ();
 
+    void setInitialRegisterValues() {
+        // Reset general-purpose registers
+        for(int i = 0; i < 7; i++) {
+            for(int j = 0; j < 16; j++) {
+                *registerMapping[i * 16 + j] = 0;
+            }
+        }
+
+        // USR/SYS
+        registerWrite(13, PSR_MODE_USR, 0x03007f00);
+        registerWrite(14, PSR_MODE_USR, 0x08000000);
+
+        // FIQ
+        registerWrite(8, PSR_MODE_FIQ, 0x40988194);
+        registerWrite(9, PSR_MODE_FIQ, 0x04100084);
+        registerWrite(10, PSR_MODE_FIQ, 0x808c1042);
+        registerWrite(11, PSR_MODE_FIQ, 0x16a0439b);
+        registerWrite(12, PSR_MODE_FIQ, 0x44820443);
+        registerWrite(13, PSR_MODE_FIQ, 0x00410c81);
+        registerWrite(14, PSR_MODE_FIQ, 0xa928314e);
+
+        // SVC
+        registerWrite(13, PSR_MODE_SVC, 0x03007fe0);
+
+        // ABT
+        registerWrite(13, PSR_MODE_ABT, 0x04014520);
+        registerWrite(14, PSR_MODE_FIQ, 0x0b3478a4);
+
+        // IRQ
+        registerWrite(13, PSR_MODE_IRQ, 0x03007fa0);
+
+        // UND
+        registerWrite(13, PSR_MODE_FIQ, 0x490a068c);
+        registerWrite(14, PSR_MODE_FIQ, 0x41400407);
+    }
+
     void init() {
         // Reset CPSR
         cpsr.value = 0;
@@ -63,20 +99,7 @@ namespace gbaemu::gba::cpu {
         cpsr.fields.flagI = 1;
         cpsr.fields.flagT = 0;
 
-        // Reset general-purpose registers
-        for(int i = 0; i < 7; i++) {
-            for(int j = 0; j < 16; j++) {
-                *registerMapping[i * 16 + j] = 0;
-            }
-        }
-
-        registerWrite(0, 0x00000ca5);
-        registerWrite(13, PSR_MODE_USR, 0x03007f00);
-        registerWrite(13, PSR_MODE_FIQ, 0x03007f00);
-        registerWrite(13, PSR_MODE_SVC, 0x03007fe0);
-        registerWrite(13, PSR_MODE_ABT, 0x03007f00);
-        registerWrite(13, PSR_MODE_IRQ, 0x03007fa0);
-        registerWrite(13, PSR_MODE_UND, 0x03007f00);
+        setInitialRegisterValues();
         
         // Reset pipeline
         pipeline.pipelineStage = PIPELINE_FETCH;
@@ -95,7 +118,16 @@ namespace gbaemu::gba::cpu {
     }
 
     static inline void execute() {
+        static int counter = 0;
+
         if(pipeline.pipelineStage == PIPELINE_FETCH_DECODE_EXECUTE) {
+            if(counter == 200) {
+                exit(0);
+            } else {
+                displayState();
+                counter++;
+            }
+
             switch(cpsr.fields.flagT) {
                 case CPU_MODE_ARM:
                     //printf("E [%08x] %08x SP=%08x LR=%08x\n", PC - 8, pipeline.decodedOpcodeARM_value, registerRead(13), registerRead(14));
@@ -257,6 +289,12 @@ namespace gbaemu::gba::cpu {
         
         for(int i = 0; i < 16; i++) {
             printf("R%d = %08x\n", i, registerRead(i));
+        }
+
+        printf("Stack trace:\n");
+
+        for(uint32_t base = 0x03007f00; base > registerRead(CPU_REG_SP); base -= 4) {
+            printf(" - %08x: %08x\n", base, mmu::read32(base));
         }
 
         fflush(stdout);
