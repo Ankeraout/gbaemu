@@ -10,7 +10,7 @@ namespace gbaemu::gba::cpu::impl::thumb::pcrldr {
         unsigned int imm = (opcode & 0x00ff) << 2;
         
         // PC bit 1 is forced to 0 so that the address is word-aligned
-        uint32_t address = (gbaemu::gba::cpu::registerRead(CPU_REG_PC) & 0xfffffffe) + imm;
+        uint32_t address = (gbaemu::gba::cpu::registerRead(CPU_REG_PC) & 0xfffffffc) + imm;
 
         gbaemu::gba::cpu::registerWrite(Rd, gbaemu::gba::mmu::read32(address));
     }
