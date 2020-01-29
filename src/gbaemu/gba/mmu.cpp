@@ -56,6 +56,7 @@ namespace gbaemu::gba::mmu {
 
             case 0xe: // Game Pak SRAM
             case 0xf:
+                printf("Read8 from Game Pak SRAM\n");
                 return 0; // TODO
         }
 
@@ -108,6 +109,7 @@ namespace gbaemu::gba::mmu {
 
             case 0xe: // Game Pak SRAM
             case 0xf:
+                printf("Read16 from Game Pak SRAM\n");
                 return 0; // TODO
         }
 
@@ -163,6 +165,7 @@ namespace gbaemu::gba::mmu {
 
             case 0xe: // Game Pak SRAM
             case 0xf:
+                printf("Read32 from Game Pak SRAM\n");
                 return 0; // TODO
         }
 
@@ -188,18 +191,18 @@ namespace gbaemu::gba::mmu {
                 break;
 
             case 5: // BG/OBJ Palette RAM
-                access8(gbaemu::gba::lcd::palette, address & 0x000003ff) = value;
+                access16(gbaemu::gba::lcd::palette, address & 0x000003fe) = value | (value << 8);
                 break;
 
             case 6: // VRAM
                 if((address & 0x0001ffff) <= 0x00017fff) {
-                    access8(gbaemu::gba::lcd::vram, address & 0x0001ffff) = value;
+                    access16(gbaemu::gba::lcd::vram, address & 0x0001fffe) = value | (value << 8);
                 }
 
                 break;
 
             case 7: // OAM
-                access8(gbaemu::gba::lcd::oam, address & 0x000003ff) = value;
+                access16(gbaemu::gba::lcd::oam, address & 0x000003fe) = value | (value << 8);
                 break;
 
             case 8: // Game Pak ROM (wait state 0)
@@ -212,6 +215,7 @@ namespace gbaemu::gba::mmu {
 
             case 0xe: // Game Pak SRAM
             case 0xf:
+                printf("Write8 to GamePak SRAM\n");
                 break; // TODO
         }
     }
@@ -261,6 +265,7 @@ namespace gbaemu::gba::mmu {
 
             case 0xe: // Game Pak SRAM
             case 0xf:
+                printf("Write16 to GamePak SRAM\n");
                 break; // TODO
         }
     }
@@ -313,6 +318,7 @@ namespace gbaemu::gba::mmu {
 
             case 0xe: // Game Pak SRAM
             case 0xf:
+                printf("Write32 to GamePak SRAM\n");
                 break; // TODO
         }
     }
