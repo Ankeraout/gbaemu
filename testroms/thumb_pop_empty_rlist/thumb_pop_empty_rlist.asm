@@ -4,7 +4,7 @@ include '../header.inc'
 
 b _start
 
-include '../libtext.inc'
+include '../libtext/libtext.inc'
 
 _start:
     bl libtext_init
@@ -23,12 +23,12 @@ test1_arm:
     mov r2, sp
     mov r0, 0
     mov r1, 0
-    bl libtext_putHex
+    bl libtext_putHex2
 
     mov r2, r3
     mov r0, 0
     mov r1, 8
-    bl libtext_putHex
+    bl libtext_putHex2
     
 halt:
     b halt
