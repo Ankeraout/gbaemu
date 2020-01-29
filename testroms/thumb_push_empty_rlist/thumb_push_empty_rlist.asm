@@ -21,6 +21,11 @@ test1_arm:
     mov r0, 0
     mov r1, 0
     bl libtext_putHex
+
+    ldr r2, [sp]
+    mov r0, 0
+    mov r1, 8
+    bl libtext_putHex
     
 halt:
     b halt

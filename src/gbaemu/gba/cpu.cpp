@@ -284,7 +284,7 @@ namespace gbaemu::gba::cpu {
 
         printf("Stack trace:\n");
 
-        for(uint32_t base = 0x03007f00; base > registerRead(CPU_REG_SP); base -= 4) {
+        for(uint32_t base = 0x03007f00; base >= registerRead(CPU_REG_SP); base -= 4) {
             printf(" - %08x: %08x\n", base, mmu::read32(base));
         }
 
