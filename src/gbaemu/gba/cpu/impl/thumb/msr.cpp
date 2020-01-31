@@ -25,7 +25,6 @@ namespace gbaemu::gba::cpu::impl::thumb::msr {
             cpsr.fields.flagC = (Rs_v >> (32 - offset)) & 0x00000001;
         } else {
             result = Rs_v;
-            cpsr.fields.flagC = Rs_v & 0x00000001;
         }
 
         logicSetFlags(result);

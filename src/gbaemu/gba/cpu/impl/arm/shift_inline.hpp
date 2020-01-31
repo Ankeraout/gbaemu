@@ -38,7 +38,7 @@ namespace gbaemu::gba::cpu::impl::arm::shift {
             shifter.result = Rm_v << immediate;
             shifter.flagC = (Rm_v >> (32 - immediate)) & 0x00000001;
         } else {
-            shifter.result = registerRead(Rm);
+            shifter.result = Rm_v;
             shifter.flagC = cpsr.fields.flagC;
         }
     }
@@ -112,12 +112,9 @@ namespace gbaemu::gba::cpu::impl::arm::shift {
         } else if(shift < 32) {
             shifter.result = (int32_t)value >> shift;
             shifter.flagC = (value >> (shift - 1)) & 0x00000001;
-        } else if(SIGN32(Rm_v)) {
-            shifter.result = 0xffffffff;
-            shifter.flagC = true;
         } else {
-            shifter.result = 0;
-            shifter.flagC = false;
+            shifter.result = (int32_t)value >> 31;
+            shifter.flagC = SIGN32(value);
         }
     }
 

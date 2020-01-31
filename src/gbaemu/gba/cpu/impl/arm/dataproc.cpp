@@ -175,12 +175,12 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
 
     DECLARE_DATAPROC_OPCODE(
         rsc,
-        registerWrite(Rd, op2 - Rn_v - !cpsr.fields.flagC);
+        registerWrite(Rd, op2 - Rn_v + cpsr.fields.flagC - 1);
     )
 
     DECLARE_DATAPROC_OPCODE(
         rscs,
-        uint32_t result = op2 - Rn_v - !cpsr.fields.flagC;
+        uint32_t result = op2 - Rn_v + cpsr.fields.flagC - 1;
 
         cpsr.fields.flagZ = !result;
         cpsr.fields.flagN = SIGN32(result);

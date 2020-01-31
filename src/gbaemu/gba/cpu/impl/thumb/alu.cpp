@@ -10,6 +10,10 @@
         uint16_t Rd = opcode & 0x0007; \
         uint32_t Rs_v = registerRead(Rs); \
         \
+        if(Rs == 15) { \
+            Rs_v += 2; \
+        } \
+        \
         body \
     }
 
@@ -40,21 +44,21 @@ namespace gbaemu::gba::cpu::impl::thumb::alu {
 
     DEFINE_ALU_OPCODE(
         lsl,
+        Rs_v &= 0x000000ff;
         uint32_t Rd_v = registerRead(Rd);
         uint32_t result;
 
         if(!Rs_v) {
             result = Rd_v;
-            gbaemu::gba::cpu::cpsr.fields.flagC = cpsr.fields.flagC;
         } else if(Rs_v < 32) {
             result = Rd_v << Rs_v;
-            gbaemu::gba::cpu::cpsr.fields.flagC = (Rd_v >> (32 - Rs_v)) & 0x00000001;
+            cpsr.fields.flagC = (Rd_v >> (32 - Rs_v)) & 0x00000001;
         } else if(Rs_v == 32) {
             result = 0;
-            gbaemu::gba::cpu::cpsr.fields.flagC = Rd_v & 0x00000001;
+            cpsr.fields.flagC = Rd_v & 0x00000001;
         } else {
             result = 0;
-            gbaemu::gba::cpu::cpsr.fields.flagC = false;
+            cpsr.fields.flagC = false;
         }
 
         logicSetFlags(result);
@@ -63,21 +67,21 @@ namespace gbaemu::gba::cpu::impl::thumb::alu {
 
     DEFINE_ALU_OPCODE(
         lsr,
+        Rs_v &= 0x000000ff;
         uint32_t Rd_v = registerRead(Rd);
         uint32_t result;
 
         if(!Rs_v) {
             result = Rd_v;
-            gbaemu::gba::cpu::cpsr.fields.flagC = cpsr.fields.flagC;
         } else if(Rs_v < 32) {
             result = Rd_v >> Rs_v;
-            gbaemu::gba::cpu::cpsr.fields.flagC = (Rd_v >> (Rs_v - 1)) & 0x00000001;
+            cpsr.fields.flagC = (Rd_v >> (Rs_v - 1)) & 0x00000001;
         } else if(Rs_v == 32) {
             result = 0;
-            gbaemu::gba::cpu::cpsr.fields.flagC = SIGN32(Rd_v);
+            cpsr.fields.flagC = SIGN32(Rd_v);
         } else {
             result = 0;
-            gbaemu::gba::cpu::cpsr.fields.flagC = false;
+            cpsr.fields.flagC = false;
         }
 
         logicSetFlags(result);
@@ -86,21 +90,18 @@ namespace gbaemu::gba::cpu::impl::thumb::alu {
 
     DEFINE_ALU_OPCODE(
         asr,
+        Rs_v &= 0x000000ff;
         uint32_t Rd_v = registerRead(Rd);
         uint32_t result;
 
         if(!Rs_v) {
             result = Rd_v;
-            gbaemu::gba::cpu::cpsr.fields.flagC = cpsr.fields.flagC;
         } else if(Rs_v < 32) {
             result = (int32_t)Rd_v >> Rs_v;
-            gbaemu::gba::cpu::cpsr.fields.flagC = (Rd_v >> (Rs_v - 1)) & 0x00000001;
-        } else if(SIGN32(Rd_v)) {
-            result = 0xffffffff;
-            gbaemu::gba::cpu::cpsr.fields.flagC = true;
+            cpsr.fields.flagC = (Rd_v >> (Rs_v - 1)) & 0x00000001;
         } else {
-            result = Rd_v >> 31;
-            gbaemu::gba::cpu::cpsr.fields.flagC = false;
+            result = (int32_t)Rd_v >> 31;
+            cpsr.fields.flagC = SIGN32(Rd_v);
         }
 
         logicSetFlags(result);
@@ -109,20 +110,20 @@ namespace gbaemu::gba::cpu::impl::thumb::alu {
 
     DEFINE_ALU_OPCODE(
         adc,
-        uint32_t Rd_v = registerRead(Rd);
+        uint64_t Rd_v = registerRead(Rd);
         uint64_t result = Rd_v + Rs_v + cpsr.fields.flagC;
 
-        logicSetFlags(result);
+        logicSetFlags((uint32_t)result);
         cpsr.fields.flagV = ADD32_FLAGV(Rd_v, Rs_v, result);
-        cpsr.fields.flagC = result > UINT32_MAX;
+        cpsr.fields.flagC = result >> 32;
 
         registerWrite(Rd, result);
     )
 
     DEFINE_ALU_OPCODE(
         sbc,
-        uint32_t Rd_v = registerRead(Rd);
-        uint64_t result = Rd_v - Rs_v - !cpsr.fields.flagC;
+        uint64_t Rd_v = registerRead(Rd);
+        uint64_t result = Rd_v - Rs_v + cpsr.fields.flagC - 1;
 
         logicSetFlags(result);
         cpsr.fields.flagV = SUB32_FLAGV(Rd_v, Rs_v, result);
@@ -133,19 +134,19 @@ namespace gbaemu::gba::cpu::impl::thumb::alu {
 
     DEFINE_ALU_OPCODE(
         ror,
+        Rs_v &= 0x000000ff;
         uint32_t Rd_v = registerRead(Rd);
         uint32_t result;
         uint32_t rotation = Rs_v & 0x1f;
 
         if(!Rs_v) {
             result = Rd_v;
-            gbaemu::gba::cpu::cpsr.fields.flagC = cpsr.fields.flagC;
         } else if(rotation) {
             result = ROR32(Rd_v, rotation);
-            gbaemu::gba::cpu::cpsr.fields.flagC = (Rd_v >> (rotation - 1)) & 0x00000001;
+            cpsr.fields.flagC = (Rd_v >> (rotation - 1)) & 0x00000001;
         } else {
             result = Rd_v;
-            gbaemu::gba::cpu::cpsr.fields.flagC = SIGN32(Rd_v);
+            cpsr.fields.flagC = SIGN32(Rd_v);
         }
 
         logicSetFlags(result);
@@ -181,12 +182,12 @@ namespace gbaemu::gba::cpu::impl::thumb::alu {
 
     DEFINE_ALU_OPCODE(
         cmn,
-        uint32_t Rd_v = registerRead(Rd);
+        uint64_t Rd_v = registerRead(Rd);
         uint64_t result = Rd_v + Rs_v;
 
-        logicSetFlags(result);
+        logicSetFlags((uint32_t)result);
         cpsr.fields.flagV = ADD32_FLAGV(Rd_v, Rs_v, result);
-        cpsr.fields.flagC = result > UINT32_MAX;
+        cpsr.fields.flagC = result >> 32;
     )
 
     DEFINE_ALU_OPCODE(
