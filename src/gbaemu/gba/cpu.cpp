@@ -337,7 +337,7 @@ namespace gbaemu::gba::cpu {
     void raiseUnd() {
         writeSPSR(cpsr, PSR_MODE_UND);
         cpsr.fields.mode = PSR_MODE_UND;
-        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 1 : 4));
+        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 2 : 4));
         cpsr.fields.flagT = 0;
         cpsr.fields.flagI = 1;
         performJump(0x00000004);
@@ -346,7 +346,7 @@ namespace gbaemu::gba::cpu {
     void raiseIRQ() {
         writeSPSR(cpsr, PSR_MODE_IRQ);
         cpsr.fields.mode = PSR_MODE_IRQ;
-        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 1 : 4));
+        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 2 : 4));
         cpsr.fields.flagT = 0;
         cpsr.fields.flagI = 1;
         performJump(0x00000018);
@@ -355,7 +355,7 @@ namespace gbaemu::gba::cpu {
     void raiseSWI() {
         writeSPSR(cpsr, PSR_MODE_SVC);
         cpsr.fields.mode = PSR_MODE_SVC;
-        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 1 : 4));
+        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 2 : 4));
         cpsr.fields.flagT = 0;
         cpsr.fields.flagI = 1;
         performJump(0x00000008);
