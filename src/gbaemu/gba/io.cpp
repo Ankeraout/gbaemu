@@ -5,6 +5,7 @@
 
 #include <gbaemu/gba/cpu.hpp>
 #include <gbaemu/gba/dma.hpp>
+#include <gbaemu/gba/gba.hpp>
 #include <gbaemu/gba/io.hpp>
 #include <gbaemu/gba/lcd.hpp>
 #include <gbaemu/gba/timer.hpp>
@@ -148,11 +149,11 @@ namespace gbaemu::gba::io {
         initRegister(0x04000154, JOY_TRANS_L, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000156, JOY_TRANS_H, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000158, JOYSTAT, 0x0000, NULL, 0xffff, 0xffff);
-        initRegister(0x04000200, IE, 0x0000, cpu::if_writeCallback, 0xffff, 0xffff);
-        initRegister(0x04000202, IF, 0x0000, NULL, 0xffff, 0xffff);
+        initRegister(0x04000200, IE, 0x0000, NULL, 0xffff, 0xffff);
+        initRegister(0x04000202, IF, 0x0000, cpu::if_writeCallback, 0xffff, 0xffff);
         initRegister(0x04000204, WAITCNT, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000208, IME, 0x0000, NULL, 0xffff, 0xffff);
-        initRegister(0x04000300, POSTFLG, 0x0000, NULL, 0xff00, 0xffff);
+        initRegister(0x04000300, POSTFLG, 0x0000, gba::postflg_writeCallback, 0xff00, 0xffff);
         initRegister(0x04000410, UNKBUG, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000800, MEMCTL_L, 0x0000, NULL, 0xffff, 0xffff);
         initRegister(0x04000802, MEMCTL_H, 0x0000, NULL, 0xffff, 0xffff);
@@ -184,7 +185,11 @@ namespace gbaemu::gba::io {
 
     void write8(uint32_t address, uint8_t value) {
         if(address & 0x00000001) {
-            write16(address, (read16(address) & 0x00ff) | (value << 8));
+            if(address == 0x03000301) { // HALTCNT
+                gba::haltcnt_writeCallback(value);
+            } else {
+                write16(address, (read16(address) & 0x00ff) | (value << 8));
+            }
         } else {
             write16(address, (read16(address) & 0xff00) | value);
         }

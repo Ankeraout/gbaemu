@@ -16,4 +16,6 @@ namespace gbaemu::gba {
 
     extern void init(const char *biosFilePath, const char *romFilePath);
     extern void cycle();
+    extern void haltcnt_writeCallback(uint8_t value);
+    extern void postflg_writeCallback(uint16_t value);
 }

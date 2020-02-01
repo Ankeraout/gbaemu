@@ -20,6 +20,16 @@ namespace gbaemu::gba {
     uint8_t wramData_fast[wramFastSize];
     uint8_t wramData_slow[wramSlowSize];
 
+    bool halted;
+    bool stopped;
+
+    static inline void haltCheckInterrupts() {
+        if(io::get(io::IE) & io::get(io::IF)) {
+            halted = false;
+            stopped = false;
+        }
+    }
+
     void init(const char *biosFilePath, const char *romFilePath) {
         loadBIOS(biosFilePath);
         cartridge::init(romFilePath);
@@ -27,6 +37,9 @@ namespace gbaemu::gba {
         dma::init();
         io::init();
         keypad::init();
+
+        halted = false;
+        stopped = false;
     }
 
     static inline void loadBIOS(const char *biosFilePath) {
@@ -62,10 +75,30 @@ namespace gbaemu::gba {
     }
 
     void cycle() {
-        if(!dma::cycle()) {
-            cpu::cycle();
-        }
+        if(stopped) {
+            haltCheckInterrupts();
+        } else {
+            if(!dma::cycle()) {
+                if(halted) {
+                    haltCheckInterrupts();
+                } else {
+                    cpu::cycle();
+                }
+            }
 
-        lcd::cycle();
+            lcd::cycle();
+        }
+    }
+
+    void haltcnt_writeCallback(uint8_t value) {
+        if(value & 0x80) {
+            stopped = true;
+        } else {
+            halted = true;
+        }
+    }
+
+    void postflg_writeCallback(uint16_t value) {
+        haltcnt_writeCallback(value >> 8);
     }
 }

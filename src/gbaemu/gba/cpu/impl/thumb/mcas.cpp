@@ -20,7 +20,8 @@ namespace gbaemu::gba::cpu::impl::thumb::mcas {
     DEFINE_MCAS_OPCODE(
         mov,
         registerWrite(Rd, immediate);
-        logicSetFlags(immediate)
+        cpsr.fields.flagZ = !immediate;
+        cpsr.fields.flagN = false;
     )
 
     DEFINE_MCAS_OPCODE(

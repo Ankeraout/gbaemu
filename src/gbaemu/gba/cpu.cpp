@@ -121,7 +121,7 @@ namespace gbaemu::gba::cpu {
         if(pipeline.pipelineStage == PIPELINE_FETCH_DECODE_EXECUTE) {
             switch(cpsr.fields.flagT) {
                 case CPU_MODE_ARM:
-                    //printf("E [%08x] %08x SP=%08x LR=%08x\n", PC - 8, pipeline.decodedOpcodeARM_value, registerRead(13), registerRead(14));
+                    //printf("E [%08x] %08x R0=%08x R1=%08x R2=%08x R3=%08x SP=%08x LR=%08x IE=%04x IF=%04x\n", PC - 8, pipeline.decodedOpcodeARM_value, registerRead(0), registerRead(1), registerRead(2), registerRead(3), registerRead(13), registerRead(14), io::get(io::IE), io::get(io::IF));
                     if(checkCondition(pipeline.decodedOpcodeARM_value)) {
                         if(!pipeline.decodedOpcodeARM) {
                             printf("Warning: undefined opcode %08x at %08x\n", pipeline.decodedOpcodeARM_value, PC - 8);

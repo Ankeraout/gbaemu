@@ -18,7 +18,11 @@
 #define DEFINE_STR_OPCODE_SINGLE(variant, body) \
     DEFINE_HSDT_OPCODE_SINGLE( \
         str ## variant, \
-        const uint32_t value = registerRead(Rd); \
+        uint32_t value = registerRead(Rd); \
+        \
+        if(Rd == CPU_REG_PC) { \
+            value += 4; \
+        } \
         \
         body \
     )

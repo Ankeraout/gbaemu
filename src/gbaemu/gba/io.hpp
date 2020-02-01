@@ -117,7 +117,7 @@ namespace gbaemu::gba::io {
         JOY_TRANS_H = 0x156,
         JOYSTAT = 0x158,
         IE = 0x200,
-        IF = 0x200,
+        IF = 0x202,
         WAITCNT = 0x204,
         IME = 0x208,
         POSTFLG = 0x300,

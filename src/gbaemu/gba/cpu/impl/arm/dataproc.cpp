@@ -11,7 +11,7 @@
     cpsr.fields.flagN = SIGN32(result); \
     cpsr.fields.flagC = shifter.flagC
 
-#define S_FOOTER \
+#define S_HEADER \
     if(Rd == 15) { \
         cpsr = readSPSR(); \
     }
@@ -56,11 +56,11 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
     DECLARE_DATAPROC_OPCODE(
         ands,
         uint32_t result = Rn_v & op2;
+
+        S_HEADER;
         
         logicSetFlags(result);
         registerWrite(Rd, result);
-
-        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -71,11 +71,11 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
     DECLARE_DATAPROC_OPCODE(
         eors,
         uint32_t result = Rn_v ^ op2;
+
+        S_HEADER;
         
         logicSetFlags(result);
         registerWrite(Rd, result);
-
-        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -87,14 +87,14 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         subs,
         uint32_t result = Rn_v - op2;
 
+        S_HEADER;
+
         cpsr.fields.flagZ = !result;
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = SUB32_FLAGV(Rn_v, op2, result);
         cpsr.fields.flagC = SUB32_FLAGC(Rn_v, op2);
 
         registerWrite(Rd, result);
-
-        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -106,14 +106,14 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         rsbs,
         uint32_t result = op2 - Rn_v;
 
+        S_HEADER;
+
         cpsr.fields.flagZ = !result;
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = SUB32_FLAGV(op2, Rn_v, result);
         cpsr.fields.flagC = SUB32_FLAGC(op2, Rn_v);
 
         registerWrite(Rd, result);
-
-        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -125,14 +125,14 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         adds,
         uint64_t result = Rn_v + op2;
 
+        S_HEADER;
+
         cpsr.fields.flagZ = !((uint32_t)result);
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = ADD32_FLAGV(op2, Rn_v, (uint32_t)result);
         cpsr.fields.flagC = result >> 32;
 
         registerWrite(Rd, (uint32_t)result);
-
-        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -144,14 +144,14 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         adcs,
         uint64_t result = Rn_v + op2 + cpsr.fields.flagC;
 
+        S_HEADER;
+
         cpsr.fields.flagZ = !((uint32_t)result);
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = ADD32_FLAGV(op2, Rn_v, (uint32_t)result);
         cpsr.fields.flagC = result >> 32;
 
         registerWrite(Rd, (uint32_t)result);
-
-        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -163,14 +163,14 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         sbcs,
         uint32_t result = Rn_v - op2 + cpsr.fields.flagC - 1;
 
+        S_HEADER;
+
         cpsr.fields.flagZ = !result;
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = SUB32_FLAGV(Rn_v, op2, result);
         cpsr.fields.flagC = SBC32_FLAGC(Rn_v, op2, !cpsr.fields.flagC);
 
         registerWrite(Rd, result);
-
-        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -182,32 +182,32 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         rscs,
         uint32_t result = op2 - Rn_v + cpsr.fields.flagC - 1;
 
+        S_HEADER;
+
         cpsr.fields.flagZ = !result;
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = SUB32_FLAGV(op2, Rn_v, result);
         cpsr.fields.flagC = SBC32_FLAGC(op2, Rn_v, !cpsr.fields.flagC);
 
         registerWrite(Rd, result);
-
-        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
         tst,
         uint32_t result = Rn_v & op2;
+
+        S_HEADER;
         
         logicSetFlags(result);
-
-        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
         teq,
         uint32_t result = Rn_v ^ op2;
+
+        S_HEADER;
         
         logicSetFlags(result);
-
-        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -216,12 +216,12 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
 
         uint32_t result = Rn_v - op2;
 
+        S_HEADER;
+
         cpsr.fields.flagZ = !result;
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = SUB32_FLAGV(Rn_v, op2, result);
         cpsr.fields.flagC = SUB32_FLAGC(Rn_v, op2);
-
-        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -229,12 +229,12 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         UNUSED(Rd);
         uint64_t result = Rn_v + op2;
 
+        S_HEADER;
+
         cpsr.fields.flagZ = !((uint32_t)result);
         cpsr.fields.flagN = SIGN32(result);
         cpsr.fields.flagV = ADD32_FLAGV(op2, Rn_v, (uint32_t)result);
         cpsr.fields.flagC = result > UINT32_MAX;
-
-        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -245,11 +245,11 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
     DECLARE_DATAPROC_OPCODE(
         orrs,
         uint32_t result = Rn_v | op2;
+
+        S_HEADER;
         
         logicSetFlags(result);
         registerWrite(Rd, result);
-
-        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -263,10 +263,10 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         movs,
         UNUSED(Rn_v);
 
+        S_HEADER;
+
         logicSetFlags(op2);
         registerWrite(Rd, op2);
-
-        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -277,11 +277,11 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
     DECLARE_DATAPROC_OPCODE(
         bics,
         uint32_t result = Rn_v & ~op2;
+
+        S_HEADER;
         
         logicSetFlags(result);
         registerWrite(Rd, result);
-
-        S_FOOTER;
     )
 
     DECLARE_DATAPROC_OPCODE(
@@ -296,9 +296,9 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
         UNUSED(Rn_v);
         uint32_t result = ~op2;
 
+        S_HEADER;
+
         logicSetFlags(result);
         registerWrite(Rd, result);
-
-        S_FOOTER;
     )
 }
