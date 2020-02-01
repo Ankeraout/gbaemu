@@ -5,7 +5,11 @@
 
 namespace gbaemu::gba::cpu::impl::thumb::lbl {
     void opcode_bl(uint16_t opcode) {
-        uint16_t offset = opcode & 0x07ff;
+        uint32_t offset = opcode & 0x07ff;
+
+        if(offset & 0x0400) {
+            offset |= 0xfffff800;
+        }
 
         registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) + (offset << 12));
     }

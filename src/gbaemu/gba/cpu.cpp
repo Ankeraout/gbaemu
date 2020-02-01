@@ -340,7 +340,7 @@ namespace gbaemu::gba::cpu {
         registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 1 : 4));
         cpsr.fields.flagT = 0;
         cpsr.fields.flagI = 1;
-        registerWrite(CPU_REG_PC, 0x00000004);
+        performJump(0x00000004);
     }
 
     void raiseIRQ() {
@@ -349,7 +349,7 @@ namespace gbaemu::gba::cpu {
         registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 1 : 4));
         cpsr.fields.flagT = 0;
         cpsr.fields.flagI = 1;
-        registerWrite(CPU_REG_PC, 0x00000018);
+        performJump(0x00000018);
     }
 
     void raiseSWI() {
@@ -358,7 +358,7 @@ namespace gbaemu::gba::cpu {
         registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 1 : 4));
         cpsr.fields.flagT = 0;
         cpsr.fields.flagI = 1;
-        registerWrite(CPU_REG_PC, 0x00000008);
+        performJump(0x00000008);
     }
 
     void if_writeCallback(uint16_t value) {
