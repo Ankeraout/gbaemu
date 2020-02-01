@@ -94,10 +94,7 @@ namespace gbaemu::gba::cpu {
     void init() {
         // Reset CPSR
         cpsr.value = 0;
-        cpsr.fields.mode = PSR_MODE_SVC;
-        cpsr.fields.flagF = 1;
-        cpsr.fields.flagI = 1;
-        cpsr.fields.flagT = 0;
+        cpsr.fields.mode = PSR_MODE_SYS;
 
         setInitialRegisterValues();
         
@@ -121,11 +118,12 @@ namespace gbaemu::gba::cpu {
         if(pipeline.pipelineStage == PIPELINE_FETCH_DECODE_EXECUTE) {
             switch(cpsr.fields.flagT) {
                 case CPU_MODE_ARM:
-                    //printf("E [%08x] %08x R0=%08x R1=%08x R2=%08x R3=%08x SP=%08x LR=%08x IE=%04x IF=%04x\n", PC - 8, pipeline.decodedOpcodeARM_value, registerRead(0), registerRead(1), registerRead(2), registerRead(3), registerRead(13), registerRead(14), io::get(io::IE), io::get(io::IF));
+                    //printf("[%08x] %08x R0=%08x R1=%08x R2=%08x R3=%08x R4=%08x R5=%08x R6=%08x R7=%08x R8=%08x R9=%08x R10=%08x R11=%08x R12=%08x SP=%08x LR=%08x CPSR=%08x\n", PC - 8, pipeline.decodedOpcodeARM_value, registerRead(0), registerRead(1), registerRead(2), registerRead(3), registerRead(4), registerRead(5), registerRead(6), registerRead(7), registerRead(8), registerRead(9), registerRead(10), registerRead(11), registerRead(12), registerRead(13), registerRead(14), cpsr.value);
                     if(checkCondition(pipeline.decodedOpcodeARM_value)) {
                         if(!pipeline.decodedOpcodeARM) {
                             printf("Warning: undefined opcode %08x at %08x\n", pipeline.decodedOpcodeARM_value, PC - 8);
                             raiseUnd();
+                            gbaemu::quit();
                         } else {
                             pipeline.decodedOpcodeARM(pipeline.decodedOpcodeARM_value);
                         }
@@ -134,10 +132,11 @@ namespace gbaemu::gba::cpu {
                     break;
 
                 case CPU_MODE_THUMB:
-                    //printf("E [%08x] %04x SP=%08x LR=%08x\n", PC - 4, pipeline.decodedOpcodeThumb_value, registerRead(13), registerRead(14));
+                    //printf("[%08x] %04x SP=%08x LR=%08x\n", PC - 4, pipeline.decodedOpcodeThumb_value, registerRead(13), registerRead(14));
                     if(!pipeline.decodedOpcodeThumb) {
-                        printf("Warning: undefined opcode %04x at %08x\n", pipeline.decodedOpcodeARM_value, PC - 4);
+                        printf("Warning: undefined opcode %04x at %08x\n", pipeline.decodedOpcodeThumb_value, PC - 4);
                         raiseUnd();
+                        gbaemu::quit();
                     } else {
                         pipeline.decodedOpcodeThumb(pipeline.decodedOpcodeThumb_value);
                     }
@@ -240,7 +239,7 @@ namespace gbaemu::gba::cpu {
             return cpsr.fields.flagC && !cpsr.fields.flagZ;
             
             case CPU_CONDITION_LS:
-            return !cpsr.fields.flagC && cpsr.fields.flagZ;
+            return !cpsr.fields.flagC || cpsr.fields.flagZ;
             
             case CPU_CONDITION_GE:
             return cpsr.fields.flagN == cpsr.fields.flagV;
@@ -282,10 +281,14 @@ namespace gbaemu::gba::cpu {
             printf("R%d = %08x\n", i, registerRead(i));
         }
 
-        printf("Stack trace:\n");
+        printf("\nStack trace:\n");
 
-        for(uint32_t base = 0x03007f00; base >= registerRead(CPU_REG_SP); base -= 4) {
-            printf(" - %08x: %08x\n", base, mmu::read32(base));
+        if((registerRead(CPU_REG_SP) & 0xfffffe00) != 0x03007e00) {
+            printf("<too large to display>\n");
+        } else {
+            for(uint32_t base = 0x03007f00; base >= registerRead(CPU_REG_SP); base -= 4) {
+                printf(" - %08x: %08x\n", base, mmu::read32(base));
+            }
         }
 
         fflush(stdout);
@@ -334,7 +337,7 @@ namespace gbaemu::gba::cpu {
     void raiseUnd() {
         writeSPSR(cpsr, PSR_MODE_UND);
         cpsr.fields.mode = PSR_MODE_UND;
-        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 2 : 4));
+        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 1 : 4));
         cpsr.fields.flagT = 0;
         cpsr.fields.flagI = 1;
         registerWrite(CPU_REG_PC, 0x00000004);
@@ -343,10 +346,19 @@ namespace gbaemu::gba::cpu {
     void raiseIRQ() {
         writeSPSR(cpsr, PSR_MODE_IRQ);
         cpsr.fields.mode = PSR_MODE_IRQ;
-        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 2 : 4));
+        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 1 : 4));
         cpsr.fields.flagT = 0;
         cpsr.fields.flagI = 1;
         registerWrite(CPU_REG_PC, 0x00000018);
+    }
+
+    void raiseSWI() {
+        writeSPSR(cpsr, PSR_MODE_SVC);
+        cpsr.fields.mode = PSR_MODE_SVC;
+        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) - (cpsr.fields.flagT ? 1 : 4));
+        cpsr.fields.flagT = 0;
+        cpsr.fields.flagI = 1;
+        registerWrite(CPU_REG_PC, 0x00000008);
     }
 
     void if_writeCallback(uint16_t value) {
