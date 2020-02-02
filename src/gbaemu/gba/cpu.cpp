@@ -132,7 +132,7 @@ namespace gbaemu::gba::cpu {
                     break;
 
                 case CPU_MODE_THUMB:
-                    //printf("[%08x] %04x SP=%08x LR=%08x\n", PC - 4, pipeline.decodedOpcodeThumb_value, registerRead(13), registerRead(14));
+                    //printf("[%08x] %04x     R0=%08x R1=%08x R2=%08x R3=%08x R4=%08x R5=%08x R6=%08x R7=%08x R8=%08x R9=%08x R10=%08x R11=%08x R12=%08x SP=%08x LR=%08x CPSR=%08x\n", PC - 4, pipeline.decodedOpcodeThumb_value, registerRead(0), registerRead(1), registerRead(2), registerRead(3), registerRead(4), registerRead(5), registerRead(6), registerRead(7), registerRead(8), registerRead(9), registerRead(10), registerRead(11), registerRead(12), registerRead(13), registerRead(14), cpsr.value);
                     if(!pipeline.decodedOpcodeThumb) {
                         printf("Warning: undefined opcode %04x at %08x\n", pipeline.decodedOpcodeThumb_value, PC - 4);
                         raiseUnd();

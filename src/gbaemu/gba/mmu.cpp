@@ -36,7 +36,7 @@ namespace gbaemu::gba::mmu {
                 if((address & 0x0001ffff) <= 0x00017fff) {
                     return access8(gbaemu::gba::lcd::vram, address & 0x0001ffff);
                 } else {
-                    return 0;
+                    return access8(gbaemu::gba::lcd::vram, address & 0x00017fff);
                 }
 
             case 7: // OAM
@@ -89,7 +89,7 @@ namespace gbaemu::gba::mmu {
                 if((address & 0x0001ffff) <= 0x00017fff) {
                     return access16(gbaemu::gba::lcd::vram, address & 0x0001ffff);
                 } else {
-                    return 0;
+                    return access16(gbaemu::gba::lcd::vram, address & 0x00017fff);
                 }
 
             case 7: // OAM
@@ -145,7 +145,7 @@ namespace gbaemu::gba::mmu {
                 if((address & 0x0001ffff) <= 0x00017fff) {
                     return access32(gbaemu::gba::lcd::vram, address & 0x0001ffff);
                 } else {
-                    return 0;
+                    return access32(gbaemu::gba::lcd::vram, address & 0x00017fff);
                 }
             
             case 7: // OAM
@@ -197,6 +197,8 @@ namespace gbaemu::gba::mmu {
             case 6: // VRAM
                 if((address & 0x0001ffff) <= 0x00017fff) {
                     access16(gbaemu::gba::lcd::vram, address & 0x0001fffe) = value | (value << 8);
+                } else {
+                    access8(gbaemu::gba::lcd::vram, address & 0x00017fff) = value | (value << 8);
                 }
 
                 break;
@@ -247,6 +249,8 @@ namespace gbaemu::gba::mmu {
             case 6: // VRAM
                 if((address & 0x0001ffff) <= 0x00017fff) {
                     access16(gbaemu::gba::lcd::vram, address & 0x0001ffff) = value;
+                } else {
+                    access16(gbaemu::gba::lcd::vram, address & 0x00017fff) = value;
                 }
                 
                 break;
@@ -300,6 +304,8 @@ namespace gbaemu::gba::mmu {
             case 6: // VRAM
                 if((address & 0x0001ffff) <= 0x00017fff) {
                     access32(gbaemu::gba::lcd::vram, address & 0x0001ffff) = value;
+                } else {
+                    access32(gbaemu::gba::lcd::vram, address & 0x00017fff) = value;
                 }
 
                 break;
