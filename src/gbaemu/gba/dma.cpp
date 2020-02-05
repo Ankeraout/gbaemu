@@ -184,6 +184,10 @@ namespace gbaemu::gba::dma {
                     } else {
                         dma[i].enable = false;
                         dma[i].running = false;
+
+                        printf("DMA %d finished\n", i);
+
+                        io::set(io::DMA0CNT_H + 12 * i, io::get(io::DMA0CNT_H + 12 * i) & 0x7fff);
                     }
 
                     if(dma[i].irq) {
