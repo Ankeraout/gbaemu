@@ -14,6 +14,13 @@ Here are the supported platforms:
 For now this project relies on [SDL2](https://www.libsdl.org/) for display and controls.
 Because packed structures are used in the code, only GCC or Microsoft Visual C++ 2019 may be able to compile it, as there was no porting effort made for other compilers.
 
+## Compiling
+To compile this project, just use a terminal, set your current directory to the root directory if this repository, and type `make <target>`, with `<target>` being one of these possible values:
+- `bin/gbaemu` (or `bin/gbaemu.exe` if compiling on Windows) if you only want to compile the emulator
+- `testroms` if you only want to compile the test ROMs
+- `all` if you want to compile everything
+- `clean` to delete all compiled files
+
 ## Test ROMs
 In order to build test ROMs, you need to have [FASMARM](https://arm.flatassembler.net/) in your path. Then just use `make testroms` to build them.
 The .gba ROM files will be right next to the corresponding .asm file.
