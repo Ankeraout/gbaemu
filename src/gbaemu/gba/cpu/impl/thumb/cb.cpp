@@ -25,5 +25,5 @@ namespace gbaemu::gba::cpu::impl::thumb::cb {
     DEFINE_OPCODE_CB(ge, cpsr.fields.flagN == cpsr.fields.flagV)
     DEFINE_OPCODE_CB(lt, cpsr.fields.flagN != cpsr.fields.flagV)
     DEFINE_OPCODE_CB(gt, (!cpsr.fields.flagZ) && (cpsr.fields.flagN == cpsr.fields.flagV))
-    DEFINE_OPCODE_CB(le, cpsr.fields.flagC || (cpsr.fields.flagN != cpsr.fields.flagV))
+    DEFINE_OPCODE_CB(le, cpsr.fields.flagZ || (cpsr.fields.flagN != cpsr.fields.flagV))
 }
