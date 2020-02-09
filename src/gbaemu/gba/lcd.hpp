@@ -43,6 +43,21 @@ namespace gbaemu::gba::lcd {
         uint16_t value;
     } dispstat_t;
 
+    typedef union {
+        PACKED_STRUCT(
+            uint16_t bgPriority : 2;
+            uint16_t tileBaseAddress : 2;
+            uint16_t unused : 2;
+            uint16_t mosaic : 1;
+            uint16_t colors : 1;
+            uint16_t mapBaseAddress : 5;
+            uint16_t displayAreaOverflow : 1;
+            uint16_t screenSize : 2;
+        ) fields;
+
+        uint16_t value;
+    } bgcnt_t;
+
     static inline const unsigned int screenWidth = 240;
     static inline const unsigned int screenHeight = 160;
 

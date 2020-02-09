@@ -7,6 +7,8 @@
 
 #include <gbaemu/frontend.hpp>
 
+#define access16(t, i) (*((uint16_t *)&t[i]))
+
 namespace gbaemu::gba::lcd {
     uint8_t palette[1024];
     uint8_t vram[98304];
@@ -46,17 +48,77 @@ namespace gbaemu::gba::lcd {
             layers[maxPriorityIndex] = exchange;
         }
     }
+    
+    static inline void drawLayer(int layer) {
+        bgcnt_t bgcnt;
+        bgcnt.value = io::get(io::BG0CNT + 2 * layer);
+        int bghofs = io::get(io::BG0HOFS + 2 * layer);
+        int bgvofs = io::get(io::BG0VOFS + 2 * layer);
+        int mapBase = bgcnt.fields.mapBaseAddress << 11;
+        int tileBase = bgcnt.fields.tileBaseAddress << 14;
+        int yLayer = currentRow + bgvofs;
+
+        if(bgcnt.fields.screenSize & 2) {
+            yLayer &= 0x01ff;
+        } else {
+            yLayer &= 0x00ff;
+        }
+
+        int yMap = yLayer >> 3;
+        int yTile = yLayer & 7;
+        int xLayer = bghofs;
+        int mapTileShift = 5 << bgcnt.fields.colors;
+        int mapValueMask = bgcnt.fields.colors ? 0x01ff : 0x03ff;
+        int mapTileYshift = bgcnt.fields.colors ? 3 : 2;
+        int mapTileXshift = bgcnt.fields.colors ? 0 : 1;
+
+        for(int x = 0; x < 240; x++) {
+            if(bgcnt.fields.screenSize & 1) {
+                xLayer &= 0x01ff;
+            } else {
+                xLayer &= 0x00ff;
+            }
+
+            int xMap = xLayer >> 3;
+            int xTile = xLayer & 7;
+            int mapValue = access16(vram, mapBase + (yMap << 6) + (xMap << 1)) & mapValueMask;
+            int tileValueAddress = (tileBase + (mapValue << mapTileShift) + (yTile << mapTileYshift) + (xTile >> mapTileXshift));
+            int tileValue = vram[tileValueAddress];
+
+            if(!bgcnt.fields.colors) {
+                if(xTile & 1) {
+                    tileValue >>= 4;
+                } else {
+                    tileValue &= 0x0f;
+                }
+            }
+
+            frameBuffer[currentRow * screenWidth + x] = getPaletteColor(tileValue);
+
+            xLayer++;
+        }
+    }
 
     static inline void drawMode0() {
+        int layers[3];
+        dispcnt_t dispcnt;
 
+        sortLayersByPriority(layers);
+        dispcnt.value = io::get(io::DISPCNT);
+
+        for(int i = 0; i < 4; i++) {
+            if(dispcnt.value & (1 << (8 + i))) {
+                drawLayer(i);
+            }
+        }
     }
 
     static inline void drawMode1() {
-        
+        drawMode0();
     }
 
     static inline void drawMode2() {
-        
+        drawMode0();
     }
 
     static inline void drawMode3() {
