@@ -64,10 +64,18 @@ namespace gbaemu::gba::lcd {
             yLayer &= 0x00ff;
         }
 
+        int yMapShift;
+
+        if(bgcnt.fields.screenSize & 1) {
+            yMapShift = 7;
+        } else {
+            yMapShift = 6;
+        }
+
         int yMap = yLayer >> 3;
         int yTile = yLayer & 7;
         int xLayer = bghofs;
-        int mapTileShift = 5 << bgcnt.fields.colors;
+        int mapTileShift = 5 + bgcnt.fields.colors;
         int mapValueMask = bgcnt.fields.colors ? 0x01ff : 0x03ff;
         int mapTileYshift = bgcnt.fields.colors ? 3 : 2;
         int mapTileXshift = bgcnt.fields.colors ? 0 : 1;
@@ -81,7 +89,7 @@ namespace gbaemu::gba::lcd {
 
             int xMap = xLayer >> 3;
             int xTile = xLayer & 7;
-            int mapValue = access16(vram, mapBase + (yMap << 6) + (xMap << 1)) & mapValueMask;
+            int mapValue = access16(vram, mapBase + (yMap << yMapShift) + (xMap << 1)) & mapValueMask;
             int tileValueAddress = (tileBase + (mapValue << mapTileShift) + (yTile << mapTileYshift) + (xTile >> mapTileXshift));
             int tileValue = vram[tileValueAddress];
 
