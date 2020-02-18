@@ -115,6 +115,15 @@ namespace gbaemu::gba::cpu {
     }
 
     static inline void execute() {
+        if(modeMapping[cpsr.fields.mode] == MODE_INV) {
+            fprintf(stderr, "Error: PSR mode 0x%02x not allowed.\n", cpsr.fields.mode);
+            exit(0);
+        }
+
+        if((io::get(io::IME) & 0x00000001) && (io::get(io::IF) & io::get(io::IE) & 0x3fff) && (!cpsr.fields.flagI)) {
+            raiseIRQ();
+        }
+
         if(pipeline.pipelineStage == PIPELINE_FETCH_DECODE_EXECUTE) {
             switch(cpsr.fields.flagT) {
                 case CPU_MODE_ARM:
@@ -179,15 +188,6 @@ namespace gbaemu::gba::cpu {
     }
 
     void cycle() {
-        if(modeMapping[cpsr.fields.mode] == MODE_INV) {
-            fprintf(stderr, "Error: PSR mode 0x%02x not allowed.\n", cpsr.fields.mode);
-            exit(0);
-        }
-
-        if((io::get(io::IME) & 0x00000001) && (io::get(io::IF) & io::get(io::IE) & 0x3fff) && (!cpsr.fields.flagI)) {
-            raiseIRQ();
-        }
-
         uint32_t cycleFetchOffset = PC;
 
         execute();
@@ -346,7 +346,7 @@ namespace gbaemu::gba::cpu {
     void raiseIRQ() {
         writeSPSR(cpsr, PSR_MODE_IRQ);
         cpsr.fields.mode = PSR_MODE_IRQ;
-        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) + (cpsr.fields.flagT ? 0 : 4));
+        registerWrite(CPU_REG_LR, registerRead(CPU_REG_PC) + (cpsr.fields.flagT ? 2 : 4));
         cpsr.fields.flagT = 0;
         cpsr.fields.flagI = 1;
         performJump(0x00000018);

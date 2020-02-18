@@ -50,14 +50,14 @@ namespace gbaemu::gba::cpu::impl::thumb::ppr {
 
         sp -= (Rcount << 2);
         uint32_t accessAddress = sp;
-
+        
         for(int i = 0; i < 8; i++) {
             if(Rlist & 0x0001) {
                 mmu::write32(accessAddress, registerRead(i));
                 accessAddress += 4;
             } Rlist >>= 1;
         }
-        
+
         mmu::write32(accessAddress, registerRead(CPU_REG_LR));
         registerWrite(CPU_REG_SP, sp);
     }
