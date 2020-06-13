@@ -25,16 +25,30 @@
 #define REP128(x) REP64(x), REP64(x)
 #define REP256(x) REP128(x), REP128(x)
 
+#define OPCODE_ALU_VARIANTS(op) \
+    op##_LSL_Rm_0, \
+    op##_LSL_Rm_1, \
+    op##_LSR_Rm_0, \
+    op##_LSR_Rm_1, \
+    op##_ASR_Rm_0, \
+    op##_ASR_Rm_1, \
+    op##_ROR_Rm_0, \
+    op##_ROR_Rm_1
+
+#define OPCODE_ALU_VARIANTS2(op) \
+    OPCODE_ALU_VARIANTS(op), \
+    op##_LSL_Rm_0, \
+    NULL, \
+    op##_LSR_Rm_0, \
+    NULL, \
+    op##_ASR_Rm_0, \
+    NULL, \
+    op##_ROR_Rm_0, \
+    NULL
+
 namespace gbaemu::gba::cpu::decoder::arm {
-    const armOpcodeCallback_t opcodeDecoderTable[] = {
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_LSL_Rm_0, // 0x000
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_LSL_Rm_1, // 0x001
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_LSR_Rm_0, // 0x002
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_LSR_Rm_1, // 0x003
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_ASR_Rm_0, // 0x004
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_ASR_Rm_1, // 0x005
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_ROR_Rm_0, // 0x006
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_ROR_Rm_1, // 0x007
+    const armOpcodeCallback_t opcodeDecoderTable[4096] = {
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_and), // 0x000
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_LSL_Rm_0, // 0x008
         gbaemu::gba::cpu::impl::arm::mma::opcode_mul, // 0x009
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_LSR_Rm_0, // 0x00a
@@ -43,14 +57,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x00d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_and_ROR_Rm_0, // 0x00e
         NULL, // 0x00f
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_LSL_Rm_0, // 0x010
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_LSL_Rm_1, // 0x011
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_LSR_Rm_0, // 0x012
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_LSR_Rm_1, // 0x013
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_ASR_Rm_0, // 0x014
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_ASR_Rm_1, // 0x015
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_ROR_Rm_0, // 0x016
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_ROR_Rm_1, // 0x017
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands), // 0x010
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_LSL_Rm_0, // 0x018
         gbaemu::gba::cpu::impl::arm::mma::opcode_muls, // 0x019
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_LSR_Rm_0, // 0x01a
@@ -59,14 +66,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrs, // 0x01d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_ands_ROR_Rm_0, // 0x01e
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrsh, // 0x01f
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_LSL_Rm_0, // 0x020
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_LSL_Rm_1, // 0x021
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_LSR_Rm_0, // 0x022
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_LSR_Rm_1, // 0x023
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_ASR_Rm_0, // 0x024
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_ASR_Rm_1, // 0x025
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_ROR_Rm_0, // 0x026
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_ROR_Rm_1, // 0x027
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor), // 0x020
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_LSL_Rm_0, // 0x028
         gbaemu::gba::cpu::impl::arm::mma::opcode_mla, // 0x029
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_LSR_Rm_0, // 0x02a
@@ -75,14 +75,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x02d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eor_ROR_Rm_0, // 0x02e
         NULL, // 0x02f
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors_LSL_Rm_0, // 0x030
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors_LSL_Rm_1, // 0x031
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors_LSR_Rm_0, // 0x032
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors_LSR_Rm_1, // 0x033
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors_ASR_Rm_0, // 0x034
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors_ASR_Rm_1, // 0x035
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors_ROR_Rm_0, // 0x036
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors_ROR_Rm_1, // 0x037
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors), // 0x030
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors_LSL_Rm_0, // 0x038
         gbaemu::gba::cpu::impl::arm::mma::opcode_mlas, // 0x039
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors_LSR_Rm_0, // 0x03a
@@ -92,29 +85,15 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_eors_ROR_Rm_0, // 0x03e
         NULL, // 0x03f
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub_LSL_Rm_0, // 0x040
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub_LSL_Rm_1, // 0x041
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub_LSR_Rm_0, // 0x042
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub_LSR_Rm_1, // 0x043
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub_ASR_Rm_0, // 0x044
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub_ASR_Rm_1, // 0x045
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub_ROR_Rm_0, // 0x046
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub_ROR_Rm_1, // 0x047
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub_LSL_Rm_0, // 0x048
         NULL, // 0x049
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub_LSR_Rm_0, // 0x04a
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub), // 0x04a
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_strih, // 0x04b
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub_ASR_Rm_0, // 0x04c
         NULL, // 0x04d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sub_ROR_Rm_0, // 0x04e
         NULL, // 0x04f
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_subs_LSL_Rm_0, // 0x050
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_subs_LSL_Rm_1, // 0x051
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_subs_LSR_Rm_0, // 0x052
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_subs_LSR_Rm_1, // 0x053
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_subs_ASR_Rm_0, // 0x054
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_subs_ASR_Rm_1, // 0x055
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_subs_ROR_Rm_0, // 0x056
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_subs_ROR_Rm_1, // 0x057
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_subs), // 0x050
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_subs_LSL_Rm_0, // 0x058
         NULL, // 0x059
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_subs_LSR_Rm_0, // 0x05a
@@ -123,46 +102,9 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldris, // 0x05d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_subs_ROR_Rm_0, // 0x05e
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrish, // 0x05f
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsb_LSL_Rm_0, // 0x060
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsb_LSL_Rm_1, // 0x061
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsb_LSR_Rm_0, // 0x062
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsb_LSR_Rm_1, // 0x063
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsb_ASR_Rm_0, // 0x064
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsb_ASR_Rm_1, // 0x065
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsb_ROR_Rm_0, // 0x066
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsb_ROR_Rm_1, // 0x067
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsb_LSL_Rm_0, // 0x068
-        NULL, // 0x069
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsb_LSR_Rm_0, // 0x06a
-        NULL, // 0x06b
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsb_ASR_Rm_0, // 0x06c
-        NULL, // 0x06d
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsb_ROR_Rm_0, // 0x06e
-        NULL, // 0x06f
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsbs_LSL_Rm_0, // 0x070
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsbs_LSL_Rm_1, // 0x071
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsbs_LSR_Rm_0, // 0x072
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsbs_LSR_Rm_1, // 0x073
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsbs_ASR_Rm_0, // 0x074
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsbs_ASR_Rm_1, // 0x075
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsbs_ROR_Rm_0, // 0x076
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsbs_ROR_Rm_1, // 0x077
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsbs_LSL_Rm_0, // 0x078
-        NULL, // 0x079
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsbs_LSR_Rm_0, // 0x07a
-        NULL, // 0x07b
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsbs_ASR_Rm_0, // 0x07c
-        NULL, // 0x07d
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsbs_ROR_Rm_0, // 0x07e
-        NULL, // 0x07f
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_LSL_Rm_0, // 0x080
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_LSL_Rm_1, // 0x081
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_LSR_Rm_0, // 0x082
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_LSR_Rm_1, // 0x083
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_ASR_Rm_0, // 0x084
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_ASR_Rm_1, // 0x085
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_ROR_Rm_0, // 0x086
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_ROR_Rm_1, // 0x087
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsb), // 0x060
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsbs), // 0x070
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_add), // 0x080
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_LSL_Rm_0, // 0x088
         gbaemu::gba::cpu::impl::arm::mlmal::opcode_umull, // 0x089
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_LSR_Rm_0, // 0x08a
@@ -171,14 +113,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x08d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_add_ROR_Rm_0, // 0x08e
         NULL, // 0x08f
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_LSL_Rm_0, // 0x090
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_LSL_Rm_1, // 0x091
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_LSR_Rm_0, // 0x092
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_LSR_Rm_1, // 0x093
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_ASR_Rm_0, // 0x094
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_ASR_Rm_1, // 0x095
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_ROR_Rm_0, // 0x096
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_ROR_Rm_1, // 0x097
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds), // 0x090
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_LSL_Rm_0, // 0x098
         gbaemu::gba::cpu::impl::arm::mlmal::opcode_umulls, // 0x099
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_LSR_Rm_0, // 0x09a
@@ -187,14 +122,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrsu, // 0x09d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adds_ROR_Rm_0, // 0x09e
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrshu, // 0x09f
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_LSL_Rm_0, // 0x0a0
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_LSL_Rm_1, // 0x0a1
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_LSR_Rm_0, // 0x0a2
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_LSR_Rm_1, // 0x0a3
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_ASR_Rm_0, // 0x0a4
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_ASR_Rm_1, // 0x0a5
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_ROR_Rm_0, // 0x0a6
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_ROR_Rm_1, // 0x0a7
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc), // 0x0a0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_LSL_Rm_0, // 0x0a8
         gbaemu::gba::cpu::impl::arm::mlmal::opcode_umlal, // 0x0a9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_LSR_Rm_0, // 0x0aa
@@ -203,14 +131,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x0ad
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adc_ROR_Rm_0, // 0x0ae
         NULL, // 0x0af
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs_LSL_Rm_0, // 0x0b0
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs_LSL_Rm_1, // 0x0b1
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs_LSR_Rm_0, // 0x0b2
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs_LSR_Rm_1, // 0x0b3
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs_ASR_Rm_0, // 0x0b4
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs_ASR_Rm_1, // 0x0b5
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs_ROR_Rm_0, // 0x0b6
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs_ROR_Rm_1, // 0x0b7
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs), // 0x0b0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs_LSL_Rm_0, // 0x0b8
         gbaemu::gba::cpu::impl::arm::mlmal::opcode_umlals, // 0x0b9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs_LSR_Rm_0, // 0x0ba
@@ -219,14 +140,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x0bd
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_adcs_ROR_Rm_0, // 0x0be
         NULL, // 0x0bf
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_LSL_Rm_0, // 0x0c0
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_LSL_Rm_1, // 0x0c1
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_LSR_Rm_0, // 0x0c2
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_LSR_Rm_1, // 0x0c3
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_ASR_Rm_0, // 0x0c4
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_ASR_Rm_1, // 0x0c5
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_ROR_Rm_0, // 0x0c6
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_ROR_Rm_1, // 0x0c7
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc), // 0x0c0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_LSL_Rm_0, // 0x0c8
         gbaemu::gba::cpu::impl::arm::mlmal::opcode_smull, // 0x0c9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_LSR_Rm_0, // 0x0ca
@@ -235,14 +149,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x0cd
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbc_ROR_Rm_0, // 0x0ce
         NULL, // 0x0cf
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_LSL_Rm_0, // 0x0d0
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_LSL_Rm_1, // 0x0d1
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_LSR_Rm_0, // 0x0d2
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_LSR_Rm_1, // 0x0d3
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_ASR_Rm_0, // 0x0d4
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_ASR_Rm_1, // 0x0d5
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_ROR_Rm_0, // 0x0d6
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_ROR_Rm_1, // 0x0d7
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs), // 0x0d0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_LSL_Rm_0, // 0x0d8
         gbaemu::gba::cpu::impl::arm::mlmal::opcode_smulls, // 0x0d9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_LSR_Rm_0, // 0x0da
@@ -251,14 +158,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrisu, // 0x0dd
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_ROR_Rm_0, // 0x0de
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrishu, // 0x0df
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_LSL_Rm_0, // 0x0e0
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_LSL_Rm_1, // 0x0e1
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_LSR_Rm_0, // 0x0e2
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_LSR_Rm_1, // 0x0e3
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_ASR_Rm_0, // 0x0e4
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_ASR_Rm_1, // 0x0e5
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_ROR_Rm_0, // 0x0e6
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_ROR_Rm_1, // 0x0e7
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc), // 0x0e0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_LSL_Rm_0, // 0x0e8
         gbaemu::gba::cpu::impl::arm::mlmal::opcode_smlal, // 0x0e9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_LSR_Rm_0, // 0x0ea
@@ -267,14 +167,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x0ed
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_ROR_Rm_0, // 0x0ee
         NULL, // 0x0ef
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs_LSL_Rm_0, // 0x0f0
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs_LSL_Rm_1, // 0x0f1
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs_LSR_Rm_0, // 0x0f2
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs_LSR_Rm_1, // 0x0f3
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs_ASR_Rm_0, // 0x0f4
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs_ASR_Rm_1, // 0x0f5
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs_ROR_Rm_0, // 0x0f6
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs_ROR_Rm_1, // 0x0f7
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs), // 0x0f0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs_LSL_Rm_0, // 0x0f8
         gbaemu::gba::cpu::impl::arm::mlmal::opcode_smlals, // 0x0f9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs_LSR_Rm_0, // 0x0fa
@@ -299,14 +192,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x10d
         NULL, // 0x10e
         NULL, // 0x10f
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_tst_LSL_Rm_0, // 0x110
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_tst_LSL_Rm_1, // 0x111
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_tst_LSR_Rm_0, // 0x112
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_tst_LSR_Rm_1, // 0x113
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_tst_ASR_Rm_0, // 0x114
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_tst_ASR_Rm_1, // 0x115
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_tst_ROR_Rm_0, // 0x116
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_tst_ROR_Rm_1, // 0x117
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_tst), // 0x110
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_tst_LSL_Rm_0, // 0x118
         NULL, // 0x119
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_tst_LSR_Rm_0, // 0x11a
@@ -331,14 +217,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x12d
         NULL, // 0x12e
         NULL, // 0x12f
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_teq_LSL_Rm_0, // 0x130
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_teq_LSL_Rm_1, // 0x131
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_teq_LSR_Rm_0, // 0x132
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_teq_LSR_Rm_0, // 0x133
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_teq_ASR_Rm_0, // 0x134
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_teq_ASR_Rm_1, // 0x135
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_teq_ROR_Rm_0, // 0x136
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_teq_ROR_Rm_1, // 0x137
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_teq), // 0x130
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_teq_LSL_Rm_0, // 0x138
         NULL, // 0x139
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_teq_LSR_Rm_0, // 0x13a
@@ -363,14 +242,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x14d
         NULL, // 0x14e
         NULL, // 0x14f
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmp_LSL_Rm_0, // 0x150
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmp_LSL_Rm_1, // 0x151
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmp_LSR_Rm_0, // 0x152
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmp_LSR_Rm_1, // 0x153
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmp_ASR_Rm_0, // 0x154
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmp_ASR_Rm_1, // 0x155
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmp_ROR_Rm_0, // 0x156
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmp_ROR_Rm_1, // 0x157
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmp), // 0x150
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmp_LSL_Rm_0, // 0x158
         NULL, // 0x159
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmp_LSR_Rm_0, // 0x15a
@@ -395,14 +267,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x16d
         NULL, // 0x16e
         NULL, // 0x16f
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn_LSL_Rm_0, // 0x170
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn_LSL_Rm_1, // 0x171
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn_LSR_Rm_0, // 0x172
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn_LSR_Rm_1, // 0x173
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn_ASR_Rm_0, // 0x174
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn_ASR_Rm_1, // 0x175
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn_ROR_Rm_0, // 0x176
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn_ROR_Rm_1, // 0x177
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn), // 0x170
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn_LSL_Rm_0, // 0x178
         NULL, // 0x179
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn_LSR_Rm_0, // 0x17a
@@ -411,14 +276,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrispw, // 0x17d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn_ROR_Rm_0, // 0x17e
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrishpw, // 0x17f
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_LSL_Rm_0, // 0x180
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_LSL_Rm_1, // 0x181
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_LSR_Rm_0, // 0x182
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_LSR_Rm_1, // 0x183
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_ASR_Rm_0, // 0x184
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_ASR_Rm_1, // 0x185
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_ROR_Rm_0, // 0x186
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_ROR_Rm_1, // 0x187
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr), // 0x180
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_LSL_Rm_0, // 0x188
         NULL, // 0x189
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_LSR_Rm_0, // 0x18a
@@ -427,14 +285,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x18d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orr_ROR_Rm_0, // 0x18e
         NULL, // 0x18f
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_orrs_LSL_Rm_0, // 0x190
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_orrs_LSL_Rm_1, // 0x191
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_orrs_LSR_Rm_0, // 0x192
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_orrs_LSR_Rm_1, // 0x193
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_orrs_ASR_Rm_0, // 0x194
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_orrs_ASR_Rm_1, // 0x195
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_orrs_ROR_Rm_0, // 0x196
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_orrs_ROR_Rm_1, // 0x197
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_orrs), // 0x190
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orrs_LSL_Rm_0, // 0x198
         NULL, // 0x199
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orrs_LSR_Rm_0, // 0x19a
@@ -443,14 +294,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrspu, // 0x19d
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_orrs_ROR_Rm_0, // 0x19e
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrshpu, // 0x19f
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_LSL_Rm_0, // 0x1a0
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_LSL_Rm_1, // 0x1a1
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_LSR_Rm_0, // 0x1a2
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_LSR_Rm_1, // 0x1a3
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_ASR_Rm_0, // 0x1a4
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_ASR_Rm_1, // 0x1a5
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_ROR_Rm_0, // 0x1a6
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_ROR_Rm_1, // 0x1a7
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov), // 0x1a0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_LSL_Rm_0, // 0x1a8
         NULL, // 0x1a9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_LSR_Rm_0, // 0x1aa
@@ -459,14 +303,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x1ad
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mov_ROR_Rm_0, // 0x1ae
         NULL, // 0x1af
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_movs_LSL_Rm_0, // 0x1b0
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_movs_LSL_Rm_1, // 0x1b1
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_movs_LSR_Rm_0, // 0x1b2
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_movs_LSR_Rm_1, // 0x1b3
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_movs_ASR_Rm_0, // 0x1b4
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_movs_ASR_Rm_1, // 0x1b5
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_movs_ROR_Rm_0, // 0x1b6
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_movs_ROR_Rm_1, // 0x1b7
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_movs), // 0x1b0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_movs_LSL_Rm_0, // 0x1b8
         NULL, // 0x1b9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_movs_LSR_Rm_0, // 0x1ba
@@ -475,14 +312,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrspuw, // 0x1bd
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_movs_ROR_Rm_0, // 0x1be
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrshpuw, // 0x1bf
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_LSL_Rm_0, // 0x1c0
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_LSL_Rm_1, // 0x1c1
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_LSR_Rm_0, // 0x1c2
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_LSR_Rm_1, // 0x1c3
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_ASR_Rm_0, // 0x1c4
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_ASR_Rm_1, // 0x1c5
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_ROR_Rm_0, // 0x1c6
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_ROR_Rm_1, // 0x1c7
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic), // 0x1c0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_LSL_Rm_0, // 0x1c8
         NULL, // 0x1c9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_LSR_Rm_0, // 0x1ca
@@ -491,14 +321,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x1cd
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bic_ROR_Rm_0, // 0x1ce
         NULL, // 0x1cf
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_bics_LSL_Rm_0, // 0x1d0
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_bics_LSL_Rm_1, // 0x1d1
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_bics_LSR_Rm_0, // 0x1d2
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_bics_LSR_Rm_1, // 0x1d3
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_bics_ASR_Rm_0, // 0x1d4
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_bics_ASR_Rm_1, // 0x1d5
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_bics_ROR_Rm_0, // 0x1d6
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_bics_ROR_Rm_1, // 0x1d7
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_bics), // 0x1d0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bics_LSL_Rm_0, // 0x1d8
         NULL, // 0x1d9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bics_LSR_Rm_0, // 0x1da
@@ -507,14 +330,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrispu, // 0x1dd
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_bics_ROR_Rm_0, // 0x1de
         gbaemu::gba::cpu::impl::arm::hsdt::opcode_ldrishpu, // 0x1df
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_LSL_Rm_0, // 0x1e0
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_LSL_Rm_1, // 0x1e1
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_LSR_Rm_0, // 0x1e2
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_LSR_Rm_1, // 0x1e3
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_ASR_Rm_0, // 0x1e4
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_ASR_Rm_1, // 0x1e5
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_ROR_Rm_0, // 0x1e6
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_ROR_Rm_1, // 0x1e7
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn), // 0x1e0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_LSL_Rm_0, // 0x1e8
         NULL, // 0x1e9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_LSR_Rm_0, // 0x1ea
@@ -523,14 +339,7 @@ namespace gbaemu::gba::cpu::decoder::arm {
         NULL, // 0x1ed
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvn_ROR_Rm_0, // 0x1ee
         NULL, // 0x1ef
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvns_LSL_Rm_0, // 0x1f0
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvns_LSL_Rm_1, // 0x1f1
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvns_LSR_Rm_0, // 0x1f2
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvns_LSR_Rm_1, // 0x1f3
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvns_ASR_Rm_0, // 0x1f4
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvns_ASR_Rm_1, // 0x1f5
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvns_ROR_Rm_0, // 0x1f6
-        gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvns_ROR_Rm_1, // 0x1f7
+        OPCODE_ALU_VARIANTS(gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvns), // 0x1f0
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvns_LSL_Rm_0, // 0x1f8
         NULL, // 0x1f9
         gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvns_LSR_Rm_0, // 0x1fa
@@ -555,41 +364,11 @@ namespace gbaemu::gba::cpu::decoder::arm {
         REP16(gbaemu::gba::cpu::impl::arm::dataproc::opcode_sbcs_Immediate), // 0x2d0
         REP16(gbaemu::gba::cpu::impl::arm::dataproc::opcode_rsc_Immediate), // 0x2e0
         REP16(gbaemu::gba::cpu::impl::arm::dataproc::opcode_rscs_Immediate), // 0x2f0
-        NULL, // 0x300
-        NULL, // 0x301
-        NULL, // 0x302
-        NULL, // 0x303
-        NULL, // 0x304
-        NULL, // 0x305
-        NULL, // 0x306
-        NULL, // 0x307
-        NULL, // 0x308
-        NULL, // 0x309
-        NULL, // 0x30a
-        NULL, // 0x30b
-        NULL, // 0x30c
-        NULL, // 0x30d
-        NULL, // 0x30e
-        NULL, // 0x30f
+        REP16(NULL), // 0x300
         REP16(gbaemu::gba::cpu::impl::arm::dataproc::opcode_tst_Immediate), // 0x310
         REP16(gbaemu::gba::cpu::impl::arm::psrt::opcode_msr_cpsr_Immediate), // 0x320
         REP16(gbaemu::gba::cpu::impl::arm::dataproc::opcode_teq_Immediate), // 0x330
-        NULL, // 0x340
-        NULL, // 0x341
-        NULL, // 0x342
-        NULL, // 0x343
-        NULL, // 0x344
-        NULL, // 0x345
-        NULL, // 0x346
-        NULL, // 0x347
-        NULL, // 0x348
-        NULL, // 0x349
-        NULL, // 0x34a
-        NULL, // 0x34b
-        NULL, // 0x34c
-        NULL, // 0x34d
-        NULL, // 0x34e
-        NULL, // 0x34f
+        REP16(NULL), // 0x340
         REP16(gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmp_Immediate), // 0x350
         REP16(gbaemu::gba::cpu::impl::arm::psrt::opcode_msr_spsr_Immediate), // 0x360
         REP16(gbaemu::gba::cpu::impl::arm::dataproc::opcode_cmn_Immediate), // 0x370
@@ -603,140 +382,16 @@ namespace gbaemu::gba::cpu::decoder::arm {
         REP16(gbaemu::gba::cpu::impl::arm::dataproc::opcode_mvns_Immediate), // 0x3f0
         REP16(gbaemu::gba::cpu::impl::arm::sdt::opcode_str_Immediate), // 0x400
         REP16(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldr_Immediate), // 0x410
-        NULL, // 0x420
-        NULL, // 0x421
-        NULL, // 0x422
-        NULL, // 0x423
-        NULL, // 0x424
-        NULL, // 0x425
-        NULL, // 0x426
-        NULL, // 0x427
-        NULL, // 0x428
-        NULL, // 0x429
-        NULL, // 0x42a
-        NULL, // 0x42b
-        NULL, // 0x42c
-        NULL, // 0x42d
-        NULL, // 0x42e
-        NULL, // 0x42f
-        NULL, // 0x430
-        NULL, // 0x431
-        NULL, // 0x432
-        NULL, // 0x433
-        NULL, // 0x434
-        NULL, // 0x435
-        NULL, // 0x436
-        NULL, // 0x437
-        NULL, // 0x438
-        NULL, // 0x439
-        NULL, // 0x43a
-        NULL, // 0x43b
-        NULL, // 0x43c
-        NULL, // 0x43d
-        NULL, // 0x43e
-        NULL, // 0x43f
+        REP32(NULL), // 0x420
         REP16(gbaemu::gba::cpu::impl::arm::sdt::opcode_strb_Immediate), // 0x440
         REP16(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrb_Immediate), // 0x450
-        NULL, // 0x460
-        NULL, // 0x461
-        NULL, // 0x462
-        NULL, // 0x463
-        NULL, // 0x464
-        NULL, // 0x465
-        NULL, // 0x466
-        NULL, // 0x467
-        NULL, // 0x468
-        NULL, // 0x469
-        NULL, // 0x46a
-        NULL, // 0x46b
-        NULL, // 0x46c
-        NULL, // 0x46d
-        NULL, // 0x46e
-        NULL, // 0x46f
-        NULL, // 0x470
-        NULL, // 0x471
-        NULL, // 0x472
-        NULL, // 0x473
-        NULL, // 0x474
-        NULL, // 0x475
-        NULL, // 0x476
-        NULL, // 0x477
-        NULL, // 0x478
-        NULL, // 0x479
-        NULL, // 0x47a
-        NULL, // 0x47b
-        NULL, // 0x47c
-        NULL, // 0x47d
-        NULL, // 0x47e
-        NULL, // 0x47f
+        REP32(NULL), // 0x460
         REP16(gbaemu::gba::cpu::impl::arm::sdt::opcode_stru_Immediate), // 0x480
         REP16(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldru_Immediate), // 0x490
-        NULL, // 0x4a0
-        NULL, // 0x4a1
-        NULL, // 0x4a2
-        NULL, // 0x4a3
-        NULL, // 0x4a4
-        NULL, // 0x4a5
-        NULL, // 0x4a6
-        NULL, // 0x4a7
-        NULL, // 0x4a8
-        NULL, // 0x4a9
-        NULL, // 0x4aa
-        NULL, // 0x4ab
-        NULL, // 0x4ac
-        NULL, // 0x4ad
-        NULL, // 0x4ae
-        NULL, // 0x4af
-        NULL, // 0x4b0
-        NULL, // 0x4b1
-        NULL, // 0x4b2
-        NULL, // 0x4b3
-        NULL, // 0x4b4
-        NULL, // 0x4b5
-        NULL, // 0x4b6
-        NULL, // 0x4b7
-        NULL, // 0x4b8
-        NULL, // 0x4b9
-        NULL, // 0x4ba
-        NULL, // 0x4bb
-        NULL, // 0x4bc
-        NULL, // 0x4bd
-        NULL, // 0x4be
-        NULL, // 0x4bf
+        REP32(NULL), // 0x4a0
         REP16(gbaemu::gba::cpu::impl::arm::sdt::opcode_strub_Immediate), // 0x4c0
         REP16(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrub_Immediate), // 0x4d0
-        NULL, // 0x4e0
-        NULL, // 0x4e1
-        NULL, // 0x4e2
-        NULL, // 0x4e3
-        NULL, // 0x4e4
-        NULL, // 0x4e5
-        NULL, // 0x4e6
-        NULL, // 0x4e7
-        NULL, // 0x4e8
-        NULL, // 0x4e9
-        NULL, // 0x4ea
-        NULL, // 0x4eb
-        NULL, // 0x4ec
-        NULL, // 0x4ed
-        NULL, // 0x4ee
-        NULL, // 0x4ef
-        NULL, // 0x4f0
-        NULL, // 0x4f1
-        NULL, // 0x4f2
-        NULL, // 0x4f3
-        NULL, // 0x4f4
-        NULL, // 0x4f5
-        NULL, // 0x4f6
-        NULL, // 0x4f7
-        NULL, // 0x4f8
-        NULL, // 0x4f9
-        NULL, // 0x4fa
-        NULL, // 0x4fb
-        NULL, // 0x4fc
-        NULL, // 0x4fd
-        NULL, // 0x4fe
-        NULL, // 0x4ff
+        REP32(NULL), // 0x4e0
         REP16(gbaemu::gba::cpu::impl::arm::sdt::opcode_strp_Immediate), // 0x500
         REP16(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrp_Immediate), // 0x510
         REP16(gbaemu::gba::cpu::impl::arm::sdt::opcode_strpw_Immediate), // 0x520
@@ -753,518 +408,34 @@ namespace gbaemu::gba::cpu::decoder::arm {
         REP16(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpub_Immediate), // 0x5d0
         REP16(gbaemu::gba::cpu::impl::arm::sdt::opcode_strpubw_Immediate), // 0x5e0
         REP16(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpubw_Immediate), // 0x5f0
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_str_LSL_Rm_0, // 0x600
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_str_LSL_Rm_1, // 0x601
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_str_LSR_Rm_0, // 0x602
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_str_LSR_Rm_1, // 0x603
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_str_ASR_Rm_0, // 0x604
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_str_ASR_Rm_1, // 0x605
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_str_ROR_Rm_0, // 0x606
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_str_ROR_Rm_1, // 0x607
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_str_LSL_Rm_0, // 0x608
-        NULL, // 0x609
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_str_LSR_Rm_0, // 0x60a
-        NULL, // 0x60b
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_str_ASR_Rm_0, // 0x60c
-        NULL, // 0x60d
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_str_ROR_Rm_0, // 0x60e
-        NULL, // 0x60f
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldr_LSL_Rm_0, // 0x610
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldr_LSL_Rm_1, // 0x611
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldr_LSR_Rm_0, // 0x612
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldr_LSR_Rm_1, // 0x613
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldr_ASR_Rm_0, // 0x614
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldr_ASR_Rm_1, // 0x615
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldr_ROR_Rm_0, // 0x616
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldr_ROR_Rm_1, // 0x617
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldr_LSL_Rm_0, // 0x618
-        NULL, // 0x619
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldr_LSR_Rm_0, // 0x61a
-        NULL, // 0x61b
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldr_ASR_Rm_0, // 0x61c
-        NULL, // 0x61d
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldr_ROR_Rm_0, // 0x61e
-        NULL, // 0x61f
-        NULL, // 0x620
-        NULL, // 0x621
-        NULL, // 0x622
-        NULL, // 0x623
-        NULL, // 0x624
-        NULL, // 0x625
-        NULL, // 0x626
-        NULL, // 0x627
-        NULL, // 0x628
-        NULL, // 0x629
-        NULL, // 0x62a
-        NULL, // 0x62b
-        NULL, // 0x62c
-        NULL, // 0x62d
-        NULL, // 0x62e
-        NULL, // 0x62f
-        NULL, // 0x630
-        NULL, // 0x631
-        NULL, // 0x632
-        NULL, // 0x633
-        NULL, // 0x634
-        NULL, // 0x635
-        NULL, // 0x636
-        NULL, // 0x637
-        NULL, // 0x638
-        NULL, // 0x639
-        NULL, // 0x63a
-        NULL, // 0x63b
-        NULL, // 0x63c
-        NULL, // 0x63d
-        NULL, // 0x63e
-        NULL, // 0x63f
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strb_LSL_Rm_0, // 0x640
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strb_LSL_Rm_1, // 0x641
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strb_LSR_Rm_0, // 0x642
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strb_LSR_Rm_1, // 0x643
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strb_ASR_Rm_0, // 0x644
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strb_ASR_Rm_1, // 0x645
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strb_ROR_Rm_0, // 0x646
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strb_ROR_Rm_1, // 0x647
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strb_LSL_Rm_0, // 0x648
-        NULL, // 0x649
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strb_LSR_Rm_0, // 0x64a
-        NULL, // 0x64b
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strb_ASR_Rm_0, // 0x64c
-        NULL, // 0x64d
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strb_ROR_Rm_0, // 0x64e
-        NULL, // 0x64f
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrb_LSL_Rm_0, // 0x650
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrb_LSL_Rm_1, // 0x651
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrb_LSR_Rm_0, // 0x652
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrb_LSR_Rm_1, // 0x653
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrb_ASR_Rm_0, // 0x654
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrb_ASR_Rm_1, // 0x655
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrb_ROR_Rm_0, // 0x656
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrb_ROR_Rm_1, // 0x657
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrb_LSL_Rm_0, // 0x658
-        NULL, // 0x659
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrb_LSR_Rm_0, // 0x65a
-        NULL, // 0x65b
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrb_ASR_Rm_0, // 0x65c
-        NULL, // 0x65d
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrb_ROR_Rm_0, // 0x65e
-        NULL, // 0x65f
-        NULL, // 0x660
-        NULL, // 0x661
-        NULL, // 0x662
-        NULL, // 0x663
-        NULL, // 0x664
-        NULL, // 0x665
-        NULL, // 0x666
-        NULL, // 0x667
-        NULL, // 0x668
-        NULL, // 0x669
-        NULL, // 0x66a
-        NULL, // 0x66b
-        NULL, // 0x66c
-        NULL, // 0x66d
-        NULL, // 0x66e
-        NULL, // 0x66f
-        NULL, // 0x670
-        NULL, // 0x671
-        NULL, // 0x672
-        NULL, // 0x673
-        NULL, // 0x674
-        NULL, // 0x675
-        NULL, // 0x676
-        NULL, // 0x677
-        NULL, // 0x678
-        NULL, // 0x679
-        NULL, // 0x67a
-        NULL, // 0x67b
-        NULL, // 0x67c
-        NULL, // 0x67d
-        NULL, // 0x67e
-        NULL, // 0x67f
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_stru_LSL_Rm_0, // 0x680
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_stru_LSL_Rm_1, // 0x681
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_stru_LSR_Rm_0, // 0x682
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_stru_LSR_Rm_1, // 0x683
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_stru_ASR_Rm_0, // 0x684
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_stru_ASR_Rm_1, // 0x685
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_stru_ROR_Rm_0, // 0x686
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_stru_ROR_Rm_1, // 0x687
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_stru_LSL_Rm_0, // 0x688
-        NULL, // 0x689
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_stru_LSR_Rm_0, // 0x68a
-        NULL, // 0x68b
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_stru_ASR_Rm_0, // 0x68c
-        NULL, // 0x68d
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_stru_ROR_Rm_0, // 0x68e
-        NULL, // 0x68f
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldru_LSL_Rm_0, // 0x690
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldru_LSL_Rm_1, // 0x691
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldru_LSR_Rm_0, // 0x692
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldru_LSR_Rm_1, // 0x693
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldru_ASR_Rm_0, // 0x694
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldru_ASR_Rm_1, // 0x695
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldru_ROR_Rm_0, // 0x696
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldru_ROR_Rm_1, // 0x697
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldru_LSL_Rm_0, // 0x698
-        NULL, // 0x699
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldru_LSR_Rm_0, // 0x69a
-        NULL, // 0x69b
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldru_ASR_Rm_0, // 0x69c
-        NULL, // 0x69d
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldru_ROR_Rm_0, // 0x69e
-        NULL, // 0x69f
-        NULL, // 0x6a0
-        NULL, // 0x6a1
-        NULL, // 0x6a2
-        NULL, // 0x6a3
-        NULL, // 0x6a4
-        NULL, // 0x6a5
-        NULL, // 0x6a6
-        NULL, // 0x6a7
-        NULL, // 0x6a8
-        NULL, // 0x6a9
-        NULL, // 0x6aa
-        NULL, // 0x6ab
-        NULL, // 0x6ac
-        NULL, // 0x6ad
-        NULL, // 0x6ae
-        NULL, // 0x6af
-        NULL, // 0x6b0
-        NULL, // 0x6b1
-        NULL, // 0x6b2
-        NULL, // 0x6b3
-        NULL, // 0x6b4
-        NULL, // 0x6b5
-        NULL, // 0x6b6
-        NULL, // 0x6b7
-        NULL, // 0x6b8
-        NULL, // 0x6b9
-        NULL, // 0x6ba
-        NULL, // 0x6bb
-        NULL, // 0x6bc
-        NULL, // 0x6bd
-        NULL, // 0x6be
-        NULL, // 0x6bf
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strub_LSL_Rm_0, // 0x6c0
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strub_LSL_Rm_1, // 0x6c1
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strub_LSR_Rm_0, // 0x6c2
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strub_LSR_Rm_1, // 0x6c3
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strub_ASR_Rm_0, // 0x6c4
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strub_ASR_Rm_1, // 0x6c5
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strub_ROR_Rm_0, // 0x6c6
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strub_ROR_Rm_1, // 0x6c7
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strub_LSL_Rm_0, // 0x6c8
-        NULL, // 0x6c9
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strub_LSR_Rm_0, // 0x6ca
-        NULL, // 0x6cb
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strub_ASR_Rm_0, // 0x6cc
-        NULL, // 0x6cd
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strub_ROR_Rm_0, // 0x6ce
-        NULL, // 0x6cf
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrub_LSL_Rm_0, // 0x6d0
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrub_LSL_Rm_1, // 0x6d1
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrub_LSR_Rm_0, // 0x6d2
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrub_LSR_Rm_1, // 0x6d3
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrub_ASR_Rm_0, // 0x6d4
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrub_ASR_Rm_1, // 0x6d5
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrub_ROR_Rm_0, // 0x6d6
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrub_ROR_Rm_1, // 0x6d7
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrub_LSL_Rm_0, // 0x6d8
-        NULL, // 0x6d9
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrub_LSR_Rm_0, // 0x6da
-        NULL, // 0x6db
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrub_ASR_Rm_0, // 0x6dc
-        NULL, // 0x6dd
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrub_ROR_Rm_0, // 0x6de
-        NULL, // 0x6df
-        NULL, // 0x6e0
-        NULL, // 0x6e1
-        NULL, // 0x6e2
-        NULL, // 0x6e3
-        NULL, // 0x6e4
-        NULL, // 0x6e5
-        NULL, // 0x6e6
-        NULL, // 0x6e7
-        NULL, // 0x6e8
-        NULL, // 0x6e9
-        NULL, // 0x6ea
-        NULL, // 0x6eb
-        NULL, // 0x6ec
-        NULL, // 0x6ed
-        NULL, // 0x6ee
-        NULL, // 0x6ef
-        NULL, // 0x6f0
-        NULL, // 0x6f1
-        NULL, // 0x6f2
-        NULL, // 0x6f3
-        NULL, // 0x6f4
-        NULL, // 0x6f5
-        NULL, // 0x6f6
-        NULL, // 0x6f7
-        NULL, // 0x6f8
-        NULL, // 0x6f9
-        NULL, // 0x6fa
-        NULL, // 0x6fb
-        NULL, // 0x6fc
-        NULL, // 0x6fd
-        NULL, // 0x6fe
-        NULL, // 0x6ff
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strp_LSL_Rm_0, // 0x700
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strp_LSL_Rm_1, // 0x701
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strp_LSR_Rm_0, // 0x702
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strp_LSR_Rm_1, // 0x703
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strp_ASR_Rm_0, // 0x704
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strp_ASR_Rm_1, // 0x705
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strp_ROR_Rm_0, // 0x706
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strp_ROR_Rm_1, // 0x707
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strp_LSL_Rm_0, // 0x708
-        NULL, // 0x709
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strp_LSR_Rm_0, // 0x70a
-        NULL, // 0x70b
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strp_ASR_Rm_0, // 0x70c
-        NULL, // 0x70d
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strp_ROR_Rm_0, // 0x70e
-        NULL, // 0x70f
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrp_LSL_Rm_0, // 0x710
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrp_LSL_Rm_1, // 0x711
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrp_LSR_Rm_0, // 0x712
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrp_LSR_Rm_1, // 0x713
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrp_ASR_Rm_0, // 0x714
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrp_ASR_Rm_1, // 0x715
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrp_ROR_Rm_0, // 0x716
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrp_ROR_Rm_1, // 0x717
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrp_LSL_Rm_0, // 0x718
-        NULL, // 0x719
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrp_LSR_Rm_0, // 0x71a
-        NULL, // 0x71b
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrp_ASR_Rm_0, // 0x71c
-        NULL, // 0x71d
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrp_ROR_Rm_0, // 0x71e
-        NULL, // 0x71f
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpw_LSL_Rm_0, // 0x720
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpw_LSL_Rm_1, // 0x721
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpw_LSR_Rm_0, // 0x722
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpw_LSR_Rm_1, // 0x723
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpw_ASR_Rm_0, // 0x724
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpw_ASR_Rm_1, // 0x725
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpw_ROR_Rm_0, // 0x726
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpw_ROR_Rm_1, // 0x727
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpw_LSL_Rm_0, // 0x728
-        NULL, // 0x729
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpw_LSR_Rm_0, // 0x72a
-        NULL, // 0x72b
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpw_ASR_Rm_0, // 0x72c
-        NULL, // 0x72d
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpw_ROR_Rm_0, // 0x72e
-        NULL, // 0x72f
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpw_LSL_Rm_0, // 0x730
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpw_LSL_Rm_1, // 0x731
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpw_LSR_Rm_0, // 0x732
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpw_LSR_Rm_1, // 0x733
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpw_ASR_Rm_0, // 0x734
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpw_ASR_Rm_1, // 0x735
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpw_ROR_Rm_0, // 0x736
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpw_ROR_Rm_1, // 0x737
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpw_LSL_Rm_0, // 0x738
-        NULL, // 0x739
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpw_LSR_Rm_0, // 0x73a
-        NULL, // 0x73b
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpw_ASR_Rm_0, // 0x73c
-        NULL, // 0x73d
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpw_ROR_Rm_0, // 0x73e
-        NULL, // 0x73f
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpb_LSL_Rm_0, // 0x740
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpb_LSL_Rm_1, // 0x741
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpb_LSR_Rm_0, // 0x742
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpb_LSR_Rm_1, // 0x743
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpb_ASR_Rm_0, // 0x744
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpb_ASR_Rm_1, // 0x745
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpb_ROR_Rm_0, // 0x746
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpb_ROR_Rm_1, // 0x747
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpb_LSL_Rm_0, // 0x748
-        NULL, // 0x749
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpb_LSR_Rm_0, // 0x74a
-        NULL, // 0x74b
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpb_ASR_Rm_0, // 0x74c
-        NULL, // 0x74d
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpb_ROR_Rm_0, // 0x74e
-        NULL, // 0x74f
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpb_LSL_Rm_0, // 0x750
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpb_LSL_Rm_1, // 0x751
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpb_LSR_Rm_0, // 0x752
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpb_LSR_Rm_1, // 0x753
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpb_ASR_Rm_0, // 0x754
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpb_ASR_Rm_1, // 0x755
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpb_ROR_Rm_0, // 0x756
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpb_ROR_Rm_1, // 0x757
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpb_LSL_Rm_0, // 0x758
-        NULL, // 0x759
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpb_LSR_Rm_0, // 0x75a
-        NULL, // 0x75b
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpb_ASR_Rm_0, // 0x75c
-        NULL, // 0x75d
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpb_ROR_Rm_0, // 0x75e
-        NULL, // 0x75f
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpbw_LSL_Rm_0, // 0x760
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpbw_LSL_Rm_1, // 0x761
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpbw_LSR_Rm_0, // 0x762
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpbw_LSR_Rm_1, // 0x763
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpbw_ASR_Rm_0, // 0x764
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpbw_ASR_Rm_1, // 0x765
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpbw_ROR_Rm_0, // 0x766
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpbw_ROR_Rm_1, // 0x767
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpbw_LSL_Rm_0, // 0x768
-        NULL, // 0x769
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpbw_LSR_Rm_0, // 0x76a
-        NULL, // 0x76b
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpbw_ASR_Rm_0, // 0x76c
-        NULL, // 0x76d
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpbw_ROR_Rm_0, // 0x76e
-        NULL, // 0x76f
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpbw_LSL_Rm_0, // 0x770
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpbw_LSL_Rm_1, // 0x771
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpbw_LSR_Rm_0, // 0x772
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpbw_LSR_Rm_1, // 0x773
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpbw_ASR_Rm_0, // 0x774
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpbw_ASR_Rm_1, // 0x775
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpbw_ROR_Rm_0, // 0x776
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpbw_ROR_Rm_1, // 0x777
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpbw_LSL_Rm_0, // 0x778
-        NULL, // 0x779
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpbw_LSR_Rm_0, // 0x77a
-        NULL, // 0x77b
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpbw_ASR_Rm_0, // 0x77c
-        NULL, // 0x77d
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpbw_ROR_Rm_0, // 0x77e
-        NULL, // 0x77f
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpu_LSL_Rm_0, // 0x780
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpu_LSL_Rm_1, // 0x781
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpu_LSR_Rm_0, // 0x782
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpu_LSR_Rm_1, // 0x783
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpu_ASR_Rm_0, // 0x784
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpu_ASR_Rm_1, // 0x785
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpu_ROR_Rm_0, // 0x786
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpu_ROR_Rm_1, // 0x787
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpu_LSL_Rm_0, // 0x788
-        NULL, // 0x789
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpu_LSR_Rm_0, // 0x78a
-        NULL, // 0x78b
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpu_ASR_Rm_0, // 0x78c
-        NULL, // 0x78d
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpu_ROR_Rm_0, // 0x78e
-        NULL, // 0x78f
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpu_LSL_Rm_0, // 0x790
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpu_LSL_Rm_1, // 0x791
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpu_LSR_Rm_0, // 0x792
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpu_LSR_Rm_1, // 0x793
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpu_ASR_Rm_0, // 0x794
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpu_ASR_Rm_1, // 0x795
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpu_ROR_Rm_0, // 0x796
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpu_ROR_Rm_1, // 0x797
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpu_LSL_Rm_0, // 0x798
-        NULL, // 0x799
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpu_LSR_Rm_0, // 0x79a
-        NULL, // 0x79b
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpu_ASR_Rm_0, // 0x79c
-        NULL, // 0x79d
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpu_ROR_Rm_0, // 0x79e
-        NULL, // 0x79f
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpuw_LSL_Rm_0, // 0x7a0
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpuw_LSL_Rm_1, // 0x7a1
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpuw_LSR_Rm_0, // 0x7a2
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpuw_LSR_Rm_1, // 0x7a3
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpuw_ASR_Rm_0, // 0x7a4
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpuw_ASR_Rm_1, // 0x7a5
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpuw_ROR_Rm_0, // 0x7a6
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpuw_ROR_Rm_1, // 0x7a7
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpuw_LSL_Rm_0, // 0x7a8
-        NULL, // 0x7a9
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpuw_LSR_Rm_0, // 0x7aa
-        NULL, // 0x7ab
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpuw_ASR_Rm_0, // 0x7ac
-        NULL, // 0x7ad
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpuw_ROR_Rm_0, // 0x7ae
-        NULL, // 0x7af
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpuw_LSL_Rm_0, // 0x7b0
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpuw_LSL_Rm_1, // 0x7b1
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpuw_LSR_Rm_0, // 0x7b2
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpuw_LSR_Rm_1, // 0x7b3
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpuw_ASR_Rm_0, // 0x7b4
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpuw_ASR_Rm_1, // 0x7b5
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpuw_ROR_Rm_0, // 0x7b6
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpuw_ROR_Rm_1, // 0x7b7
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpuw_LSL_Rm_0, // 0x7b8
-        NULL, // 0x7b9
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpuw_LSR_Rm_0, // 0x7ba
-        NULL, // 0x7bb
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpuw_ASR_Rm_0, // 0x7bc
-        NULL, // 0x7bd
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpuw_ROR_Rm_0, // 0x7be
-        NULL, // 0x7bf
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpub_LSL_Rm_0, // 0x7c0
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpub_LSL_Rm_1, // 0x7c1
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpub_LSR_Rm_0, // 0x7c2
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpub_LSR_Rm_1, // 0x7c3
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpub_ASR_Rm_0, // 0x7c4
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpub_ASR_Rm_1, // 0x7c5
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpub_ROR_Rm_0, // 0x7c6
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpub_ROR_Rm_1, // 0x7c7
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpub_LSL_Rm_0, // 0x7c8
-        NULL, // 0x7c9
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpub_LSR_Rm_0, // 0x7ca
-        NULL, // 0x7cb
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpub_ASR_Rm_0, // 0x7cc
-        NULL, // 0x7cd
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpub_ROR_Rm_0, // 0x7ce
-        NULL, // 0x7cf
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpub_LSL_Rm_0, // 0x7d0
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpub_LSL_Rm_1, // 0x7d1
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpub_LSR_Rm_0, // 0x7d2
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpub_LSR_Rm_1, // 0x7d3
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpub_ASR_Rm_0, // 0x7d4
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpub_ASR_Rm_1, // 0x7d5
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpub_ROR_Rm_0, // 0x7d6
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpub_ROR_Rm_1, // 0x7d7
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpub_LSL_Rm_0, // 0x7d8
-        NULL, // 0x7d9
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpub_LSR_Rm_0, // 0x7da
-        NULL, // 0x7db
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpub_ASR_Rm_0, // 0x7dc
-        NULL, // 0x7dd
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpub_ROR_Rm_0, // 0x7de
-        NULL, // 0x7df
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpubw_LSL_Rm_0, // 0x7e0
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpubw_LSL_Rm_1, // 0x7e1
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpubw_LSR_Rm_0, // 0x7e2
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpubw_LSR_Rm_1, // 0x7e3
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpubw_ASR_Rm_0, // 0x7e4
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpubw_ASR_Rm_1, // 0x7e5
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpubw_ROR_Rm_0, // 0x7e6
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpubw_ROR_Rm_1, // 0x7e7
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpubw_LSL_Rm_0, // 0x7e8
-        NULL, // 0x7e9
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpubw_LSR_Rm_0, // 0x7ea
-        NULL, // 0x7eb
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpubw_ASR_Rm_0, // 0x7ec
-        NULL, // 0x7ed
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_strpubw_ROR_Rm_0, // 0x7ee
-        NULL, // 0x7ef
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpubw_LSL_Rm_0, // 0x7f0
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpubw_LSL_Rm_1, // 0x7f1
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpubw_LSR_Rm_0, // 0x7f2
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpubw_LSR_Rm_1, // 0x7f3
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpubw_ASR_Rm_0, // 0x7f4
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpubw_ASR_Rm_1, // 0x7f5
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpubw_ROR_Rm_0, // 0x7f6
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpubw_ROR_Rm_1, // 0x7f7
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpubw_LSL_Rm_0, // 0x7f8
-        NULL, // 0x7f9
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpubw_LSR_Rm_0, // 0x7fa
-        NULL, // 0x7fb
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpubw_ASR_Rm_0, // 0x7fc
-        NULL, // 0x7fd
-        gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpubw_ROR_Rm_0, // 0x7fe
-        NULL, // 0x7ff
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_str), // 0x600
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldr), // 0x610
+        REP32(NULL), // 0x620
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_strb), // 0x640
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrb), // 0x650
+        REP32(NULL), // 0x660
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_stru), // 0x680
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldru), // 0x690
+        REP32(NULL), // 0x6a0
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_strub), // 0x6c0
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrub), // 0x6d0
+        REP32(NULL), // 0x6e0
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_strp), // 0x700
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrp), // 0x710
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_strpw), // 0x720
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpw), // 0x730
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_strpb), // 0x740
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpb), // 0x750
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_strpbw), // 0x760
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpbw), // 0x770
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_strpu), // 0x780
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpu), // 0x790
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_strpuw), // 0x7a0
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpuw), // 0x7b0
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_strpub), // 0x7c0
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpub), // 0x7d0
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_strpubw), // 0x7e0
+        OPCODE_ALU_VARIANTS2(gbaemu::gba::cpu::impl::arm::sdt::opcode_ldrpubw), // 0x7f0
         REP16(gbaemu::gba::cpu::impl::arm::bdt::opcode_stmda), // 0x800
         REP16(gbaemu::gba::cpu::impl::arm::bdt::opcode_ldmda), // 0x810
         REP16(gbaemu::gba::cpu::impl::arm::bdt::opcode_stmdaw), // 0x820
