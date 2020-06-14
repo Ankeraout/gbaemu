@@ -16,6 +16,7 @@ namespace gbaemu::gba::cartridge {
     size_t saveSize;
     SaveType saveType;
     uint32_t romAddressMask;
+    uint32_t sramAddressMask;
 
     void detectSaveType();
     void readForcedSaveType();
@@ -153,8 +154,8 @@ namespace gbaemu::gba::cartridge {
         }
 
         if(detectedSaveType == -1) {
-            cout << "Save type was not detected, defaulting to none." << endl;
-            saveType = NONE;
+            cout << "Save type was not detected, defaulting to 512kb flash." << endl;
+            saveType = FLASH_512KB;
         } else {
             saveType = saveTypeTable[detectedSaveType];
         }
@@ -209,10 +210,13 @@ namespace gbaemu::gba::cartridge {
             131072
         };
 
-        size_t saveSize = saveSizeTable[saveType];
+        saveSize = saveSizeTable[saveType];
 
         if(saveSize > 0) {
             saveData = new uint8_t[saveSize];
+            sramAddressMask = saveSize - 1;
+        } else {
+            sramAddressMask = 0;
         }
     }
 

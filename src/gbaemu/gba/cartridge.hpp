@@ -19,6 +19,7 @@ namespace gbaemu::gba::cartridge {
     extern size_t saveSize;
     extern SaveType saveType;
     extern uint32_t romAddressMask;
+    extern uint32_t sramAddressMask;
 
     extern void init(const char *romFilePath);
     extern void loadSave(const char *saveFilePath);

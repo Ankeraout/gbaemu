@@ -56,8 +56,7 @@ namespace gbaemu::gba::mmu {
 
             case 0xe: // Game Pak SRAM
             case 0xf:
-                printf("Read8 from Game Pak SRAM\n");
-                return 0; // TODO
+                return access8(gbaemu::gba::cartridge::saveData, address & gbaemu::gba::cartridge::sramAddressMask);
         }
 
         return 0; // Dead code, but removes a warning
@@ -109,8 +108,7 @@ namespace gbaemu::gba::mmu {
 
             case 0xe: // Game Pak SRAM
             case 0xf:
-                printf("Read16 from Game Pak SRAM\n");
-                return 0; // TODO
+                return access16(gbaemu::gba::cartridge::saveData, address & gbaemu::gba::cartridge::sramAddressMask);
         }
 
         return 0; // Dead code, but removes a warning
@@ -165,8 +163,7 @@ namespace gbaemu::gba::mmu {
 
             case 0xe: // Game Pak SRAM
             case 0xf:
-                printf("Read32 from Game Pak SRAM\n");
-                return 0; // TODO
+                return access32(gbaemu::gba::cartridge::saveData, address & gbaemu::gba::cartridge::sramAddressMask);
         }
 
         return 0; // Dead code, but removes a warning
@@ -217,7 +214,7 @@ namespace gbaemu::gba::mmu {
 
             case 0xe: // Game Pak SRAM
             case 0xf:
-                printf("Write8 to GamePak SRAM\n");
+                access8(gbaemu::gba::cartridge::saveData, address & gbaemu::gba::cartridge::sramAddressMask) = value;
                 break; // TODO
         }
     }
@@ -269,7 +266,7 @@ namespace gbaemu::gba::mmu {
 
             case 0xe: // Game Pak SRAM
             case 0xf:
-                printf("Write16 to GamePak SRAM\n");
+                access16(gbaemu::gba::cartridge::saveData, address & gbaemu::gba::cartridge::sramAddressMask) = value;
                 break; // TODO
         }
     }
@@ -324,7 +321,7 @@ namespace gbaemu::gba::mmu {
 
             case 0xe: // Game Pak SRAM
             case 0xf:
-                printf("Write32 to GamePak SRAM\n");
+                access32(gbaemu::gba::cartridge::saveData, address & gbaemu::gba::cartridge::sramAddressMask) = value;
                 break; // TODO
         }
     }

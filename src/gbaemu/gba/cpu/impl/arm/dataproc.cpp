@@ -165,7 +165,7 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
             cpsr.fields.flagZ = !result;
             cpsr.fields.flagN = SIGN32(result);
             cpsr.fields.flagV = SUB32_FLAGV(Rn_v, op2, result);
-            cpsr.fields.flagC = SBC32_FLAGC(Rn_v, op2, !cpsr.fields.flagC)
+            cpsr.fields.flagC = SBC32_FLAGC(Rn_v, op2, cpsr.fields.flagC)
         );
 
         registerWrite(Rd, result);
@@ -184,7 +184,7 @@ namespace gbaemu::gba::cpu::impl::arm::dataproc {
             cpsr.fields.flagZ = !result;
             cpsr.fields.flagN = SIGN32(result);
             cpsr.fields.flagV = SUB32_FLAGV(op2, Rn_v, result);
-            cpsr.fields.flagC = SBC32_FLAGC(op2, Rn_v, !cpsr.fields.flagC)
+            cpsr.fields.flagC = SBC32_FLAGC(op2, Rn_v, cpsr.fields.flagC)
         );
 
         registerWrite(Rd, result);
