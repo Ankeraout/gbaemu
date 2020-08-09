@@ -1,5 +1,5 @@
 # GBAEmu
-GBAEmu is a GameBoy Advance emulator written in C++ by @Ankeraout.
+GBAEmu is a GameBoy Advance emulator written in C by @Ankeraout.
 
 ## Supported platforms
 One of the goals of this project is portability.
@@ -20,6 +20,9 @@ To compile this project, just use a terminal, set your current directory to the 
 - `testroms` if you only want to compile the test ROMs
 - `all` if you want to compile everything
 - `clean` to delete all compiled files
+
+## Testing
+In order to launch the unit tests for the emulator, just use `make test`.
 
 ## Test ROMs
 In order to build test ROMs, you need to have [FASMARM](https://arm.flatassembler.net/) in your path. Then just use `make testroms` to build them.

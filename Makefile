@@ -1,16 +1,30 @@
-CXX=g++ -c
-CXXFLAGS=-W -Wall -Wextra -pedantic -Isrc -std=c++17 `sdl2-config --cflags`
-LD=g++
-LDFLAGS=`sdl2-config --libs`
-FASMARM=fasmarm
+CC = gcc -c
+CFLAGS = -W -Wall -Wextra -pedantic -Isrc -std=c18 `sdl2-config --cflags`
+LD = gcc
+LDFLAGS = `sdl2-config --libs`
+FASMARM = fasmarm
 
-SOURCES:=$(shell find src/ -type f -name '*.cpp')
-OBJECTS=$(SOURCES:src/%.cpp=obj/%.cpp.o)
-SUBDIRS=$(dir $(OBJECTS))
-EXEC=bin/gbaemu
+CORE_SOURCES = \
 
-SOURCES_TESTROMS=$(wildcard testroms/*/*.asm)
-BINARY_TESTROMS=$(SOURCES_TESTROMS:testroms/%.asm=testroms/%.gba)
+
+SOURCES = \
+	$(CORE_SOURCES) \
+	src/gbaemu.c
+
+TEST_SOURCES = \
+	test/main.c \
+	test/libtest.c \
+	test/test_dummy.c
+
+OBJECTS = $(SOURCES:%.c=%.c.o)
+CORE_OBJECTS = $(CORE_SOURCES:%.c=%.c.o)
+TEST_OBJECTS = $(TEST_SOURCES:%.c=%.c.o)
+SUBDIRS = $(dir $(OBJECTS))
+EXEC = bin/gbaemu
+TEST_EXEC = bin/test
+
+SOURCES_TESTROMS = $(wildcard testroms/*/*.asm)
+BINARY_TESTROMS = $(SOURCES_TESTROMS:testroms/%.asm=testroms/%.gba)
 
 ifeq ($(MODE),)
 	MODE = release
@@ -18,13 +32,14 @@ endif
 
 ifeq ($(OS),Windows_NT)
 	EXEC := $(EXEC).exe
+	TEST_EXEC := $(TEST_EXEC).exe
 endif
 
 ifeq ($(MODE), debug)
-	CXXFLAGS += -DDEBUG -O0 -g
+	CFLAGS += -DDEBUG -O0 -g
 	LDFLAGS += -g
 else
-	CXXFLAGS += -DRELEASE -O3 -s
+	CFLAGS += -DRELEASE -O3 -s
 	LDFLAGS += -s
 endif
 
@@ -39,8 +54,8 @@ testroms: $(BINARY_TESTROMS)
 $(EXEC): bin $(OBJECTS)
 	$(LD) $(OBJECTS) $(LDFLAGS) -o $@
 
-obj/%.cpp.o: src/%.cpp $(SUBDIRS)
-	$(CXX) $(CXXFLAGS) $< -o $@
+%.c.o: %.c $(SUBDIRS)
+	$(CC) $(CFLAGS) $< -o $@
 
 testroms/%.gba: testroms/%.asm
 	$(FASMARM) $< $@
@@ -48,5 +63,14 @@ testroms/%.gba: testroms/%.asm
 bin:
 	mkdir bin
 
+$(TEST_EXEC): bin $(CORE_OBJECTS) $(TEST_OBJECTS)
+	$(LD) $(CORE_OBJECTS) $(TEST_OBJECTS) -o $@
+
+test: $(TEST_EXEC)
+	$(TEST_EXEC)
+
 clean:
-	rm -rf bin obj $(BINARY_TESTROMS)
+	rm -rf bin $(BINARY_TESTROMS) $(OBJECTS) $(TEST_OBJECTS)
+
+.PHONY: test all testroms
+
