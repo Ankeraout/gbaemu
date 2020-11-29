@@ -1,0 +1,10 @@
+- Introduce yourself
+- Why you applied this company
+- What were your previous professionnal experiences?
+- Have you ever worked as a team?
+- What were the difficulties of team work?
+- What are your weak points?
+- What are your strong points?
+- How do you plan to settle there?
+- When can you start?
+- 
