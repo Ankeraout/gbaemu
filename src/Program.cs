@@ -24,6 +24,10 @@ namespace gbaemu
             CheckConfiguration();
 
             GBA.GBA gba = new GBA.GBA(Configuration.BiosPath, Configuration.RomPath);
+
+            while(true) {
+                gba.Cycle();
+            }
         }
 
         static int ReadCommandLineArguments(string[] args) {

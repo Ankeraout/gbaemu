@@ -24,6 +24,25 @@ namespace gbaemu.GBA {
             Decode,
             Execute
         }
+        
+        private enum Condition {
+            EQ,
+            NE,
+            CS,
+            CC,
+            MI,
+            PL,
+            VS,
+            VC,
+            HI,
+            LS,
+            GE,
+            LT,
+            GT,
+            LE,
+            AL,
+            NV,
+        };
 
         private PipelineState pipelineState;
 
@@ -62,6 +81,64 @@ namespace gbaemu.GBA {
             }
         }
 
+        public uint Spsr {
+            get {
+                switch(mode) {
+                    case Mode.FIQ_OLD:
+                    case Mode.FIQ:
+                        return spsr_fiq;
+
+                    case Mode.IRQ_OLD:
+                    case Mode.IRQ:
+                        return spsr_irq;
+
+                    case Mode.SVC_OLD:
+                    case Mode.SVC:
+                        return spsr_svc;
+
+                    case Mode.ABT:
+                        return spsr_abt;
+
+                    case Mode.UND:
+                        return spsr_und;
+
+                    default:
+                        return Cpsr;
+                }
+            }
+
+            set {
+                switch(mode) {
+                    case Mode.FIQ_OLD:
+                    case Mode.FIQ:
+                        spsr_fiq = value;
+                        break;
+
+                    case Mode.IRQ_OLD:
+                    case Mode.IRQ:
+                        spsr_irq = value;
+                        break;
+
+                    case Mode.SVC_OLD:
+                    case Mode.SVC:
+                        spsr_svc = value;
+                        break;
+
+                    case Mode.ABT:
+                        spsr_abt = value;
+                        break;
+
+                    case Mode.UND:
+                        spsr_und = value;
+                        break;
+
+                    default:
+                        Cpsr = value;
+                        break;
+                }
+            }
+        }
+
         private uint spsr_irq;
         private uint spsr_fiq;
         private uint spsr_svc;
@@ -80,9 +157,12 @@ namespace gbaemu.GBA {
         private ushort fetchedOpcodeThumb;
         private uint decodedOpcodeARMValue;
         private ushort decodedOpcodeThumbValue;
+        private ARMOpcodeHandler decodedOpcodeARMHandler;
+        private ThumbOpcodeHandler decodedOpcodeThumbHandler;
 
         static CPU() {
-            
+            InitARMDecodeTable();
+            InitThumbDecodeTable();
         }
 
         public CPU(GBA _gba) {
@@ -240,6 +320,8 @@ namespace gbaemu.GBA {
         }
 
         public void Reset() {
+            pipelineState = PipelineState.Fetch;
+
             for(int i = 0; i < 2; i++) {
                 r_irq[i] = 0;
                 r_svc[i] = 0;
@@ -287,14 +369,108 @@ namespace gbaemu.GBA {
             }
         }
 
-        private void Execute() {
+        private bool CheckCondition(Condition condition) {
+            switch(condition) {
+                case Condition.EQ:
+                    return flagZ;
+                    
+                case Condition.NE:
+                    return !flagZ;
 
+                case Condition.CS:
+                    return flagC;
+                    
+                case Condition.CC:
+                    return !flagC;
+                    
+                case Condition.MI:
+                    return flagN;
+                    
+                case Condition.PL:
+                    return !flagN;
+                    
+                case Condition.VS:
+                    return flagV;
+                    
+                case Condition.VC:
+                    return !flagV;
+                    
+                case Condition.HI:
+                    return flagC && !flagZ;
+                    
+                case Condition.LS:
+                    return (!flagC) || flagZ;
+                    
+                case Condition.GE:
+                    return flagN == flagV;
+                    
+                case Condition.LT:
+                    return flagN != flagV;
+                    
+                case Condition.GT:
+                    return !flagZ && (flagN == flagV);
+                    
+                case Condition.LE:
+                    return flagZ || (flagN != flagV);
+                    
+                case Condition.AL:
+                    return true;
+                    
+                default:
+                    return false;
+            }
+        }
+
+        private void PerformJump(uint addr) {
+            addr -= flagT ? 2U : 4U;
+            addr &= flagT ? 0xfffffffe : 0xfffffffc;
+
+            r[15] = addr;
+            pipelineState = PipelineState.Flush;
+        }
+
+        private void RaiseUND() {
+            spsr_und = Cpsr;
+            ChangeMode(Mode.UND);
+            r[14] = r[15] - (flagT ? 2U : 4U);
+            flagT = false;
+            flagI = true;
+            PerformJump(0x00000004);
+        }
+
+        private void Execute() {
+            // TODO: check for interrupts
+            if(pipelineState == PipelineState.Execute) {
+                if(flagT) {
+                    if(decodedOpcodeThumbHandler == null) {
+                        RaiseUND();
+                    } else {
+                        decodedOpcodeThumbHandler(this, decodedOpcodeThumbValue);
+                    }
+                } else {
+                    if(decodedOpcodeARMHandler == null) {
+                        RaiseUND();
+                    } else {
+                        if(CheckCondition((Condition)(decodedOpcodeARMValue >> 28))) {
+                            try {
+                                decodedOpcodeARMHandler(this, decodedOpcodeARMValue);
+                            } catch(InvalidOpcodeException) {
+                                RaiseUND();
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private void Decode() {
-            if(pipelineState == PipelineState.Decode) {
+            if(pipelineState >= PipelineState.Decode) {
                 if(flagT) {
-                    
+                    decodedOpcodeThumbValue = fetchedOpcodeThumb;
+                    decodedOpcodeThumbHandler = DecodeThumbOpcode(fetchedOpcodeThumb);
+                } else {
+                    decodedOpcodeARMValue = fetchedOpcodeARM;
+                    decodedOpcodeARMHandler = DecodeARMOpcode(fetchedOpcodeARM);
                 }
             }
         }

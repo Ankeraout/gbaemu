@@ -40,5 +40,13 @@ namespace gbaemu.GBA {
             Ewram = new WRAM(WramSlowSize);
             Bus = new Bus(this);
         }
+
+        public void FrameAdvance() {
+
+        }
+
+        public void Cycle() {
+            CPU.Cycle();
+        }
     }
 }

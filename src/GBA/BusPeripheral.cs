@@ -7,7 +7,7 @@ namespace gbaemu.GBA {
         }
 
         public uint Read32(uint addr) {
-            return (ushort)(Read16(addr) | (Read16(addr + 2) << 16));
+            return (uint)(Read16(addr) | (Read16(addr + 2) << 16));
         }
 
         public abstract void Write8(uint addr, byte val);
