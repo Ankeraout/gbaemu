@@ -21,12 +21,44 @@ namespace gbaemu.GBA {
                             armOpcodeHandlerTable[i] = OpcodeArmEor;
                             break;
 
+                        case 0b0010:
+                            armOpcodeHandlerTable[i] = OpcodeArmSub;
+                            break;
+
+                        case 0b0011:
+                            armOpcodeHandlerTable[i] = OpcodeArmRsb;
+                            break;
+
+                        case 0b0100:
+                            armOpcodeHandlerTable[i] = OpcodeArmAdd;
+                            break;
+
+                        case 0b0101:
+                            armOpcodeHandlerTable[i] = OpcodeArmAdc;
+                            break;
+
+                        case 0b0110:
+                            armOpcodeHandlerTable[i] = OpcodeArmSbc;
+                            break;
+                        
+                        case 0b0111:
+                            armOpcodeHandlerTable[i] = OpcodeArmRsc;
+                            break;
+
                         case 0b1000:
                             armOpcodeHandlerTable[i] = OpcodeArmTst;
                             break;
 
                         case 0b1001:
                             armOpcodeHandlerTable[i] = OpcodeArmTeq;
+                            break;
+                        
+                        case 0b1010:
+                            armOpcodeHandlerTable[i] = OpcodeArmCmp;
+                            break;
+
+                        case 0b1011:
+                            armOpcodeHandlerTable[i] = OpcodeArmCmn;
                             break;
 
                         case 0b1100:
@@ -250,9 +282,9 @@ namespace gbaemu.GBA {
             if(s) {
                 if(rd == 15) {
                     cpu.Cpsr = cpu.Spsr;
+                } else {
+                    cpu.OpcodeArmDataProcessingLogicalSetFlags(result);
                 }
-
-                cpu.OpcodeArmDataProcessingLogicalSetFlags(result);
             }
 
             cpu.OpcodeArmDataProcessingWriteRegister(rd, result);
@@ -278,12 +310,140 @@ namespace gbaemu.GBA {
             if(s) {
                 if(rd == 15) {
                     cpu.Cpsr = cpu.Spsr;
+                } else {
+                    cpu.OpcodeArmDataProcessingLogicalSetFlags(result);
                 }
-
-                cpu.OpcodeArmDataProcessingLogicalSetFlags(result);
             }
 
             cpu.OpcodeArmDataProcessingWriteRegister(rd, result);
+        }
+
+        private static void OpcodeArmSub(CPU cpu, uint opcode) {
+            cpu.OpcodeArmDataProcessingShifter(opcode);
+
+            uint rn = (opcode & 0x000f0000) >> 16;
+            uint rn_v = cpu.r[rn];
+
+            if(rn == 15) {
+                if(BitUtils.BitTest32(opcode, 25)) {
+                    rn_v += 4;
+                }
+            }
+
+            uint rd = (opcode & 0x0000f000) >> 12;
+            bool s = BitUtils.BitTest32(opcode, 20);
+
+            uint result = rn_v - cpu.shifterResult;
+
+            if(s) {
+                if(rd == 15) {
+                    cpu.Cpsr = cpu.Spsr;
+                } else {
+                    cpu.flagC = rn_v >= cpu.shifterResult;
+                    cpu.flagV = result <= rn_v;
+                    cpu.OpcodeArmDataProcessingArithmeticalSetFlags(result);
+                }
+            }
+
+            cpu.OpcodeArmDataProcessingWriteRegister(rd, result);
+        }
+
+        private static void OpcodeArmRsb(CPU cpu, uint opcode) {
+            cpu.OpcodeArmDataProcessingShifter(opcode);
+
+            uint rn = (opcode & 0x000f0000) >> 16;
+            uint rn_v = cpu.r[rn];
+
+            if(rn == 15) {
+                if(BitUtils.BitTest32(opcode, 25)) {
+                    rn_v += 4;
+                }
+            }
+
+            uint rd = (opcode & 0x0000f000) >> 12;
+            bool s = BitUtils.BitTest32(opcode, 20);
+
+            uint result = cpu.shifterResult - rn_v;
+
+            if(s) {
+                if(rd == 15) {
+                    cpu.Cpsr = cpu.Spsr;
+                } else {
+                    cpu.flagC = cpu.shifterResult >= rn_v;
+                    cpu.flagV = rn_v <= result;
+                    cpu.OpcodeArmDataProcessingArithmeticalSetFlags(result);
+                }
+            }
+
+            cpu.OpcodeArmDataProcessingWriteRegister(rd, result);
+        }
+
+        private static void OpcodeArmAdd(CPU cpu, uint opcode) {
+            cpu.OpcodeArmDataProcessingShifter(opcode);
+
+            uint rn = (opcode & 0x000f0000) >> 16;
+            uint rn_v = cpu.r[rn];
+
+            if(rn == 15) {
+                if(BitUtils.BitTest32(opcode, 25)) {
+                    rn_v += 4;
+                }
+            }
+
+            uint rd = (opcode & 0x0000f000) >> 12;
+            bool s = BitUtils.BitTest32(opcode, 20);
+
+            uint result = rn_v + cpu.shifterResult;
+
+            if(s) {
+                if(rd == 15) {
+                    cpu.Cpsr = cpu.Spsr;
+                } else {
+                    cpu.flagC = result < rn_v;
+                    cpu.flagV = result < rn_v;
+                    cpu.OpcodeArmDataProcessingArithmeticalSetFlags(result);
+                }
+            }
+
+            cpu.OpcodeArmDataProcessingWriteRegister(rd, result);
+        }
+
+        private static void OpcodeArmAdc(CPU cpu, uint opcode) {
+            cpu.OpcodeArmDataProcessingShifter(opcode);
+
+            uint rn = (opcode & 0x000f0000) >> 16;
+            uint rn_v = cpu.r[rn];
+
+            if(rn == 15) {
+                if(BitUtils.BitTest32(opcode, 25)) {
+                    rn_v += 4;
+                }
+            }
+
+            uint rd = (opcode & 0x0000f000) >> 12;
+            bool s = BitUtils.BitTest32(opcode, 20);
+
+            long result = rn_v + cpu.shifterResult + (cpu.flagC ? 1 : 0);
+
+            if(s) {
+                if(rd == 15) {
+                    cpu.Cpsr = cpu.Spsr;
+                } else {
+                    cpu.flagC = result > uint.MaxValue;
+                    cpu.flagV = result > uint.MaxValue;
+                    cpu.OpcodeArmDataProcessingArithmeticalSetFlags((uint)result);
+                }
+            }
+
+            cpu.OpcodeArmDataProcessingWriteRegister(rd, (uint)result);
+        }
+
+        private static void OpcodeArmSbc(CPU cpu, uint opcode) {
+            throw new System.NotImplementedException();
+        }
+
+        private static void OpcodeArmRsc(CPU cpu, uint opcode) {
+            throw new System.NotImplementedException();
         }
 
         private static void OpcodeArmTst(CPU cpu, uint opcode) {
@@ -310,9 +470,9 @@ namespace gbaemu.GBA {
 
             if(rd == 15) {
                 cpu.Cpsr = cpu.Spsr;
+            } else {
+                cpu.OpcodeArmDataProcessingLogicalSetFlags(result);
             }
-
-            cpu.OpcodeArmDataProcessingLogicalSetFlags(result);
         }
 
         private static void OpcodeArmTeq(CPU cpu, uint opcode) {
@@ -339,9 +499,71 @@ namespace gbaemu.GBA {
 
             if(rd == 15) {
                 cpu.Cpsr = cpu.Spsr;
+            } else {
+                cpu.OpcodeArmDataProcessingLogicalSetFlags(result);
+            }
+        }
+
+        private static void OpcodeArmCmp(CPU cpu, uint opcode) {
+            bool s = BitUtils.BitTest32(opcode, 20);
+
+            if(!s) {
+                throw new InvalidOpcodeException();
             }
 
-            cpu.OpcodeArmDataProcessingLogicalSetFlags(result);
+            cpu.OpcodeArmDataProcessingShifter(opcode);
+
+            uint rn = (opcode & 0x000f0000) >> 16;
+            uint rn_v = cpu.r[rn];
+
+            if(rn == 15) {
+                if(BitUtils.BitTest32(opcode, 25)) {
+                    rn_v += 4;
+                }
+            }
+
+            uint rd = (opcode & 0x0000f000) >> 12;
+
+            uint result = rn_v - cpu.shifterResult;
+
+            if(rd == 15) {
+                cpu.Cpsr = cpu.Spsr;
+            } else {
+                cpu.flagC = rn_v >= cpu.shifterResult;
+                cpu.flagV = result <= rn_v;
+                cpu.OpcodeArmDataProcessingArithmeticalSetFlags(result);
+            }
+        }
+
+        private static void OpcodeArmCmn(CPU cpu, uint opcode) {
+            bool s = BitUtils.BitTest32(opcode, 20);
+
+            if(!s) {
+                throw new InvalidOpcodeException();
+            }
+
+            cpu.OpcodeArmDataProcessingShifter(opcode);
+
+            uint rn = (opcode & 0x000f0000) >> 16;
+            uint rn_v = cpu.r[rn];
+
+            if(rn == 15) {
+                if(BitUtils.BitTest32(opcode, 25)) {
+                    rn_v += 4;
+                }
+            }
+
+            uint rd = (opcode & 0x0000f000) >> 12;
+
+            uint result = rn_v + cpu.shifterResult;
+
+            if(rd == 15) {
+                cpu.Cpsr = cpu.Spsr;
+            } else {
+                cpu.flagC = result < rn_v;
+                cpu.flagV = result < rn_v;
+                cpu.OpcodeArmDataProcessingArithmeticalSetFlags(result);
+            }
         }
 
         private static void OpcodeArmOrr(CPU cpu, uint opcode) {
@@ -364,9 +586,9 @@ namespace gbaemu.GBA {
             if(s) {
                 if(rd == 15) {
                     cpu.Cpsr = cpu.Spsr;
+                } else {
+                    cpu.OpcodeArmDataProcessingLogicalSetFlags(result);
                 }
-
-                cpu.OpcodeArmDataProcessingLogicalSetFlags(result);
             }
 
             cpu.OpcodeArmDataProcessingWriteRegister(rd, result);
@@ -390,9 +612,9 @@ namespace gbaemu.GBA {
             if(s) {
                 if(rd == 15) {
                     cpu.Cpsr = cpu.Spsr;
+                } else {
+                    cpu.OpcodeArmDataProcessingLogicalSetFlags(cpu.shifterResult);
                 }
-
-                cpu.OpcodeArmDataProcessingLogicalSetFlags(cpu.shifterResult);
             }
 
             cpu.OpcodeArmDataProcessingWriteRegister(rd, cpu.shifterResult);
@@ -418,9 +640,9 @@ namespace gbaemu.GBA {
             if(s) {
                 if(rd == 15) {
                     cpu.Cpsr = cpu.Spsr;
+                } else {
+                    cpu.OpcodeArmDataProcessingLogicalSetFlags(result);
                 }
-
-                cpu.OpcodeArmDataProcessingLogicalSetFlags(result);
             }
 
             cpu.OpcodeArmDataProcessingWriteRegister(rd, result);
@@ -446,9 +668,9 @@ namespace gbaemu.GBA {
             if(s) {
                 if(rd == 15) {
                     cpu.Cpsr = cpu.Spsr;
+                } else {
+                    cpu.OpcodeArmDataProcessingLogicalSetFlags(result);
                 }
-
-                cpu.OpcodeArmDataProcessingLogicalSetFlags(result);
             }
 
             cpu.OpcodeArmDataProcessingWriteRegister(rd, result);
