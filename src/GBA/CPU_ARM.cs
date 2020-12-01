@@ -77,6 +77,8 @@ namespace gbaemu.GBA {
                             armOpcodeHandlerTable[i] = OpcodeArmMvn;
                             break;
                     }
+                } else if(((i & 0xc00) == 0x400) & ((i & 0x201) != 0x201)) {
+                    armOpcodeHandlerTable[i] = OpcodeArmSingleDataTransfer;
                 } else if((i & 0xe00) == 0xa00) {
                     armOpcodeHandlerTable[i] = OpcodeArmB;
                 }
@@ -85,6 +87,63 @@ namespace gbaemu.GBA {
 
         private ARMOpcodeHandler DecodeARMOpcode(uint opcode) {
             return armOpcodeHandlerTable[((opcode >> 16) & 0xff0) | ((opcode >> 4) & 0xf)];
+        }
+
+        private static void OpcodeArmSingleDataTransfer(CPU cpu, uint opcode) {
+            bool i = BitUtils.BitTest32(opcode, 25);
+            bool p = BitUtils.BitTest32(opcode, 24);
+            bool u = BitUtils.BitTest32(opcode, 23);
+            bool b = BitUtils.BitTest32(opcode, 22);
+            bool w = BitUtils.BitTest32(opcode, 21);
+            bool l = BitUtils.BitTest32(opcode, 20);
+            uint rn = (opcode & 0x000f0000) >> 16;
+            uint rd = (opcode & 0x0000f000) >> 12;
+            uint rn_v = cpu.r[rn];
+            uint rd_v = cpu.r[rd];
+
+            if(i && rn == 15) {
+                rn_v += 4;
+            }
+
+            if(i && rd == 15) {
+                rd_v += 4;
+            }
+
+            cpu.OpcodeArmDataProcessingShifter(opcode);
+
+            uint offset = rn_v;
+
+            if(p) {
+                if(u) {
+                    offset += cpu.shifterResult;
+                } else {
+                    offset -= cpu.shifterResult;
+                }
+            } else {
+                w = true;
+            }
+
+            if(w) {
+                if(u) {
+                    cpu.OpcodeArmDataProcessingWriteRegister(rn, offset + cpu.shifterResult);
+                } else {
+                    cpu.OpcodeArmDataProcessingWriteRegister(rn, offset - cpu.shifterResult);
+                }
+            }
+
+            if(l) {
+                if(b) {
+                    cpu.r[rd] = cpu.gba.Bus.Read8(offset);
+                } else {
+                    cpu.r[rd] = BitUtils.RotateRight32(cpu.gba.Bus.Read32(offset), (int)((offset & 0x00000003) << 3));
+                }
+            } else {
+                if(b) {
+                    cpu.gba.Bus.Write8(offset, (byte)cpu.r[rd]);
+                } else {
+                    cpu.gba.Bus.Write32(offset, cpu.r[rd]);
+                }
+            }
         }
 
         private void OpcodeArmDataProcessingWriteRegister(uint rd, uint value) {

@@ -165,7 +165,7 @@ namespace gbaemu.GBA {
             InitThumbDecodeTable();
         }
 
-        public CPU(GBA _gba) {
+        public CPU(GBA _gba, bool skipBoot) {
             gba = _gba;
 
             r = new uint[16];
@@ -176,7 +176,7 @@ namespace gbaemu.GBA {
             r_abt = new uint[2];
             r_und = new uint[2];
 
-            Reset();
+            Reset(skipBoot);
         }
 
         private void ChangeMode(Mode newMode) {
@@ -319,7 +319,7 @@ namespace gbaemu.GBA {
             mode = newMode;
         }
 
-        public void Reset() {
+        public void Reset(bool skipBoot) {
             pipelineState = PipelineState.Fetch;
 
             for(int i = 0; i < 2; i++) {
@@ -346,6 +346,14 @@ namespace gbaemu.GBA {
             flagF = false;
             flagT = false;
             mode = Mode.SYS;
+
+            if(skipBoot) {
+                r[13] = 0x03007f00;
+                r_irq[0] = 0x03007fa0;
+                r_svc[0] = 0x03007fe0;
+
+                r[15] = 0x08000000;
+            }
         }
 
         private void CheckMode()

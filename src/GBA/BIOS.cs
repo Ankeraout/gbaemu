@@ -13,7 +13,7 @@ namespace gbaemu.GBA {
         }
 
         public override byte Read8(uint addr) {
-            return biosData[addr];
+            return biosData[addr & 0x3fff];
         }
 
         public override void Write8(uint addr, byte val) {
