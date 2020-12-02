@@ -109,7 +109,11 @@ namespace gbaemu.GBA {
                 rd_v += 4;
             }
 
-            cpu.OpcodeArmDataProcessingShifter(opcode);
+            if(i) {
+                cpu.OpcodeArmDataProcessingShifter(opcode ^ 0x02000000);
+            } else {
+                cpu.shifterResult = opcode & 0x00000fff;
+            }
 
             uint offset = rn_v;
 
@@ -125,9 +129,17 @@ namespace gbaemu.GBA {
 
             if(w) {
                 if(u) {
-                    cpu.OpcodeArmDataProcessingWriteRegister(rn, offset + cpu.shifterResult);
+                    if(p) {
+                        cpu.OpcodeArmDataProcessingWriteRegister(rn, offset);
+                    } else {
+                        cpu.OpcodeArmDataProcessingWriteRegister(rn, offset + cpu.shifterResult);
+                    }
                 } else {
-                    cpu.OpcodeArmDataProcessingWriteRegister(rn, offset - cpu.shifterResult);
+                    if(p) {
+                        cpu.OpcodeArmDataProcessingWriteRegister(rn, offset);
+                    } else {
+                        cpu.OpcodeArmDataProcessingWriteRegister(rn, offset - cpu.shifterResult);
+                    }
                 }
             }
 
@@ -139,9 +151,9 @@ namespace gbaemu.GBA {
                 }
             } else {
                 if(b) {
-                    cpu.gba.Bus.Write8(offset, (byte)cpu.r[rd]);
+                    cpu.gba.Bus.Write8(offset, (byte)rd_v);
                 } else {
-                    cpu.gba.Bus.Write32(offset, cpu.r[rd]);
+                    cpu.gba.Bus.Write32(offset, rd_v);
                 }
             }
         }

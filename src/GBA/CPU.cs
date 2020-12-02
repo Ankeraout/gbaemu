@@ -46,6 +46,12 @@ namespace gbaemu.GBA {
 
         private PipelineState pipelineState;
 
+        public uint R13 {
+            get {
+                return r[13];
+            }
+        }
+
         private uint[] r;
         private uint[] r_usr;
         private uint[] r_irq;
