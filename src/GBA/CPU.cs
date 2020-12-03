@@ -443,6 +443,24 @@ namespace gbaemu.GBA {
             pipelineState = PipelineState.Flush;
         }
 
+        private void RaiseIRQ() {
+            spsr_irq = Cpsr;
+            ChangeMode(Mode.IRQ);
+            r[14] = r[15] - (flagT ? 2U : 4U);
+            flagT = false;
+            flagI = true;
+            PerformJump(0x00000018);
+        }
+
+        private void RaiseSWI() {
+            spsr_svc = Cpsr;
+            ChangeMode(Mode.SVC);
+            r[14] = r[15] - (flagT ? 2U : 4U);
+            flagT = false;
+            flagI = true;
+            PerformJump(0x00000008);
+        }
+
         private void RaiseUND() {
             spsr_und = Cpsr;
             ChangeMode(Mode.UND);

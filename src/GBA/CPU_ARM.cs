@@ -11,7 +11,11 @@ namespace gbaemu.GBA {
             armOpcodeHandlerTable = new ARMOpcodeHandler[4096];
 
             for(int i = 0; i < 4096; i++) {
-                if((i & 0xfbf) == 0x100) {
+                if((i & 0xf00) == 0xf00) {
+                    armOpcodeHandlerTable[i] = OpcodeArmSwi;
+                } else if(i == 0x121) {
+                    armOpcodeHandlerTable[i] = OpcodeArmBx;
+                } else if((i & 0xfbf) == 0x100) {
                     armOpcodeHandlerTable[i] = OpcodeArmPsrTransfer;
                 } else if((i & 0xfbf) == 0x120) {
                     armOpcodeHandlerTable[i] = OpcodeArmPsrTransfer;
@@ -93,6 +97,21 @@ namespace gbaemu.GBA {
 
         private ARMOpcodeHandler DecodeARMOpcode(uint opcode) {
             return armOpcodeHandlerTable[((opcode >> 16) & 0xff0) | ((opcode >> 4) & 0xf)];
+        }
+
+        private static void OpcodeArmBx(CPU cpu, uint opcode) {
+            if((opcode & 0x0ffffff0) != 0x012fff10) {
+                cpu.RaiseUND();
+            } else {
+                uint dest = cpu.r[opcode & 0x0000000f];
+
+                cpu.flagT = BitUtils.BitTest32(dest, 0);
+                cpu.PerformJump(dest);
+            }
+        }
+
+        private static void OpcodeArmSwi(CPU cpu, uint opcode) {
+            cpu.RaiseSWI();
         }
 
         private static void OpcodeArmSingleDataTransfer(CPU cpu, uint opcode) {
