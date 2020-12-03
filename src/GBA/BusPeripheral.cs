@@ -18,8 +18,8 @@ namespace gbaemu.GBA {
         }
 
         public void Write32(uint addr, uint val) {
-            Write16(addr, (byte)(val & 0xffff));
-            Write16(addr + 2, (byte)(val >> 16));
+            Write16(addr, (ushort)(val & 0xffff));
+            Write16(addr + 2, (ushort)(val >> 16));
         }
     }
 }

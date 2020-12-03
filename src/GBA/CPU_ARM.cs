@@ -11,7 +11,13 @@ namespace gbaemu.GBA {
             armOpcodeHandlerTable = new ARMOpcodeHandler[4096];
 
             for(int i = 0; i < 4096; i++) {
-                if((i & 0xc00) == 0x000) {
+                if((i & 0xfbf) == 0x100) {
+                    armOpcodeHandlerTable[i] = OpcodeArmPsrTransfer;
+                } else if((i & 0xfbf) == 0x120) {
+                    armOpcodeHandlerTable[i] = OpcodeArmPsrTransfer;
+                } else if((i & 0xdb0) == 0x120) {
+                    armOpcodeHandlerTable[i] = OpcodeArmPsrTransfer;
+                } else if((i & 0xc00) == 0x000) {
                     switch((i & 0x1e0) >> 5) {
                         case 0b0000:
                             armOpcodeHandlerTable[i] = OpcodeArmAnd;
@@ -154,6 +160,50 @@ namespace gbaemu.GBA {
                     cpu.gba.Bus.Write8(offset, (byte)rd_v);
                 } else {
                     cpu.gba.Bus.Write32(offset, rd_v);
+                }
+            }
+        }
+
+        private static void OpcodeArmPsrTransfer(CPU cpu, uint opcode) {
+            bool msr = BitUtils.BitTest32(opcode, 21);
+            bool spsr = BitUtils.BitTest32(opcode, 22);
+
+            if(msr) {
+                bool disableProtection = BitUtils.BitTest32(opcode, 16);
+
+                if(disableProtection) {
+                    uint rm = opcode & 0x0000000f;
+
+                    if(spsr) {
+                        cpu.Spsr = cpu.r[rm];
+                    } else {
+                        cpu.Cpsr = cpu.r[rm];
+                    }
+                } else {
+                    bool immediate = BitUtils.BitTest32(opcode, 25);
+
+                    uint operand;
+
+                    if(immediate) {
+                        operand = BitUtils.RotateRight32(opcode & 0x000000ff, (int)(opcode & 0x00000f00) >> 7);
+                    } else {
+                        uint rm = opcode & 0x0000000f;
+                        operand = cpu.r[rm];
+                    }
+
+                    if(spsr) {
+                        cpu.Spsr = operand | (cpu.Spsr & 0xf0000000);
+                    } else {
+                        cpu.Cpsr = operand | (cpu.Cpsr & 0xf0000000);
+                    }
+                }
+            } else {
+                uint rd = (opcode & 0x0000f000) >> 12;
+
+                if(spsr) {
+                    cpu.r[rd] = cpu.Spsr;
+                } else {
+                    cpu.r[rd] = cpu.Cpsr;
                 }
             }
         }
