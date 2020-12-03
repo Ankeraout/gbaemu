@@ -11,7 +11,11 @@ namespace gbaemu.GBA {
             armOpcodeHandlerTable = new ARMOpcodeHandler[4096];
 
             for(int i = 0; i < 4096; i++) {
-                if((i & 0xf00) == 0xf00) {
+                if((i & 0xfcf) == 0x009) {
+                    armOpcodeHandlerTable[i] = OpcodeArmMul;
+                } else if((i & 0xf8f) == 0x089) {
+                    armOpcodeHandlerTable[i] = OpcodeArmMull;
+                } else if((i & 0xf00) == 0xf00) {
                     armOpcodeHandlerTable[i] = OpcodeArmSwi;
                 } else if(i == 0x121) {
                     armOpcodeHandlerTable[i] = OpcodeArmBx;
@@ -97,6 +101,54 @@ namespace gbaemu.GBA {
 
         private ARMOpcodeHandler DecodeARMOpcode(uint opcode) {
             return armOpcodeHandlerTable[((opcode >> 16) & 0xff0) | ((opcode >> 4) & 0xf)];
+        }
+
+        private static void OpcodeArmMul(CPU cpu, uint opcode) {
+            bool a = BitUtils.BitTest32(opcode, 21);
+            bool s = BitUtils.BitTest32(opcode, 20);
+            uint rd = (opcode & 0x000f0000) >> 16;
+            uint rs = (opcode & 0x00000f00) >> 8;
+            uint rm = opcode & 0x0000000f;
+
+            uint result = cpu.r[rm] * cpu.r[rs];
+            
+            if(a) {
+                uint rn = (opcode & 0x0000f000) >> 12;
+                result = cpu.r[rn];
+            }
+
+            cpu.r[rd] = result;
+
+            if(s) {
+                cpu.OpcodeArmDataProcessingLogicalSetFlags(result);
+            }
+        }
+
+        private static void OpcodeArmMull(CPU cpu, uint opcode) {
+            bool u = BitUtils.BitTest32(opcode, 22);
+            bool a = BitUtils.BitTest32(opcode, 21);
+            bool s = BitUtils.BitTest32(opcode, 20);
+            uint rdhi = (opcode & 0x000f0000) >> 16;
+            uint rdlo = (opcode & 0x0000f000) >> 12;
+            uint rs = (opcode & 0x00000f00) >> 8;
+            uint rm = opcode & 0x0000000f;
+
+            ulong result;
+
+            if(u) {
+                result = (ulong)cpu.r[rm] * cpu.r[rs];
+            } else {
+                result = (ulong)((long)cpu.r[rm] * cpu.r[rs]);
+            }
+
+            if(a) {
+                result += ((ulong)cpu.r[rdlo] << 32) | cpu.r[rdhi];
+            }
+
+            if(s) {
+                cpu.flagZ = result == 0;
+                cpu.flagN = BitUtils.BitTest64(result, 63);
+            }
         }
 
         private static void OpcodeArmBx(CPU cpu, uint opcode) {
