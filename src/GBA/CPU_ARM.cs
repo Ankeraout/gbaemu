@@ -732,6 +732,14 @@ namespace gbaemu.GBA {
             cpu.OpcodeArmDataProcessingWriteRegister(rd, result);
         }
 
+        private static bool OpcodeArmSubCarry(uint a, uint b) {
+            return a >= b;
+        }
+
+        private static bool OpcodeArmSubOverflow(uint a, uint b, uint r) {
+            return BitUtils.BitTest32(a ^ b, 31) && BitUtils.BitTest32(a ^ r, 31);
+        }
+
         private static void OpcodeArmSub(CPU cpu, uint opcode) {
             cpu.OpcodeArmDataProcessingShifter(opcode);
 
@@ -753,8 +761,8 @@ namespace gbaemu.GBA {
                 if(rd == 15) {
                     cpu.Cpsr = cpu.Spsr;
                 } else {
-                    cpu.flagC = rn_v >= cpu.shifterResult;
-                    cpu.flagV = result <= rn_v;
+                    cpu.flagC = OpcodeArmSubCarry(rn_v, cpu.shifterResult);
+                    cpu.flagV = OpcodeArmSubOverflow(rn_v, cpu.shifterResult, result);
                     cpu.OpcodeArmDataProcessingArithmeticalSetFlags(result);
                 }
             }
@@ -783,13 +791,17 @@ namespace gbaemu.GBA {
                 if(rd == 15) {
                     cpu.Cpsr = cpu.Spsr;
                 } else {
-                    cpu.flagC = cpu.shifterResult >= rn_v;
-                    cpu.flagV = rn_v <= result;
+                    cpu.flagC = OpcodeArmSubCarry(cpu.shifterResult, rn_v);
+                    cpu.flagV = OpcodeArmSubOverflow(cpu.shifterResult, rn_v, result);
                     cpu.OpcodeArmDataProcessingArithmeticalSetFlags(result);
                 }
             }
 
             cpu.OpcodeArmDataProcessingWriteRegister(rd, result);
+        }
+
+        private static bool OpcodeArmAddOverflow(uint a, uint b, uint r) {
+            return !BitUtils.BitTest32(a ^ b, 31) && BitUtils.BitTest32(a ^ r, 31);
         }
 
         private static void OpcodeArmAdd(CPU cpu, uint opcode) {
@@ -814,7 +826,7 @@ namespace gbaemu.GBA {
                     cpu.Cpsr = cpu.Spsr;
                 } else {
                     cpu.flagC = result < rn_v;
-                    cpu.flagV = result < rn_v;
+                    cpu.flagV = OpcodeArmAddOverflow(rn_v, cpu.shifterResult, result);
                     cpu.OpcodeArmDataProcessingArithmeticalSetFlags(result);
                 }
             }
@@ -844,7 +856,7 @@ namespace gbaemu.GBA {
                     cpu.Cpsr = cpu.Spsr;
                 } else {
                     cpu.flagC = result > uint.MaxValue;
-                    cpu.flagV = result > uint.MaxValue;
+                    cpu.flagV = OpcodeArmAddOverflow(rn_v, cpu.shifterResult, (uint)result);
                     cpu.OpcodeArmDataProcessingArithmeticalSetFlags((uint)result);
                 }
             }
@@ -852,12 +864,70 @@ namespace gbaemu.GBA {
             cpu.OpcodeArmDataProcessingWriteRegister(rd, (uint)result);
         }
 
+        private static bool OpcodeArmSbcCarry(uint a, uint b, bool c) {
+            return a >= b && ((a - b) >= (c ? 0 : 1));
+        }
+
         private static void OpcodeArmSbc(CPU cpu, uint opcode) {
-            throw new System.NotImplementedException();
+            cpu.OpcodeArmDataProcessingShifter(opcode);
+
+            uint rn = (opcode & 0x000f0000) >> 16;
+            uint rn_v = cpu.r[rn];
+
+            if(rn == 15) {
+                if(BitUtils.BitTest32(opcode, 25)) {
+                    rn_v += 4;
+                }
+            }
+
+            uint rd = (opcode & 0x0000f000) >> 12;
+            bool s = BitUtils.BitTest32(opcode, 20);
+
+            uint result = rn_v - cpu.shifterResult + (uint)(cpu.flagC ? 1 : 0) - 1;
+
+            if(s) {
+                if(rd == 15) {
+                    cpu.Cpsr = cpu.Spsr;
+                } else {
+                    cpu.flagZ = result == 0;
+                    cpu.flagN = BitUtils.BitTest32(result, 31);
+                    cpu.flagV = OpcodeArmSubOverflow(rn_v, cpu.shifterResult, result);
+                    cpu.flagC = OpcodeArmSbcCarry(rn_v, cpu.shifterResult, cpu.flagC);
+                    cpu.OpcodeArmDataProcessingArithmeticalSetFlags((uint)result);
+                }
+            }
+
+            cpu.OpcodeArmDataProcessingWriteRegister(rd, (uint)result);
         }
 
         private static void OpcodeArmRsc(CPU cpu, uint opcode) {
-            throw new System.NotImplementedException();
+            cpu.OpcodeArmDataProcessingShifter(opcode);
+
+            uint rn = (opcode & 0x000f0000) >> 16;
+            uint rn_v = cpu.r[rn];
+
+            if(rn == 15) {
+                if(BitUtils.BitTest32(opcode, 25)) {
+                    rn_v += 4;
+                }
+            }
+
+            uint rd = (opcode & 0x0000f000) >> 12;
+            bool s = BitUtils.BitTest32(opcode, 20);
+
+            uint result = cpu.shifterResult - rn_v + (uint)(cpu.flagC ? 1 : 0);
+
+            if(s) {
+                if(rd == 15) {
+                    cpu.Cpsr = cpu.Spsr;
+                } else {
+                    cpu.flagV = OpcodeArmSubOverflow(cpu.shifterResult, rn_v, result);
+                    cpu.flagC = OpcodeArmSbcCarry(cpu.shifterResult, rn_v, cpu.flagC);
+                    cpu.OpcodeArmDataProcessingArithmeticalSetFlags((uint)result);
+                }
+            }
+
+            cpu.OpcodeArmDataProcessingWriteRegister(rd, result);
         }
 
         private static void OpcodeArmTst(CPU cpu, uint opcode) {
