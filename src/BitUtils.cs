@@ -11,5 +11,19 @@ namespace gbaemu {
         public static uint RotateRight32(uint value, int bits) {
             return (value >> bits) | (value << (32 - bits));
         }
+
+        public static uint HammingWeight32(uint v) {
+            uint w = 0;
+
+            for(int i = 0; i < 31; i++) {
+                if(BitTest32(v, 0)) {
+                    w++;
+                }
+
+                v >>= 1;
+            }
+
+            return w;
+        }
     }
 }

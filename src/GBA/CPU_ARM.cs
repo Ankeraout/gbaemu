@@ -97,12 +97,213 @@ namespace gbaemu.GBA {
                     armOpcodeHandlerTable[i] = OpcodeArmSingleDataTransfer;
                 } else if((i & 0xe00) == 0xa00) {
                     armOpcodeHandlerTable[i] = OpcodeArmB;
+                } else if((i & 0xe00) == 0x800) {
+                    armOpcodeHandlerTable[i] = OpcodeArmBlockDataTransfer;
+                } else if((i & 0xe49) == 0x009) {
+                    armOpcodeHandlerTable[i] = OpcodeArmHalfwordSignedDataTransfer;
                 }
             }
         }
 
         private ARMOpcodeHandler DecodeARMOpcode(uint opcode) {
             return armOpcodeHandlerTable[((opcode >> 16) & 0xff0) | ((opcode >> 4) & 0xf)];
+        }
+
+        private static void OpcodeArmHalfwordSignedDataTransfer(CPU cpu, uint opcode) {
+            bool p = BitUtils.BitTest32(opcode, 24);
+            bool u = BitUtils.BitTest32(opcode, 23);
+            bool i = BitUtils.BitTest32(opcode, 22);
+            bool w = BitUtils.BitTest32(opcode, 21);
+            bool l = BitUtils.BitTest32(opcode, 20);
+            bool s = BitUtils.BitTest32(opcode, 6);
+            bool h = BitUtils.BitTest32(opcode, 5);
+            uint rn = (opcode & 0x000f0000) >> 16;
+            uint rd = (opcode & 0x0000f000) >> 12;
+
+            if(!s && !h) {
+                throw new InvalidOpcodeException();
+            }
+
+            uint addr = cpu.r[rn];
+            uint offset;
+
+            if(i) {
+                offset = ((opcode & 0x00000f00) >> 4) | (opcode & 0x0000000f);
+            } else {
+                if(((opcode & 0x00000f00) >> 8) != 0) {
+                    throw new InvalidOpcodeException();
+                }
+
+                uint rm = opcode & 0x0000000f;
+
+                offset = cpu.r[rm];
+            }
+                
+            if(p) {
+                if(u) {
+                    addr += offset;
+                } else {
+                    addr -= offset;
+                }
+            } else {
+                w = true;
+            }
+
+            if(l) {
+                if(!s && h) { // LDRH
+                    cpu.OpcodeArmDataProcessingWriteRegister(rd, cpu.gba.Bus.Read16(addr));
+                } else if(!h) { // LDRS
+                    uint readValue = cpu.gba.Bus.Read8(addr);
+
+                    if(BitUtils.BitTest32(readValue, 7)) {
+                        readValue |= 0xffffff00;
+                    }
+
+                    cpu.OpcodeArmDataProcessingWriteRegister(rd, readValue);
+                } else { // LDRSH
+                    uint readValue = cpu.gba.Bus.Read16(addr);
+
+                    if(BitUtils.BitTest32(readValue, 15)) {
+                        readValue |= 0xffffff00;
+                    }
+
+                    cpu.OpcodeArmDataProcessingWriteRegister(rd, readValue);
+                }
+            } else {
+                uint rd_v = cpu.r[rd];
+
+                if(rd == 15) {
+                    rd_v += 4;
+                }
+
+                if(s) {
+                    throw new InvalidOpcodeException();
+                } else { // STRH
+                    cpu.gba.Bus.Write16(addr, (ushort)rd_v);
+                }
+            }
+
+            if(w) {
+                if(p) {
+                    cpu.r[rn] = addr;
+                } else {
+                    if(u) {
+                        cpu.r[rn] = addr + offset;
+                    } else {
+                        cpu.r[rn] = addr - offset;
+                    }
+                }
+            }
+        }
+
+        private static void OpcodeArmBlockDataTransfer(CPU cpu, uint opcode) {
+            bool p = BitUtils.BitTest32(opcode, 24);
+            bool u = BitUtils.BitTest32(opcode, 23);
+            bool s = BitUtils.BitTest32(opcode, 22);
+            bool w = BitUtils.BitTest32(opcode, 21);
+            bool l = BitUtils.BitTest32(opcode, 20);
+            uint rn = (opcode & 0x000f0000) >> 16;
+            uint addr = cpu.r[rn];
+            uint rn_v = cpu.r[rn];
+            uint registerCount = BitUtils.HammingWeight32(opcode & 0x0000ffff);
+
+            if(l) { // LDM
+                for(int i = 0; i < 16; i++) {
+                    if(BitUtils.BitTest32(opcode, i)) {
+                        if(p) {
+                            if(u) {
+                                addr += 4;
+                            } else {
+                                addr -= 4;
+                            }
+                        }
+
+                        if(s) {
+                            bool r15 = i == 15;
+                            bool notUserMode = cpu.mode != Mode.USR && cpu.mode != Mode.USR_OLD && cpu.mode != Mode.SYS;
+                            bool registerBanked = ((cpu.mode == Mode.FIQ || cpu.mode == Mode.FIQ_OLD) && i >= 8) || i >= 13;
+
+                            if(r15) {
+                                cpu.Cpsr = cpu.Spsr;
+                                cpu.PerformJump(cpu.gba.Bus.Read32(addr));
+                            } else if(notUserMode && registerBanked) {
+                                cpu.r_usr[i - 8] = cpu.gba.Bus.Read32(addr);
+                            } else{
+                                cpu.r[i] = cpu.gba.Bus.Read32(addr);
+                            }
+                        } else {
+                            cpu.OpcodeArmDataProcessingWriteRegister((uint)i, cpu.gba.Bus.Read32(addr));
+                        }
+
+                        if(!p) {
+                            if(u) {
+                                addr += 4;
+                            } else {
+                                addr -= 4;
+                            }
+                        }
+                    }
+                }
+            } else { // STM
+                bool firstCycle = true;
+                bool secondCycle = false;
+
+                for(int i = 0; i < 16; i++) {
+                    if(BitUtils.BitTest32(opcode, i)) {
+                        if(firstCycle) {
+                            firstCycle = false;
+                            secondCycle = true;
+                        } else if(secondCycle) {
+                            if(w) {
+                                if(u) {
+                                    cpu.r[rn] = rn_v + registerCount * 4;
+                                } else {
+                                    cpu.r[rn] = rn_v - registerCount * 4;
+                                }
+                            }
+
+                            secondCycle = false;
+                        }
+
+                        if(p) {
+                            if(u) {
+                                addr += 4;
+                            } else {
+                                addr -= 4;
+                            }
+                        }
+
+                        if(s) {
+                            bool notUserMode = cpu.mode != Mode.USR && cpu.mode != Mode.USR_OLD && cpu.mode != Mode.SYS;
+                            bool registerBanked = ((cpu.mode == Mode.FIQ || cpu.mode == Mode.FIQ_OLD) && i >= 8) || i >= 13;
+
+                            if(notUserMode && registerBanked) {
+                                cpu.gba.Bus.Write32(addr, cpu.r_usr[i - 8]);
+                            } else{
+                                cpu.gba.Bus.Write32(addr, cpu.r[i]);
+                            }
+                        } else {
+                            cpu.gba.Bus.Write32(addr, cpu.r[i]);
+                        }
+
+                        if(!p) {
+                            if(u) {
+                                addr += 4;
+                            } else {
+                                addr -= 4;
+                            }
+                        }
+                    }
+                }
+
+                if(w && secondCycle) {
+                    if(u) {
+                        cpu.r[rn] = rn_v + 4;
+                    } else {
+                        cpu.r[rn] = rn_v - 4;
+                    }
+                }
+            }
         }
 
         private static void OpcodeArmSwp(CPU cpu, uint opcode) {
