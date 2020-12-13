@@ -527,10 +527,6 @@ namespace gbaemu.GBA {
                 uint rm = opcode & 0x0000000f;
                 uint rm_v = r[rm];
 
-                if(rm == 15) {
-                    rm_v += 4;
-                }
-
                 if((opcode & 0x00000010) == 0) {
                     int immediate = (int)((opcode & 0x00000f80) >> 7);
 
@@ -583,6 +579,10 @@ namespace gbaemu.GBA {
                             break;
                     }
                 } else {
+                    if(rm == 15) {
+                        rm_v += 4;
+                    }
+
                     // Shift the register value with a register value
                     if((opcode & 0x00000080) != 0) {
                         throw new InvalidOpcodeException();
@@ -590,10 +590,6 @@ namespace gbaemu.GBA {
 
                     uint rs = (opcode & 0x00000f00) >> 8;
                     uint shift = r[rs];
-
-                    if(rs == 15) {
-                        shift += 4;
-                    }
 
                     switch((opcode & 0x060) >> 5) {
                         case 0b00: // LSL
@@ -683,7 +679,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
 
             if(rn == 15) {
-                if(BitUtils.BitTest32(opcode, 25)) {
+                if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 4)) {
                     rn_v += 4;
                 }
             }
@@ -711,7 +707,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
 
             if(rn == 15) {
-                if(BitUtils.BitTest32(opcode, 25)) {
+                if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 4)) {
                     rn_v += 4;
                 }
             }
@@ -747,7 +743,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
 
             if(rn == 15) {
-                if(BitUtils.BitTest32(opcode, 25)) {
+                if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 4)) {
                     rn_v += 4;
                 }
             }
@@ -777,7 +773,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
 
             if(rn == 15) {
-                if(BitUtils.BitTest32(opcode, 25)) {
+                if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 4)) {
                     rn_v += 4;
                 }
             }
@@ -811,7 +807,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
 
             if(rn == 15) {
-                if(BitUtils.BitTest32(opcode, 25)) {
+                if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 4)) {
                     rn_v += 4;
                 }
             }
@@ -841,7 +837,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
 
             if(rn == 15) {
-                if(BitUtils.BitTest32(opcode, 25)) {
+                if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 4)) {
                     rn_v += 4;
                 }
             }
@@ -875,7 +871,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
 
             if(rn == 15) {
-                if(BitUtils.BitTest32(opcode, 25)) {
+                if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 4)) {
                     rn_v += 4;
                 }
             }
@@ -907,7 +903,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
 
             if(rn == 15) {
-                if(BitUtils.BitTest32(opcode, 25)) {
+                if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 4)) {
                     rn_v += 4;
                 }
             }
@@ -943,7 +939,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
 
             if(rn == 15) {
-                if(BitUtils.BitTest32(opcode, 25)) {
+                if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 4)) {
                     rn_v += 4;
                 }
             }
@@ -972,7 +968,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
 
             if(rn == 15) {
-                if(BitUtils.BitTest32(opcode, 25)) {
+                if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 4)) {
                     rn_v += 4;
                 }
             }
@@ -1001,7 +997,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
 
             if(rn == 15) {
-                if(BitUtils.BitTest32(opcode, 25)) {
+                if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 4)) {
                     rn_v += 4;
                 }
             }
@@ -1032,7 +1028,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
 
             if(rn == 15) {
-                if(BitUtils.BitTest32(opcode, 25)) {
+                if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 4)) {
                     rn_v += 4;
                 }
             }
@@ -1057,7 +1053,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
 
             if(rn == 15) {
-                if(BitUtils.BitTest32(opcode, 25)) {
+                if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 4)) {
                     rn_v += 4;
                 }
             }
@@ -1085,7 +1081,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
 
             if(rn == 15) {
-                if(BitUtils.BitTest32(opcode, 25)) {
+                if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 4)) {
                     rn_v += 4;
                 }
             }
@@ -1111,7 +1107,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
 
             if(rn == 15) {
-                if(BitUtils.BitTest32(opcode, 25)) {
+                if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 4)) {
                     rn_v += 4;
                 }
             }
@@ -1139,7 +1135,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
 
             if(rn == 15) {
-                if(BitUtils.BitTest32(opcode, 25)) {
+                if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 4)) {
                     rn_v += 4;
                 }
             }
