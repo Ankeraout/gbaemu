@@ -885,8 +885,6 @@ namespace gbaemu.GBA {
                 if(rd == 15) {
                     cpu.Cpsr = cpu.Spsr;
                 } else {
-                    cpu.flagZ = result == 0;
-                    cpu.flagN = BitUtils.BitTest32(result, 31);
                     cpu.flagV = OpcodeArmSubOverflow(rn_v, cpu.shifterResult, result);
                     cpu.flagC = OpcodeArmSbcCarry(rn_v, cpu.shifterResult, cpu.flagC);
                     cpu.OpcodeArmDataProcessingArithmeticalSetFlags((uint)result);

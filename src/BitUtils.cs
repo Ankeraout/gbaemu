@@ -8,6 +8,14 @@ namespace gbaemu {
             return (ushort)(value | (1 << bitNumber));
         }
 
+        public static uint BitSet32(uint value, int bitNumber) {
+            return (uint)(value | (1U << bitNumber));
+        }
+
+        public static bool BitTest8(byte value, int bitNumber) {
+            return (value & (1 << bitNumber)) != 0;
+        }
+
         public static bool BitTest16(ushort value, int bitNumber) {
             return (value & (1 << bitNumber)) != 0;
         }
