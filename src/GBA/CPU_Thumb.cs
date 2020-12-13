@@ -624,7 +624,7 @@ namespace gbaemu.GBA {
             uint rs_v = cpu.r[rs];
             uint rd_v = cpu.r[rd];
 
-            uint result = rs_v & ~rd_v;
+            uint result = rd_v & ~rs_v;
 
             cpu.OpcodeArmDataProcessingArithmeticalSetFlags(result);
 
