@@ -923,7 +923,7 @@ namespace gbaemu.GBA {
             sbyte immediate = (sbyte)opcode;
             
             if(cpu.CheckCondition(condition)) {
-                cpu.PerformJump(cpu.r[15] + (uint)((int)immediate << 2));
+                cpu.PerformJump(cpu.r[15] + (uint)((int)immediate << 1));
             }
         }
 

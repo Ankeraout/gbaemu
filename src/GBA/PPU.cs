@@ -30,7 +30,7 @@ namespace gbaemu.GBA {
                 case 0x6:
                     addr &= 0x0001ffff;
 
-                    if(addr < 0x00018000) {
+                    if(addr >= 0x00018000) {
                         addr &= 0x00017fff;
                     }
 
@@ -58,7 +58,7 @@ namespace gbaemu.GBA {
                 case 0x6:
                     addr &= 0x0001ffff;
 
-                    if(addr < 0x00018000) {
+                    if(addr >= 0x00018000) {
                         addr &= 0x00017fff;
                     }
                     

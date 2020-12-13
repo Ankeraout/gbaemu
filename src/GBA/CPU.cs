@@ -503,7 +503,6 @@ namespace gbaemu.GBA {
                     decodedOpcodeThumbValue = fetchedOpcodeThumb;
                     decodedOpcodeThumbHandler = DecodeThumbOpcode(fetchedOpcodeThumb);
                     //Console.WriteLine(String.Format("Decoded {0:x4}", decodedOpcodeThumbValue));
-                    
                 } else {
                     decodedOpcodeARMValue = fetchedOpcodeARM;
                     decodedOpcodeARMHandler = DecodeARMOpcode(fetchedOpcodeARM);
