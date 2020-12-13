@@ -709,7 +709,7 @@ namespace gbaemu.GBA {
         }
 
         private static void OpcodeThumbLdr(CPU cpu, ushort opcode) {
-            ushort rd = (ushort)((opcode & 0x0300) >> 8);
+            ushort rd = (ushort)((opcode & 0x0700) >> 8);
             ushort immediate = (ushort)(opcode & 0x00ff);
 
             uint result = (uint)(cpu.r[15] + (immediate << 2));
@@ -836,7 +836,7 @@ namespace gbaemu.GBA {
 
         private static void OpcodeThumbLdrStr3(CPU cpu, ushort opcode) {
             bool l = BitUtils.BitTest16(opcode, 11);
-            ushort rd = (ushort)((opcode & 0x0300) >> 8);
+            ushort rd = (ushort)((opcode & 0x0700) >> 8);
             ushort immediate = (ushort)(opcode & 0x00ff);
 
             uint offset = (uint)(cpu.r[13] + (immediate << 2));
@@ -851,7 +851,7 @@ namespace gbaemu.GBA {
 
         private static void OpcodeThumbAdd4(CPU cpu, ushort opcode) {
             bool sp = BitUtils.BitTest16(opcode, 11);
-            ushort rd = (ushort)((opcode & 0x0300) >> 8);
+            ushort rd = (ushort)((opcode & 0x0700) >> 8);
             ushort immediate = (ushort)(opcode & 0x00ff);
 
             if(sp) {
