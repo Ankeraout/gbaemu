@@ -14,6 +14,8 @@ namespace gbaemu.GBA {
         public CPU CPU {get; private set;}
         public WRAM Iwram {get; private set;}
         public WRAM Ewram {get; private set;}
+        public PPU Ppu {get; private set;}
+        public IO Io {get; private set;}
 
         public bool SkipBoot {get; set;}
 
@@ -28,21 +30,8 @@ namespace gbaemu.GBA {
             }
         }
 
-        public GBA(string biosFilePath, string romFilePath) {
-            Bios = new BIOS(readFile(biosFilePath, BiosFileSize));
+        public GBA(string biosFilePath, string romFilePath) : this(biosFilePath, romFilePath, false) {
 
-            if(romFilePath != null) {
-                Cartridge = new Cartridge(readFile(romFilePath, MaxRomFileSize));
-            } else {
-                Cartridge = new Cartridge();
-            }
-            
-            SkipBoot = false;
-
-            CPU = new CPU(this, SkipBoot);
-            Iwram = new WRAM(WramFastSize);
-            Ewram = new WRAM(WramSlowSize);
-            Bus = new Bus(this);
         }
 
         public GBA(string biosFilePath, string romFilePath, bool skipBoot) {
@@ -59,6 +48,8 @@ namespace gbaemu.GBA {
             CPU = new CPU(this, SkipBoot);
             Iwram = new WRAM(WramFastSize);
             Ewram = new WRAM(WramSlowSize);
+            Ppu = new PPU(this);
+            Io = new IO(this);
             Bus = new Bus(this);
         }
 
@@ -68,6 +59,11 @@ namespace gbaemu.GBA {
 
         public void Cycle() {
             CPU.Cycle();
+            Ppu.Cycle();
+        }
+
+        public void SetInterruptFlag(ushort flag) {
+            Io.Write16(0x04000202, (ushort)(Io.Read16(0x04000202) | flag));
         }
     }
 }

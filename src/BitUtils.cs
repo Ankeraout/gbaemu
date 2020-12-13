@@ -1,5 +1,17 @@
 namespace gbaemu {
     public static class BitUtils {
+        public static ushort BitClear16(ushort value, int bitNumber) {
+            return (ushort)(value & ~(1 << bitNumber));
+        }
+
+        public static ushort BitSet16(ushort value, int bitNumber) {
+            return (ushort)(value | (1 << bitNumber));
+        }
+
+        public static bool BitTest16(ushort value, int bitNumber) {
+            return (value & (1 << bitNumber)) != 0;
+        }
+
         public static bool BitTest32(uint value, int bitNumber) {
             return (value & (1 << bitNumber)) != 0;
         }

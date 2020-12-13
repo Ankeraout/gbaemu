@@ -27,6 +27,8 @@ namespace gbaemu.GBA {
                     armOpcodeHandlerTable[i] = OpcodeArmPsrTransfer;
                 } else if((i & 0xdb0) == 0x120) {
                     armOpcodeHandlerTable[i] = OpcodeArmPsrTransfer;
+                } else if((i & 0xe09) == 0x009) {
+                    armOpcodeHandlerTable[i] = OpcodeArmHalfwordSignedDataTransfer;
                 } else if((i & 0xc00) == 0x000) {
                     switch((i & 0x1e0) >> 5) {
                         case 0b0000:
@@ -99,8 +101,6 @@ namespace gbaemu.GBA {
                     armOpcodeHandlerTable[i] = OpcodeArmB;
                 } else if((i & 0xe00) == 0x800) {
                     armOpcodeHandlerTable[i] = OpcodeArmBlockDataTransfer;
-                } else if((i & 0xe49) == 0x009) {
-                    armOpcodeHandlerTable[i] = OpcodeArmHalfwordSignedDataTransfer;
                 }
             }
         }
@@ -1166,8 +1166,14 @@ namespace gbaemu.GBA {
             if(l) {
                 cpu.r[14] = cpu.r[15] - 4;
             }
+
+            uint offset = (uint)(opcode & 0x00ffffff) << 2;
+
+            if(BitUtils.BitTest32(offset, 25)) {
+                offset |= 0xfc000000;
+            }
             
-            cpu.PerformJump(cpu.r[15] + ((opcode & 0x00ffffff) << 2));
+            cpu.PerformJump(cpu.r[15] + offset);
         }
     }
 }

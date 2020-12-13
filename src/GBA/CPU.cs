@@ -477,6 +477,7 @@ namespace gbaemu.GBA {
                     if(decodedOpcodeThumbHandler == null) {
                         RaiseUND();
                     } else {
+                        //Console.WriteLine(String.Format("Executing {0:x4}", decodedOpcodeThumbValue));
                         decodedOpcodeThumbHandler(this, decodedOpcodeThumbValue);
                     }
                 } else {
@@ -485,6 +486,7 @@ namespace gbaemu.GBA {
                     } else {
                         if(CheckCondition((Condition)(decodedOpcodeARMValue >> 28))) {
                             try {
+                                //Console.WriteLine(String.Format("Executing {0:x8}", decodedOpcodeARMValue));
                                 decodedOpcodeARMHandler(this, decodedOpcodeARMValue);
                             } catch(InvalidOpcodeException) {
                                 RaiseUND();
@@ -500,9 +502,12 @@ namespace gbaemu.GBA {
                 if(flagT) {
                     decodedOpcodeThumbValue = fetchedOpcodeThumb;
                     decodedOpcodeThumbHandler = DecodeThumbOpcode(fetchedOpcodeThumb);
+                    //Console.WriteLine(String.Format("Decoded {0:x4}", decodedOpcodeThumbValue));
+                    
                 } else {
                     decodedOpcodeARMValue = fetchedOpcodeARM;
                     decodedOpcodeARMHandler = DecodeARMOpcode(fetchedOpcodeARM);
+                    //Console.WriteLine(String.Format("Decoded {0:x8}", decodedOpcodeARMValue));
                 }
             }
         }
@@ -510,9 +515,11 @@ namespace gbaemu.GBA {
         private void Fetch(uint fetchAddress) {
             if(flagT) {
                 fetchedOpcodeThumb = gba.Bus.Read16(fetchAddress);
+                //Console.WriteLine(String.Format("[0x{0:x8}] Fetched 0x{1:x4}", r[15], fetchedOpcodeThumb));
                 r[15] += 2;
             } else {
                 fetchedOpcodeARM = gba.Bus.Read32(fetchAddress);
+                //Console.WriteLine(String.Format("[0x{0:x8}] Fetched 0x{1:x8}", r[15], fetchedOpcodeARM));
                 r[15] += 4;
             }
         }

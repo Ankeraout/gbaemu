@@ -6,8 +6,7 @@ namespace gbaemu
     {
         public static Configuration Configuration {get; private set;}
 
-        static void Main(string[] args)
-        {
+        static void Main(string[] args) {
             try {
                 WrappedMain(args);
             } catch(Exception e) {
@@ -24,6 +23,9 @@ namespace gbaemu
             CheckConfiguration();
 
             GBA.GBA gba = new GBA.GBA(Configuration.BiosPath, Configuration.RomPath, true);
+
+            FrontEnd.IFrontEnd frontEnd = new FrontEnd.SDL2(gba);
+            gba.Ppu.OnFrameEvent += frontEnd.Frame;
 
             while(true) {
                 gba.Cycle();
