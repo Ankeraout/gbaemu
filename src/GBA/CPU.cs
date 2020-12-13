@@ -471,7 +471,6 @@ namespace gbaemu.GBA {
         }
 
         private void Execute() {
-            // TODO: check for interrupts
             if(pipelineState == PipelineState.Execute) {
                 if(flagT) {
                     if(decodedOpcodeThumbHandler == null) {
@@ -525,6 +524,15 @@ namespace gbaemu.GBA {
 
         public void Cycle() {
             uint fetchAddress = r[15];
+
+            // Check for interrupts
+            if(
+                (gba.Io.Read16(0x04000208) & 0x0001) == 0x0001 // Interrupts are enabled
+                && ((gba.Io.Read16(0x04000200) & gba.Io.Read16(0x04000202) & 0x3fff) != 0) // An enabled interrupt is raised
+                && !flagI // An interrupt is not already being processed
+            ) {
+                RaiseIRQ();
+            }
 
             Execute();
             Decode();

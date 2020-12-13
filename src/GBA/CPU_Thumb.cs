@@ -712,7 +712,7 @@ namespace gbaemu.GBA {
             ushort rd = (ushort)((opcode & 0x0700) >> 8);
             ushort immediate = (ushort)(opcode & 0x00ff);
 
-            uint result = (uint)(cpu.r[15] + (immediate << 2));
+            uint result = (uint)((cpu.r[15] & 0xfffffffc) + (immediate << 2));
 
             cpu.r[rd] = cpu.gba.Bus.Read32(result);
         }
