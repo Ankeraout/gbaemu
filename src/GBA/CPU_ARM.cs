@@ -178,21 +178,26 @@ namespace gbaemu.GBA {
             bool w = BitUtils.BitTest32(opcode, 21);
             bool l = BitUtils.BitTest32(opcode, 20);
             uint rn = (opcode & 0x000f0000) >> 16;
-            uint addr = cpu.r[rn];
             uint rn_v = cpu.r[rn];
-            uint registerCount = BitUtils.HammingWeight32(opcode & 0x0000ffff);
+            uint registerCount = BitUtils.HammingWeight16((ushort)opcode);
+
+            uint addr = rn_v;
+
+            if(p) {
+                if(u) {
+                    addr += 4;
+                } else {
+                    addr -= 4 * registerCount;
+                }
+            } else {
+                if(!u) {
+                    addr -= 4 * (registerCount - 1);
+                }
+            }
 
             if(l) { // LDM
                 for(int i = 0; i < 16; i++) {
                     if(BitUtils.BitTest32(opcode, i)) {
-                        if(p) {
-                            if(u) {
-                                addr += 4;
-                            } else {
-                                addr -= 4;
-                            }
-                        }
-
                         if(s) {
                             bool r15 = i == 15;
                             bool notUserMode = cpu.mode != Mode.USR && cpu.mode != Mode.USR_OLD && cpu.mode != Mode.SYS;
@@ -210,13 +215,15 @@ namespace gbaemu.GBA {
                             cpu.OpcodeArmDataProcessingWriteRegister((uint)i, cpu.gba.Bus.Read32(addr));
                         }
 
-                        if(!p) {
-                            if(u) {
-                                addr += 4;
-                            } else {
-                                addr -= 4;
-                            }
-                        }
+                        addr += 4;
+                    }
+                }
+
+                if(w) {
+                    if(u) {
+                        cpu.r[rn] = rn_v + 4 * registerCount;
+                    } else {
+                        cpu.r[rn] = rn_v - 4 * registerCount;
                     }
                 }
             } else { // STM
@@ -240,14 +247,6 @@ namespace gbaemu.GBA {
                             secondCycle = false;
                         }
 
-                        if(p) {
-                            if(u) {
-                                addr += 4;
-                            } else {
-                                addr -= 4;
-                            }
-                        }
-
                         if(s) {
                             bool notUserMode = cpu.mode != Mode.USR && cpu.mode != Mode.USR_OLD && cpu.mode != Mode.SYS;
                             bool registerBanked = ((cpu.mode == Mode.FIQ || cpu.mode == Mode.FIQ_OLD) && i >= 8) || i >= 13;
@@ -261,13 +260,7 @@ namespace gbaemu.GBA {
                             cpu.gba.Bus.Write32(addr, cpu.r[i]);
                         }
 
-                        if(!p) {
-                            if(u) {
-                                addr += 4;
-                            } else {
-                                addr -= 4;
-                            }
-                        }
+                        addr += 4;
                     }
                 }
 
