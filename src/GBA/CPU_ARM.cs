@@ -368,7 +368,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
             uint rd_v = cpu.r[rd];
 
-            if(i && rn == 15) {
+            if((i || !l) && rn == 15) {
                 rn_v += 4;
             }
 
@@ -412,9 +412,9 @@ namespace gbaemu.GBA {
 
             if(l) {
                 if(b) {
-                    cpu.r[rd] = cpu.gba.Bus.Read8(offset);
+                    cpu.OpcodeArmDataProcessingWriteRegister(rd, cpu.gba.Bus.Read8(offset));
                 } else {
-                    cpu.r[rd] = BitUtils.RotateRight32(cpu.gba.Bus.Read32(offset), (int)((offset & 0x00000003) << 3));
+                    cpu.OpcodeArmDataProcessingWriteRegister(rd, BitUtils.RotateRight32(cpu.gba.Bus.Read32(offset), (int)((offset & 0x00000003) << 3)));
                 }
             } else {
                 if(b) {

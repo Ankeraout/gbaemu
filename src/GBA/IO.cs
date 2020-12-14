@@ -79,6 +79,9 @@ namespace gbaemu.GBA {
                     case 0x04000050: registers[i] = new Register(0x0000, null, 0xffff, 0xffff); break; // BLDCNT
                     case 0x04000052: registers[i] = new Register(0x0000, null, 0xffff, 0xffff); break; // BLDALPHA
                     case 0x04000054: registers[i] = new Register(0x0000, null, 0x0000, 0xffff); break; // BLDY
+                    case 0x04000200: registers[i] = new Register(0x0000, null, 0x3fff, 0x3fff); break; // IE
+                    case 0x04000202: registers[i] = new Register(0x0000, null, 0x3fff, 0x3fff); break; // IF
+                    case 0x04000208: registers[i] = new Register(0x0000, null, 0x0001, 0x0001); break; // IME
                     default: registers[i] = new Register(0x0000, null, 0x0000, 0xffff); break;
                 }
                 
