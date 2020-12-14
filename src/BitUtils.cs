@@ -32,15 +32,13 @@ namespace gbaemu {
             return (value >> bits) | (value << (32 - bits));
         }
 
-        public static uint HammingWeight32(uint v) {
+        public static uint HammingWeight16(ushort v) {
             uint w = 0;
 
-            for(int i = 0; i < 31; i++) {
-                if(BitTest32(v, 0)) {
+            for(int i = 0; i < 16; i++) {
+                if(BitTest16(v, i)) {
                     w++;
                 }
-
-                v >>= 1;
             }
 
             return w;
