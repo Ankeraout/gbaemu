@@ -11,96 +11,71 @@ namespace gbaemu.GBA {
             armOpcodeHandlerTable = new ARMOpcodeHandler[4096];
 
             for(int i = 0; i < 4096; i++) {
-                if((i & 0xfcf) == 0x009) {
-                    armOpcodeHandlerTable[i] = OpcodeArmMul;
-                } else if((i & 0xf8f) == 0x089) {
-                    armOpcodeHandlerTable[i] = OpcodeArmMull;
-                } else if((i & 0xf00) == 0xf00) {
-                    armOpcodeHandlerTable[i] = OpcodeArmSwi;
-                } else if(i == 0x121) {
-                    armOpcodeHandlerTable[i] = OpcodeArmBx;
-                } else if((i & 0xfbf) == 0x100) {
-                    armOpcodeHandlerTable[i] = OpcodeArmPsrTransfer;
-                } else if((i & 0xfbf) == 0x109) {
-                    armOpcodeHandlerTable[i] = OpcodeArmSwp;
-                } else if((i & 0xfbf) == 0x120) {
-                    armOpcodeHandlerTable[i] = OpcodeArmPsrTransfer;
-                } else if((i & 0xdb0) == 0x120) {
-                    armOpcodeHandlerTable[i] = OpcodeArmPsrTransfer;
-                } else if((i & 0xe09) == 0x009) {
-                    armOpcodeHandlerTable[i] = OpcodeArmHalfwordSignedDataTransfer;
-                } else if((i & 0xc00) == 0x000) {
-                    switch((i & 0x1e0) >> 5) {
-                        case 0b0000:
-                            armOpcodeHandlerTable[i] = OpcodeArmAnd;
-                            break;
+                uint opcode = (uint)(((i & 0xff0) << 16) | ((i & 0x00f) << 4));
 
-                        case 0b0001:
-                            armOpcodeHandlerTable[i] = OpcodeArmEor;
-                            break;
-
-                        case 0b0010:
-                            armOpcodeHandlerTable[i] = OpcodeArmSub;
-                            break;
-
-                        case 0b0011:
-                            armOpcodeHandlerTable[i] = OpcodeArmRsb;
-                            break;
-
-                        case 0b0100:
-                            armOpcodeHandlerTable[i] = OpcodeArmAdd;
-                            break;
-
-                        case 0b0101:
-                            armOpcodeHandlerTable[i] = OpcodeArmAdc;
-                            break;
-
-                        case 0b0110:
-                            armOpcodeHandlerTable[i] = OpcodeArmSbc;
-                            break;
-                        
-                        case 0b0111:
-                            armOpcodeHandlerTable[i] = OpcodeArmRsc;
-                            break;
-
-                        case 0b1000:
-                            armOpcodeHandlerTable[i] = OpcodeArmTst;
-                            break;
-
-                        case 0b1001:
-                            armOpcodeHandlerTable[i] = OpcodeArmTeq;
-                            break;
-                        
-                        case 0b1010:
-                            armOpcodeHandlerTable[i] = OpcodeArmCmp;
-                            break;
-
-                        case 0b1011:
-                            armOpcodeHandlerTable[i] = OpcodeArmCmn;
-                            break;
-
-                        case 0b1100:
-                            armOpcodeHandlerTable[i] = OpcodeArmOrr;
-                            break;
-
-                        case 0b1101:
-                            armOpcodeHandlerTable[i] = OpcodeArmMov;
-                            break;
-
-                        case 0b1110:
-                            armOpcodeHandlerTable[i] = OpcodeArmBic;
-                            break;
-
-                        case 0b1111:
-                            armOpcodeHandlerTable[i] = OpcodeArmMvn;
-                            break;
+                switch((opcode & 0x0c000000) >> 26) {
+                    case 0b00:
+                    if((opcode & 0x0ff000f0) == 0x01200010) {
+                        armOpcodeHandlerTable[i] = OpcodeArmBx;
+                    } else if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 7)) {
+                        if((opcode & 0x0fb000f0) == 0x01000090) {
+                            armOpcodeHandlerTable[i] = OpcodeArmSwp;
+                        } else if((opcode & 0x0fc000f0) == 0x00000090) {
+                            armOpcodeHandlerTable[i] = OpcodeArmMul;
+                        } else if((opcode & 0x0f8000f0) == 0x00800090) {
+                            armOpcodeHandlerTable[i] = OpcodeArmMull;
+                        } else if((opcode & 0x0e000090) == 0x00000090) {
+                            armOpcodeHandlerTable[i] = OpcodeArmHalfwordSignedDataTransfer;
+                        }
+                    } else if((opcode & 0x01900000) == 0x01000000) {
+                        if(BitUtils.BitTest32(opcode, 25) || (opcode & 0x000000f0) == 0x00000000) {
+                            armOpcodeHandlerTable[i] = OpcodeArmPsrTransfer;
+                        }
+                    } else {
+                        switch((opcode & 0x01e00000) >> 21) {
+                            case 0b0000: armOpcodeHandlerTable[i] = OpcodeArmAnd; break;
+                            case 0b0001: armOpcodeHandlerTable[i] = OpcodeArmEor; break;
+                            case 0b0010: armOpcodeHandlerTable[i] = OpcodeArmSub; break;
+                            case 0b0011: armOpcodeHandlerTable[i] = OpcodeArmRsb; break;
+                            case 0b0100: armOpcodeHandlerTable[i] = OpcodeArmAdd; break;
+                            case 0b0101: armOpcodeHandlerTable[i] = OpcodeArmAdc; break;
+                            case 0b0110: armOpcodeHandlerTable[i] = OpcodeArmSbc; break;
+                            case 0b0111: armOpcodeHandlerTable[i] = OpcodeArmRsc; break;
+                            case 0b1000: armOpcodeHandlerTable[i] = OpcodeArmTst; break;
+                            case 0b1001: armOpcodeHandlerTable[i] = OpcodeArmTeq; break;
+                            case 0b1010: armOpcodeHandlerTable[i] = OpcodeArmCmp; break;
+                            case 0b1011: armOpcodeHandlerTable[i] = OpcodeArmCmn; break;
+                            case 0b1100: armOpcodeHandlerTable[i] = OpcodeArmOrr; break;
+                            case 0b1101: armOpcodeHandlerTable[i] = OpcodeArmMov; break;
+                            case 0b1110: armOpcodeHandlerTable[i] = OpcodeArmBic; break;
+                            case 0b1111: armOpcodeHandlerTable[i] = OpcodeArmMvn; break;
+                        }
                     }
-                } else if(((i & 0xc00) == 0x400) & ((i & 0x201) != 0x201)) {
-                    armOpcodeHandlerTable[i] = OpcodeArmSingleDataTransfer;
-                } else if((i & 0xe00) == 0xa00) {
-                    armOpcodeHandlerTable[i] = OpcodeArmB;
-                } else if((i & 0xe00) == 0x800) {
-                    armOpcodeHandlerTable[i] = OpcodeArmBlockDataTransfer;
+
+                    break;
+
+                    case 0b01:
+                    if((opcode & 0x02000010) != 0x02000010) {
+                        armOpcodeHandlerTable[i] = OpcodeArmSingleDataTransfer;
+                    }
+
+                    break;
+                    
+                    case 0b10:
+                    if(BitUtils.BitTest32(opcode, 25)) {
+                        armOpcodeHandlerTable[i] = OpcodeArmB;
+                    } else {
+                        armOpcodeHandlerTable[i] = OpcodeArmBlockDataTransfer;
+                    }
+
+                    break;
+                    
+                    case 0b11:
+                    if((opcode & 0x03000000) == 0x03000000) {
+                        armOpcodeHandlerTable[i] = OpcodeArmSwi;
+                    }
+
+                    break;
                 }
             }
         }
@@ -465,6 +440,10 @@ namespace gbaemu.GBA {
                 bool disableProtection = BitUtils.BitTest32(opcode, 16);
 
                 if(disableProtection) {
+                    if((opcode & 0x0fbffff0) != 0x0129f000) {
+                        cpu.RaiseUND();
+                    }
+
                     uint rm = opcode & 0x0000000f;
 
                     if(spsr) {
@@ -478,8 +457,16 @@ namespace gbaemu.GBA {
                     uint operand;
 
                     if(immediate) {
+                        if((opcode & 0x0fbff000) != 0x0328f000) {
+                            cpu.RaiseUND();
+                        }
+
                         operand = BitUtils.RotateRight32(opcode & 0x000000ff, (int)(opcode & 0x00000f00) >> 7);
                     } else {
+                        if((opcode & 0x0fbffff0) != 0x0128f000) {
+                            cpu.RaiseUND();
+                        }
+
                         uint rm = opcode & 0x0000000f;
                         operand = cpu.r[rm];
                     }
@@ -491,6 +478,10 @@ namespace gbaemu.GBA {
                     }
                 }
             } else {
+                if((opcode & 0x0fbf0fff) != 0x010f0000) {
+                    cpu.RaiseUND();
+                }
+
                 uint rd = (opcode & 0x0000f000) >> 12;
 
                 if(spsr) {
