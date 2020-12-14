@@ -17,7 +17,7 @@ namespace gbaemu.GBA {
                     case 0b00:
                     if((opcode & 0x0ff000f0) == 0x01200010) {
                         armOpcodeHandlerTable[i] = OpcodeArmBx;
-                    } else if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 7)) {
+                    } else if(!BitUtils.BitTest32(opcode, 25) && BitUtils.BitTest32(opcode, 7) && BitUtils.BitTest32(opcode, 4)) {
                         if((opcode & 0x0fb000f0) == 0x01000090) {
                             armOpcodeHandlerTable[i] = OpcodeArmSwp;
                         } else if((opcode & 0x0fc000f0) == 0x00000090) {
