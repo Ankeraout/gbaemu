@@ -81,9 +81,7 @@ namespace gbaemu.GBA {
                 flagF = BitUtils.BitTest32(value, 6);
                 flagT = BitUtils.BitTest32(value, 5);
 
-                mode = (Mode)(value & 0b11111);
-                
-                CheckMode();
+                ChangeMode((Mode)(value & 0b11111));
             }
         }
 
@@ -219,8 +217,8 @@ namespace gbaemu.GBA {
                     r_usr[2] = r[10];
                     r_usr[3] = r[11];
                     r_usr[4] = r[12];
-                    r_irq[5] = r[13];
-                    r_irq[6] = r[14];
+                    r_irq[0] = r[13];
+                    r_irq[1] = r[14];
                     break;
 
                 case Mode.SVC_OLD:
@@ -230,8 +228,8 @@ namespace gbaemu.GBA {
                     r_usr[2] = r[10];
                     r_usr[3] = r[11];
                     r_usr[4] = r[12];
-                    r_svc[5] = r[13];
-                    r_svc[6] = r[14];
+                    r_svc[0] = r[13];
+                    r_svc[1] = r[14];
                     break;
 
                 case Mode.ABT:
@@ -240,8 +238,8 @@ namespace gbaemu.GBA {
                     r_usr[2] = r[10];
                     r_usr[3] = r[11];
                     r_usr[4] = r[12];
-                    r_abt[5] = r[13];
-                    r_abt[6] = r[14];
+                    r_abt[0] = r[13];
+                    r_abt[1] = r[14];
                     break;
 
                 case Mode.UND:
@@ -250,8 +248,8 @@ namespace gbaemu.GBA {
                     r_usr[2] = r[10];
                     r_usr[3] = r[11];
                     r_usr[4] = r[12];
-                    r_und[5] = r[13];
-                    r_und[6] = r[14];
+                    r_und[0] = r[13];
+                    r_und[1] = r[14];
                     break;
             }
 
@@ -320,6 +318,9 @@ namespace gbaemu.GBA {
                     r[13] = r_und[0];
                     r[14] = r_und[1];
                     break;
+
+                default:
+                    throw new Exception("Undefined mode");
             }
 
             mode = newMode;
@@ -351,7 +352,6 @@ namespace gbaemu.GBA {
             flagI = false;
             flagF = false;
             flagT = false;
-            mode = Mode.SYS;
 
             if(skipBoot) {
                 r[13] = 0x03007f00;
@@ -359,28 +359,18 @@ namespace gbaemu.GBA {
                 r_svc[0] = 0x03007fe0;
 
                 r[15] = 0x08000000;
+                mode = Mode.SYS;
+            } else {
+                mode = Mode.SVC;
+                flagI = true;
+                flagF = true;
             }
-        }
 
-        private void CheckMode()
-        {
-            switch(mode) {
-                case Mode.USR_OLD:
-                case Mode.FIQ_OLD:
-                case Mode.IRQ_OLD:
-                case Mode.SVC_OLD:
-                case Mode.USR:
-                case Mode.FIQ:
-                case Mode.IRQ:
-                case Mode.SVC:
-                case Mode.ABT:
-                case Mode.UND:
-                case Mode.SYS:
-                    return;
-
-                default:
-                    throw new Exception("Undefined mode");
-            }
+            spsr_abt = 0;
+            spsr_fiq = 0;
+            spsr_irq = 0;
+            spsr_svc = 0;
+            spsr_und = 0;
         }
 
         private bool CheckCondition(Condition condition) {
