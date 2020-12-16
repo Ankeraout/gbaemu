@@ -82,6 +82,10 @@ namespace gbaemu.GBA {
             return 0xff000000 | (red << 3) | (green << 11) | (blue << 19);
         }
 
+        private ushort GetPaletteColor(byte paletteIndex) {
+            return Read16(0x05000000U | (uint)(paletteIndex << 1));
+        }
+
         private void DrawMode0() {
 
         }
@@ -101,7 +105,13 @@ namespace gbaemu.GBA {
         }
 
         private void DrawMode4() {
-            
+            IO.Register dispcnt = GBA.Io.GetRegister(0x04000000);
+
+            uint offset = BitUtils.BitTest16(dispcnt.Value, 4) ? 0x0000a000U : 0x00000000U;
+
+            for(int x = 0; x < 240; x++) {
+                frameBuffer[currentRow * 240 + x] = ColorToRGB(GetPaletteColor(vram[currentRow * 240 + x + offset]));
+            }
         }
 
         private void DrawMode5() {
