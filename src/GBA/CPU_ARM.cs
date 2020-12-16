@@ -991,8 +991,8 @@ namespace gbaemu.GBA {
             if(rd == 15) {
                 cpu.Cpsr = cpu.Spsr;
             } else {
-                cpu.flagC = rn_v >= cpu.shifterResult;
-                cpu.flagV = result <= rn_v;
+                cpu.flagC = OpcodeArmSubCarry(rn_v, cpu.shifterResult);
+                cpu.flagV = OpcodeArmSubOverflow(rn_v, cpu.shifterResult, result);
                 cpu.OpcodeArmDataProcessingArithmeticalSetFlags(result);
             }
         }
@@ -1023,7 +1023,7 @@ namespace gbaemu.GBA {
                 cpu.Cpsr = cpu.Spsr;
             } else {
                 cpu.flagC = result < rn_v;
-                cpu.flagV = result < rn_v;
+                cpu.flagV = OpcodeArmAddOverflow(rn_v, cpu.shifterResult, result);
                 cpu.OpcodeArmDataProcessingArithmeticalSetFlags(result);
             }
         }
