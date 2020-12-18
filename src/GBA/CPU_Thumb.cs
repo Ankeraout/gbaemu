@@ -702,7 +702,7 @@ namespace gbaemu.GBA {
                 rs += 8;
             }
 
-            uint dest = cpu.r[opcode & 0x0000000f];
+            uint dest = cpu.r[rs];
 
             cpu.flagT = BitUtils.BitTest32(dest, 0);
             cpu.PerformJump(dest);
@@ -876,26 +876,39 @@ namespace gbaemu.GBA {
             bool l = BitUtils.BitTest16(opcode, 11);
             bool r = BitUtils.BitTest16(opcode, 8);
             byte rlist = (byte)opcode;
+            uint rcount = BitUtils.HammingWeight8(rlist);
 
-            for(int i = 0; i < 7; i++) {
+            if(r) {
+                rcount++;
+            }
+
+            uint addr;
+
+            if(l) {
+                addr = cpu.r[13];
+                cpu.r[13] += rcount * 4;
+            } else {
+                cpu.r[13] -= rcount * 4;
+                addr = cpu.r[13];
+            }
+
+            for(int i = 0; i < 8; i++) {
                 if(BitUtils.BitTest8(rlist, i)) {
                     if(l) {
-                        cpu.r[i] = cpu.gba.Bus.Read32(cpu.r[13]);
-                        cpu.r[13] += 4;
+                        cpu.r[i] = cpu.gba.Bus.Read32(addr);
                     } else {
-                        cpu.r[13] -= 4;
-                        cpu.gba.Bus.Write32(cpu.r[13], cpu.r[i]);
+                        cpu.gba.Bus.Write32(addr, cpu.r[i]);
                     }
+
+                    addr += 4;
                 }
             }
 
             if(r) {
                 if(l) {
-                    cpu.r[15] = cpu.gba.Bus.Read32(cpu.r[13]);
-                    cpu.r[13] += 4;
+                    cpu.PerformJump(cpu.gba.Bus.Read32(addr));
                 } else {
-                    cpu.r[13] -= 4;
-                    cpu.gba.Bus.Write32(cpu.r[13], cpu.r[14]);
+                    cpu.gba.Bus.Write32(addr, cpu.r[14]);
                 }
             }
         }
@@ -909,11 +922,11 @@ namespace gbaemu.GBA {
                 if(BitUtils.BitTest8(rlist, i)) {
                     if(l) {
                         cpu.r[i] = cpu.gba.Bus.Read32(cpu.r[rb]);
-                        cpu.r[rb] += 4;
                     } else {
                         cpu.gba.Bus.Write32(cpu.r[rb], cpu.r[i]);
-                        cpu.r[rb] += 4;
                     }
+                    
+                    cpu.r[rb] += 4;
                 }
             }
         }

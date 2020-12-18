@@ -32,6 +32,18 @@ namespace gbaemu {
             return (value >> bits) | (value << (32 - bits));
         }
 
+        public static uint HammingWeight8(byte v) {
+            uint w = 0;
+
+            for(int i = 0; i < 8; i++) {
+                if(BitTest8(v, i)) {
+                    w++;
+                }
+            }
+
+            return w;
+        }
+
         public static uint HammingWeight16(ushort v) {
             uint w = 0;
 
