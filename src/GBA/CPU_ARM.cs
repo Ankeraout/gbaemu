@@ -139,7 +139,7 @@ namespace gbaemu.GBA {
                     uint readValue = cpu.gba.Bus.Read16(addr);
 
                     if(BitUtils.BitTest32(readValue, 15)) {
-                        readValue |= 0xffffff00;
+                        readValue |= 0xffff0000;
                     }
 
                     cpu.OpcodeArmDataProcessingWriteRegister(rd, readValue);
@@ -304,7 +304,7 @@ namespace gbaemu.GBA {
             
             if(a) {
                 uint rn = (opcode & 0x0000f000) >> 12;
-                result = cpu.r[rn];
+                result += cpu.r[rn];
             }
 
             cpu.r[rd] = result;
@@ -328,12 +328,15 @@ namespace gbaemu.GBA {
             if(u) {
                 result = (ulong)cpu.r[rm] * cpu.r[rs];
             } else {
-                result = (ulong)((long)cpu.r[rm] * cpu.r[rs]);
+                result = (ulong)((long)(int)cpu.r[rm] * (int)cpu.r[rs]);
             }
 
             if(a) {
-                result += ((ulong)cpu.r[rdlo] << 32) | cpu.r[rdhi];
+                result += ((ulong)cpu.r[rdhi] << 32) | cpu.r[rdlo];
             }
+
+            cpu.r[rdhi] = (uint)(result >> 32);
+            cpu.r[rdlo] = (uint)result;
 
             if(s) {
                 cpu.flagZ = result == 0;
