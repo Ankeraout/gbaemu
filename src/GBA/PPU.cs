@@ -48,6 +48,8 @@ namespace gbaemu.GBA {
         }
 
         public new void Write16(uint addr, ushort val) {
+            addr &= 0xfffffffe;
+
             switch((addr & 0x0f000000) >> 24) {
                 case 0x5:
                     addr &= 0x000003fe;
