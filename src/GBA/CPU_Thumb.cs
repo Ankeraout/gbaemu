@@ -553,7 +553,6 @@ namespace gbaemu.GBA {
             ushort rd = (ushort)(opcode & 0x0007);
 
             uint rs_v = cpu.r[rs];
-            uint rd_v = cpu.r[rd];
 
             uint result = (uint)-rs_v;
             cpu.flagC = OpcodeArmSubCarry(0, rs_v);
@@ -827,7 +826,7 @@ namespace gbaemu.GBA {
             uint addr = (uint)(rb_v + (offset << 1));
 
             if(l) {
-                rd = cpu.gba.Bus.Read16(addr);
+                cpu.r[rd] = cpu.gba.Bus.Read16(addr);
             } else {
                 uint rd_v = cpu.r[rd];
                 cpu.gba.Bus.Write16(addr, (ushort)rd_v);
@@ -857,7 +856,7 @@ namespace gbaemu.GBA {
             if(sp) {
                 cpu.r[rd] = (uint)(cpu.r[13] + (immediate << 2));
             } else {
-                cpu.r[rd] = (uint)(cpu.r[15] + (immediate << 2));
+                cpu.r[rd] = (uint)((cpu.r[15] & 0xfffffffc) + (immediate << 2));
             }
         }
 
@@ -936,7 +935,7 @@ namespace gbaemu.GBA {
             sbyte immediate = (sbyte)opcode;
             
             if(cpu.CheckCondition(condition)) {
-                cpu.PerformJump(cpu.r[15] + (uint)((int)immediate << 1));
+                cpu.PerformJump(cpu.r[15] + (uint)(immediate << 1));
             }
         }
 
@@ -947,7 +946,7 @@ namespace gbaemu.GBA {
                 immediate |= 0xfffff800;
             }
 
-            cpu.PerformJump(cpu.r[15] + (immediate << 2));
+            cpu.PerformJump(cpu.r[15] + (immediate << 1));
         }
 
         private static void OpcodeThumbBl(CPU cpu, ushort opcode) {
