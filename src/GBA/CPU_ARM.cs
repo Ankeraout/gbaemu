@@ -866,7 +866,7 @@ namespace gbaemu.GBA {
             uint rd = (opcode & 0x0000f000) >> 12;
             bool s = BitUtils.BitTest32(opcode, 20);
 
-            uint result = rn_v - cpu.shifterResult + (uint)(cpu.flagC ? 1 : 0) - 1;
+            uint result = rn_v - cpu.shifterResult - (cpu.flagC ? 0U : 1U);
 
             if(s) {
                 if(rd == 15) {
@@ -896,7 +896,7 @@ namespace gbaemu.GBA {
             uint rd = (opcode & 0x0000f000) >> 12;
             bool s = BitUtils.BitTest32(opcode, 20);
 
-            uint result = cpu.shifterResult - rn_v + (uint)(cpu.flagC ? 1 : 0);
+            uint result = cpu.shifterResult - rn_v - (cpu.flagC ? 0U : 1U);
 
             if(s) {
                 if(rd == 15) {
@@ -904,7 +904,7 @@ namespace gbaemu.GBA {
                 } else {
                     cpu.flagV = OpcodeArmSubOverflow(cpu.shifterResult, rn_v, result);
                     cpu.flagC = OpcodeArmSbcCarry(cpu.shifterResult, rn_v, cpu.flagC);
-                    cpu.OpcodeArmDataProcessingArithmeticalSetFlags((uint)result);
+                    cpu.OpcodeArmDataProcessingArithmeticalSetFlags(result);
                 }
             }
 
