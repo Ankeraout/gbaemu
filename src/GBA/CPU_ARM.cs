@@ -832,7 +832,7 @@ namespace gbaemu.GBA {
             uint rd = (opcode & 0x0000f000) >> 12;
             bool s = BitUtils.BitTest32(opcode, 20);
 
-            long result = rn_v + cpu.shifterResult + (cpu.flagC ? 1 : 0);
+            ulong result = (ulong)rn_v + (ulong)cpu.shifterResult + (cpu.flagC ? 1UL : 0UL);
 
             if(s) {
                 if(rd == 15) {
