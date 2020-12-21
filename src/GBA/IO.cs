@@ -79,15 +79,38 @@ namespace gbaemu.GBA {
                     case 0x04000050: registers[i] = new Register(0x0000, null, 0xffff, 0xffff); break; // BLDCNT
                     case 0x04000052: registers[i] = new Register(0x0000, null, 0xffff, 0xffff); break; // BLDALPHA
                     case 0x04000054: registers[i] = new Register(0x0000, null, 0x0000, 0xffff); break; // BLDY
+                    case 0x040000b0: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0xffff); break; // DMA0SAD_L
+                    case 0x040000b2: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0x07ff); break; // DMA0SAD_H
+                    case 0x040000b4: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0xffff); break; // DMA0DAD_L
+                    case 0x040000b6: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0x07ff); break; // DMA0DAD_H
+                    case 0x040000b8: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0x3fff); break; // DMA0CNT_L
+                    case 0x040000ba: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0xffe0, 0xffe0); break; // DMA0CNT_H
+                    case 0x040000bc: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0xffff); break; // DMA1SAD_L
+                    case 0x040000be: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0x07ff); break; // DMA1SAD_H
+                    case 0x040000c0: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0xffff); break; // DMA1DAD_L
+                    case 0x040000c2: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0x07ff); break; // DMA1DAD_H
+                    case 0x040000c4: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0x3fff); break; // DMA1CNT_L
+                    case 0x040000c6: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0xffe0, 0xffe0); break; // DMA1CNT_H
+                    case 0x040000c8: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0xffff); break; // DMA2SAD_L
+                    case 0x040000ca: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0x07ff); break; // DMA2SAD_H
+                    case 0x040000cc: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0xffff); break; // DMA2DAD_L
+                    case 0x040000ce: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0x07ff); break; // DMA2DAD_H
+                    case 0x040000d0: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0x3fff); break; // DMA2CNT_L
+                    case 0x040000d2: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0xffe0, 0xffe0); break; // DMA2CNT_H
+                    case 0x040000d4: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0xffff); break; // DMA3SAD_L
+                    case 0x040000d6: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0x07ff); break; // DMA3SAD_H
+                    case 0x040000d8: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0xffff); break; // DMA3DAD_L
+                    case 0x040000da: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0x07ff); break; // DMA3DAD_H
+                    case 0x040000dc: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0x0000, 0x3fff); break; // DMA3CNT_L
+                    case 0x040000de: registers[i] = new Register(0x0000, GBA.Dma.WriteCallback, 0xffe0, 0xffe0); break; // DMA3CNT_H
+                    case 0x04000130: registers[i] = new Register(0xffff, null, 0x03ff, 0x0000); break; // KEYINPUT
+                    case 0x04000132: registers[i] = new Register(0x0000, null, 0xc3ff, 0xc3ff); break; // KEYCNT
                     case 0x04000200: registers[i] = new Register(0x0000, null, 0x3fff, 0x3fff); break; // IE
-                    case 0x04000202: registers[i] = new Register(0x0000, null, 0x3fff, 0x3fff); break; // IF
+                    case 0x04000202: registers[i] = new Register(0x0000, GBA.WriteToIF, 0x3fff, 0x0000); break; // IF
                     case 0x04000208: registers[i] = new Register(0x0000, null, 0x0001, 0x0001); break; // IME
                     default: registers[i] = new Register(0x0000, null, 0x0000, 0xffff); break;
                 }
-                
             }
-
-            
         }
 
         private uint ConvertAddress(uint addr) {
@@ -110,13 +133,6 @@ namespace gbaemu.GBA {
             }
         }
 
-        private void InternalWrite16(uint addr, ushort val) {
-            Register register = GetRegister(addr);
-            
-            register.Value &= (ushort)~register.WriteMask;
-            register.Value |= (ushort)(val & register.WriteMask);
-        }
-
         public void Write8(uint addr, byte val) {
             ushort value = Read16(addr);
 
@@ -132,7 +148,14 @@ namespace gbaemu.GBA {
         }
 
         public void Write16(uint addr, ushort val) {
-            InternalWrite16(ConvertAddress(addr), val);
+            Register register = GetRegister(ConvertAddress(addr));
+            
+            register.Value &= (ushort)~register.WriteMask;
+            register.Value |= (ushort)(val & register.WriteMask);
+
+            if(register.WriteCallback != null) {
+                register.WriteCallback(addr, val);
+            }
         }
 
         public void Write32(uint addr, uint val) {

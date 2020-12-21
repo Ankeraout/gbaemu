@@ -27,9 +27,15 @@ namespace gbaemu
             FrontEnd.IFrontEnd frontEnd = new FrontEnd.SDL2(gba);
             gba.Ppu.OnFrameEvent += frontEnd.Frame;
 
-            while(true) {
-                gba.Cycle();
+            try {
+                while(true) {
+                    gba.Cycle();
+                }
+            } catch(FrontEnd.QuitException) {
+                
             }
+
+            frontEnd.Close();
         }
 
         static int ReadCommandLineArguments(string[] args) {

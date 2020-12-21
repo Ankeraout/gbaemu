@@ -12,9 +12,11 @@ namespace gbaemu.GBA {
         public Bus Bus {get; private set;}
         public Cartridge Cartridge {get; private set;}
         public CPU CPU {get; private set;}
+        public DMA Dma {get; private set;}
         public WRAM Iwram {get; private set;}
         public WRAM Ewram {get; private set;}
         public PPU Ppu {get; private set;}
+        public Keypad Keypad {get; private set;}
         public IO Io {get; private set;}
 
         public bool SkipBoot {get; set;}
@@ -48,7 +50,9 @@ namespace gbaemu.GBA {
             CPU = new CPU(this, SkipBoot);
             Iwram = new WRAM(WramFastSize);
             Ewram = new WRAM(WramSlowSize);
+            Keypad = new Keypad(this);
             Ppu = new PPU(this);
+            Dma = new DMA(this);
             Io = new IO(this);
             Bus = new Bus(this);
         }
@@ -63,7 +67,11 @@ namespace gbaemu.GBA {
         }
 
         public void SetInterruptFlag(ushort flag) {
-            Io.Write16(0x04000202, (ushort)(Io.Read16(0x04000202) | flag));
+            Io.GetRegister(0x04000202).Value |= flag;
+        }
+
+        public void WriteToIF(uint addr, ushort flag) {
+            Io.GetRegister(0x04000202).Value &= (ushort)~flag;
         }
     }
 }

@@ -16,6 +16,8 @@ namespace gbaemu.FrontEnd {
         private SDL.SDL_Rect screenSurfaceRect;
         private SDL.SDL_Rect windowSurfaceRect;
 
+        private bool[] keys;
+
         public SDL2(GBA.GBA gba) {
             this.gba = gba;
 
@@ -39,6 +41,8 @@ namespace gbaemu.FrontEnd {
             if(screenSurface == IntPtr.Zero) {
                 throw new Exception("SDL_CreateRGBSurface() failed: " + SDL.SDL_GetError());
             }
+
+            keys = new bool[10];
         }
 
         private unsafe void Frame_UpdatePixels(uint[] color) {
@@ -51,11 +55,53 @@ namespace gbaemu.FrontEnd {
             }
         }
 
-        public unsafe void Frame(uint[] color) {
+        private void UpdateKey(SDL.SDL_Keysym keysym, bool pressed) {
+            switch(keysym.sym) {
+                case SDL.SDL_Keycode.SDLK_a: keys[0] = pressed; break;
+                case SDL.SDL_Keycode.SDLK_b: keys[1] = pressed; break;
+                case SDL.SDL_Keycode.SDLK_RSHIFT: keys[2] = pressed; break;
+                case SDL.SDL_Keycode.SDLK_RETURN: keys[3] = pressed; break;
+                case SDL.SDL_Keycode.SDLK_RIGHT: keys[4] = pressed; break;
+                case SDL.SDL_Keycode.SDLK_LEFT: keys[5] = pressed; break;
+                case SDL.SDL_Keycode.SDLK_UP: keys[6] = pressed; break;
+                case SDL.SDL_Keycode.SDLK_DOWN: keys[7] = pressed; break;
+                case SDL.SDL_Keycode.SDLK_r: keys[8] = pressed; break;
+                case SDL.SDL_Keycode.SDLK_l: keys[9] = pressed; break;
+            }
+        }
+
+        private void Frame_UpdateKeypad() {
+            SDL.SDL_Event e;
+
+            while(SDL.SDL_PollEvent(out e) == 1) {
+                switch(e.type) {
+                    case SDL.SDL_EventType.SDL_WINDOWEVENT:
+                    switch(e.window.windowEvent) {
+                        case SDL.SDL_WindowEventID.SDL_WINDOWEVENT_CLOSE:
+                        throw new QuitException();
+                    }
+                    break;
+
+                    case SDL.SDL_EventType.SDL_KEYDOWN:
+                    UpdateKey(e.key.keysym, true);
+                    break;
+
+                    case SDL.SDL_EventType.SDL_KEYUP:
+                    UpdateKey(e.key.keysym, false);
+                    break;
+                }
+            }
+
+            gba.Keypad.UpdatePressedKeys(keys);
+        }
+
+        public void Frame(uint[] color) {
             Frame_UpdatePixels(color);
 
             SDL.SDL_BlitScaled(screenSurface, ref screenSurfaceRect, windowSurface, ref windowSurfaceRect);
             SDL.SDL_UpdateWindowSurface(window);
+
+            Frame_UpdateKeypad();
         }
 
         public void Close() {
