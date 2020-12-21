@@ -28,7 +28,7 @@ namespace gbaemu.GBA {
                             thumbOpcodeHandlerTable[i] = OpcodeThumbLsr;
                             break;
 
-                            case 0b11:
+                            case 0b10:
                             thumbOpcodeHandlerTable[i] = OpcodeThumbAsr;
                             break;
                         }
