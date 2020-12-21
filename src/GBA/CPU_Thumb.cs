@@ -233,7 +233,7 @@ namespace gbaemu.GBA {
 
         private static void OpcodeThumbAdd(CPU cpu, ushort opcode) {
             ushort rs = (ushort)((opcode & 0x0038) >> 3);
-            ushort rd = (ushort)(opcode & 0x0003);
+            ushort rd = (ushort)(opcode & 0x0007);
             bool i = BitUtils.BitTest16(opcode, 10);
             uint rs_v = cpu.r[rs];
 
@@ -256,7 +256,7 @@ namespace gbaemu.GBA {
 
         private static void OpcodeThumbSub(CPU cpu, ushort opcode) {
             ushort rs = (ushort)((opcode & 0x0038) >> 3);
-            ushort rd = (ushort)(opcode & 0x0003);
+            ushort rd = (ushort)(opcode & 0x0007);
             bool i = BitUtils.BitTest16(opcode, 10);
             uint rs_v = cpu.r[rs];
 
@@ -290,6 +290,8 @@ namespace gbaemu.GBA {
                 cpu.r[rd] = rs_v << offset;
                 cpu.flagC = BitUtils.BitTest32(rs_v >> (32 - offset), 0);
             }
+
+            cpu.OpcodeArmDataProcessingArithmeticalSetFlags(cpu.r[rd]);
         }
 
         private static void OpcodeThumbLsr(CPU cpu, ushort opcode) {
@@ -306,6 +308,8 @@ namespace gbaemu.GBA {
                 cpu.r[rd] = rs_v >> offset;
                 cpu.flagC = BitUtils.BitTest32(rs_v >> (offset - 1), 0);
             }
+
+            cpu.OpcodeArmDataProcessingArithmeticalSetFlags(cpu.r[rd]);
         }
 
         private static void OpcodeThumbAsr(CPU cpu, ushort opcode) {
@@ -322,6 +326,8 @@ namespace gbaemu.GBA {
                 cpu.r[rd] = (uint)((int)rs_v >> offset);
                 cpu.flagC = BitUtils.BitTest32(rs_v >> (offset - 1), 0);
             }
+
+            cpu.OpcodeArmDataProcessingArithmeticalSetFlags(cpu.r[rd]);
         }
 
         private static void OpcodeThumbMov(CPU cpu, ushort opcode) {
