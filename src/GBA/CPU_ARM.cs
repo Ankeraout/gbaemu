@@ -325,10 +325,16 @@ namespace gbaemu.GBA {
 
             ulong result;
 
-            if(u) {
-                result = (ulong)cpu.r[rm] * cpu.r[rs];
+            if(!u) {
+                ulong rm_v = cpu.r[rm];
+                ulong rs_v = cpu.r[rs];
+
+                result = rm_v * rs_v;
             } else {
-                result = (ulong)((long)(int)cpu.r[rm] * (int)cpu.r[rs]);
+                long rm_v = (int)cpu.r[rm];
+                long rs_v = (int)cpu.r[rs];
+                
+                result = (ulong)(rm_v * rs_v);
             }
 
             if(a) {
