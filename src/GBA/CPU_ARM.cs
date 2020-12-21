@@ -474,9 +474,9 @@ namespace gbaemu.GBA {
                     }
 
                     if(spsr) {
-                        cpu.Spsr = operand | (cpu.Spsr & 0xf0000000);
+                        cpu.Spsr = (operand & 0xf0000000) | (cpu.Spsr & 0x0fffffff);
                     } else {
-                        cpu.Cpsr = operand | (cpu.Cpsr & 0xf0000000);
+                        cpu.Cpsr = (operand & 0xf0000000) | (cpu.Cpsr & 0x0fffffff);
                     }
                 }
             } else {
