@@ -196,6 +196,14 @@ namespace gbaemu.GBA {
             }
 
             if(l) { // LDM
+                if(w) {
+                    if(u) {
+                        cpu.r[rn] = rn_v + 4 * registerCount;
+                    } else {
+                        cpu.r[rn] = rn_v - 4 * registerCount;
+                    }
+                }
+
                 for(int i = 0; i < 16; i++) {
                     if(BitUtils.BitTest32(opcode, i)) {
                         if(s) {
@@ -216,14 +224,6 @@ namespace gbaemu.GBA {
                         }
 
                         addr += 4;
-                    }
-                }
-
-                if(w) {
-                    if(u) {
-                        cpu.r[rn] = rn_v + 4 * registerCount;
-                    } else {
-                        cpu.r[rn] = rn_v - 4 * registerCount;
                     }
                 }
             } else { // STM
