@@ -124,9 +124,21 @@ namespace gbaemu.GBA {
                 w = true;
             }
 
+            if(w) {
+                if(p) {
+                    cpu.r[rn] = addr;
+                } else {
+                    if(u) {
+                        cpu.r[rn] = addr + offset;
+                    } else {
+                        cpu.r[rn] = addr - offset;
+                    }
+                }
+            }
+
             if(l) {
                 if(!s && h) { // LDRH
-                    cpu.OpcodeArmDataProcessingWriteRegister(rd, cpu.gba.Bus.Read16(addr));
+                    cpu.OpcodeArmDataProcessingWriteRegister(rd, cpu.gba.Bus.Read16(addr & 0xfffffffe));
                 } else if(!h) { // LDRS
                     uint readValue = cpu.gba.Bus.Read8(addr);
 
@@ -136,7 +148,7 @@ namespace gbaemu.GBA {
 
                     cpu.OpcodeArmDataProcessingWriteRegister(rd, readValue);
                 } else { // LDRSH
-                    uint readValue = cpu.gba.Bus.Read16(addr);
+                    uint readValue = cpu.gba.Bus.Read16(addr & 0xfffffffe);
 
                     if(BitUtils.BitTest32(readValue, 15)) {
                         readValue |= 0xffff0000;
@@ -155,18 +167,6 @@ namespace gbaemu.GBA {
                     throw new InvalidOpcodeException();
                 } else { // STRH
                     cpu.gba.Bus.Write16(addr, (ushort)rd_v);
-                }
-            }
-
-            if(w) {
-                if(p) {
-                    cpu.r[rn] = addr;
-                } else {
-                    if(u) {
-                        cpu.r[rn] = addr + offset;
-                    } else {
-                        cpu.r[rn] = addr - offset;
-                    }
                 }
             }
         }
