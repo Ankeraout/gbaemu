@@ -8,6 +8,10 @@ namespace gbaemu.GBA {
 
         public delegate void OnFrame(uint[] color);
         public event OnFrame OnFrameEvent;
+        public delegate void OnVblank();
+        public event OnVblank OnVblankEvent;
+        public delegate void OnHblank();
+        public event OnHblank OnHblankEvent;
 
         private uint[] frameBuffer;
         private uint currentRow;
@@ -165,6 +169,10 @@ namespace gbaemu.GBA {
 
                         if(BitUtils.BitTest16(dispstat.Value, 3)) {
                             GBA.SetInterruptFlag(1 << 0);
+                            
+                            if(OnVblankEvent != null) {
+                                OnVblankEvent.Invoke();
+                            }
                         }
 
                         OnFrameEvent(frameBuffer);
@@ -174,9 +182,12 @@ namespace gbaemu.GBA {
                 } else if(currentCol == 240) {
                     dispstat.Value = BitUtils.BitSet16(dispstat.Value, 1);
 
-                    // TODO: trigger hblank irq
                     if(BitUtils.BitTest16(dispstat.Value, 4)) {
                         GBA.SetInterruptFlag(1 << 1);
+
+                        if(OnHblankEvent != null) {
+                            OnHblankEvent.Invoke();
+                        }
                     }
 
                     if(currentRow < 160) {

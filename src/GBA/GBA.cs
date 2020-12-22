@@ -62,7 +62,10 @@ namespace gbaemu.GBA {
         }
 
         public void Cycle() {
-            CPU.Cycle();
+            if(!Dma.Cycle()) {
+                CPU.Cycle();
+            }
+            
             Ppu.Cycle();
         }
 
