@@ -738,7 +738,7 @@ namespace gbaemu.GBA {
                 if(b) {
                     cpu.r[rd] = cpu.gba.Bus.Read8(offset);
                 } else {
-                    cpu.r[rd] = cpu.gba.Bus.Read32(offset);
+                    cpu.r[rd] = BitUtils.RotateRight32(cpu.gba.Bus.Read32(offset), (int)(offset & 0x00000003) << 3);
                 }
             } else {
                 uint rd_v = cpu.r[rd];
@@ -813,7 +813,7 @@ namespace gbaemu.GBA {
                 uint addr = (uint)(rb_v + (offset << 2));
 
                 if(l) {
-                    cpu.r[rd] = cpu.gba.Bus.Read32(addr);
+                    cpu.r[rd] = BitUtils.RotateRight32(cpu.gba.Bus.Read32(addr), (int)(addr & 0x00000003) << 3);
                 } else {
                     uint rd_v = cpu.r[rd];
                     cpu.gba.Bus.Write32(addr, cpu.r[rd]);
