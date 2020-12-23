@@ -436,7 +436,7 @@ namespace gbaemu.GBA {
         private void RaiseIRQ() {
             spsr_irq = Cpsr;
             ChangeMode(Mode.IRQ);
-            r[14] = r[15] - (flagT ? 2U : 4U);
+            r[14] = r[15] + (flagT ? 4U : 0U);
             flagT = false;
             flagI = true;
             PerformJump(0x00000018);
@@ -460,6 +460,24 @@ namespace gbaemu.GBA {
             PerformJump(0x00000004);
         }
 
+        private void PrintTrace() {
+            uint pc;
+
+            if(flagT) {
+                pc = r[15] - 4;
+            } else {
+                pc = r[15] - 8;
+            }
+
+            string str = String.Format("[{0:x8}] CPSR={1:x8} SPSR={2:x8}", pc, Cpsr, Spsr);
+
+            for(int i = 0; i < 16; i++) {
+                str += String.Format(" R{0:d}={1:x8}", i, r[i]);
+            }
+
+            Console.WriteLine(str);
+        }
+
         private void Execute() {
             // Check for interrupts
             if(
@@ -471,6 +489,8 @@ namespace gbaemu.GBA {
             }
 
             if(pipelineState == PipelineState.Execute) {
+                //PrintTrace();
+
                 if(flagT) {
                     if(decodedOpcodeThumbHandler == null) {
                         RaiseUND();

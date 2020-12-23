@@ -92,16 +92,142 @@ namespace gbaemu.GBA {
             return Read16(0x05000000U | (uint)(paletteIndex << 1));
         }
 
-        private void DrawMode0() {
+        private void SortLayers(out int[] layers) {
+            int[] intLayers = new int[4] {3, 2, 1, 0};
+            int[] priorities = new int[4];
 
+            for(int i = 0; i < 4; i++) {
+                priorities[i] = GBA.Io.GetRegister(0x04000008 + ((uint)i << 1)).Value & 0x0003;
+            }
+            
+            for(int i = 0; i < 3; i++) {
+                int layerPriority = priorities[i];
+                int maxPriority = layerPriority;
+                int maxPriorityIndex = i;
+
+                for(int j = i + 1; j < 4; j++) {
+                    int currentLayerPriority = priorities[j];
+
+                    if(currentLayerPriority > maxPriority) {
+                        maxPriorityIndex = j;
+                        maxPriority = currentLayerPriority;
+                    }
+                }
+
+                int exchange = intLayers[i];
+                intLayers[i] = intLayers[maxPriorityIndex];
+                intLayers[maxPriorityIndex] = exchange;
+            }
+
+            layers = intLayers;
+        }
+
+        private void DrawLayer(int layer) {
+            IO.Register bgcnt = GBA.Io.GetRegister(0x04000008 + ((uint)layer << 1));
+
+            uint hofs = GBA.Io.GetRegister(0x04000010 + ((uint)layer << 2)).Value;
+            uint vofs = GBA.Io.GetRegister(0x04000012 + ((uint)layer << 2)).Value;
+            uint mapBase = (uint)(bgcnt.Value & 0x1f00) << 3;
+            uint tileBase = (uint)(bgcnt.Value & 0x000c) << 12;
+            uint yLayer = currentRow + vofs;
+
+            uint mapOffsetY = 0x00000000;
+
+            if(BitUtils.BitTest16(bgcnt.Value, 15)) {
+                yLayer &= 0x000001ff;
+
+                if(((bgcnt.Value & 0xc000) == 0xc000) && (yLayer >= 0x100)) {
+                    mapOffsetY = 0x00001000;
+                }
+            } else {
+                yLayer &= 0x000000ff;
+            }
+
+            uint yChunk = yLayer & 0x000000ff;
+
+            uint yMap = yChunk >> 3;
+            uint yTile = yChunk & 7;
+
+            for(uint x = 0; x < 240; x++) {
+                uint xLayer = x + hofs;
+
+                uint mapOffsetX = 0x00000000;
+
+                if(BitUtils.BitTest16(bgcnt.Value, 14)) {
+                    xLayer &= 0x000001ff;
+
+                    if(BitUtils.BitTest16(bgcnt.Value, 14) && (xLayer >= 0x100)) {
+                        mapOffsetX = 0x00000800;
+                    }
+                } else {
+                    xLayer &= 0x000000ff;
+                }
+
+                uint xChunk = xLayer & 0x000000ff;
+
+                uint xMap = xChunk >> 3;
+                uint xTile = xChunk & 7;
+
+                uint mapOffset = mapOffsetX + mapOffsetY;
+
+                uint mapAddress = mapOffset + (yMap << 7) + (xMap << 1);
+                uint mapValue = vram[mapAddress] | ((uint)vram[mapAddress + 1] << 8);
+
+                uint tileNumber = mapValue & 0x03ff;
+                bool flipHorizontal = BitUtils.BitTest32(mapValue, 10);
+                bool flipVertical = BitUtils.BitTest32(mapValue, 11);
+
+                uint yTileReal = flipVertical ? 7 - yTile : yTile;
+                uint xTileReal = flipHorizontal ? 7 - xTile : xTile;
+
+                uint colorAddress;
+
+                if(BitUtils.BitTest16(bgcnt.Value, 7)) {
+                    uint tileDataAddress = (tileNumber << 6) | (yTileReal << 3) | xTileReal;
+                    uint tileValue = vram[tileBase + tileDataAddress];
+                    colorAddress = tileValue << 1;
+                } else {
+                    uint tileDataAddress = (tileNumber << 5) | (yTileReal << 2) | (xTileReal >> 1);
+                    
+                    uint tileValue = vram[tileBase + tileDataAddress];
+
+                    if(BitUtils.BitTest32(xTileReal, 0) ^ flipHorizontal) {
+                        tileValue >>= 4;
+                    } else {
+                        tileValue &= 0x0f;
+                    }
+
+                    uint paletteNumber = mapValue >> 12;
+
+                    colorAddress = (paletteNumber << 5) | (tileValue << 1);
+                }
+
+                ushort pixelColor = (ushort)(palette[colorAddress] | (palette[colorAddress + 1] << 8));
+
+                frameBuffer[currentRow * 240 + x] = ColorToRGB(pixelColor);
+            }
+        }
+
+        private void DrawMode0() {
+            int[] layers;
+
+            SortLayers(out layers);
+            
+            IO.Register dispcnt = GBA.Io.GetRegister(0x04000000);
+
+            for(int i = 0; i < 4; i++) {
+                if((dispcnt.Value & (1 << (8 + i))) != 0) {
+                    DrawLayer(i);
+                }
+            }
         }
 
         private void DrawMode1() {
-            
+            DrawMode0();
         }
 
         private void DrawMode2() {
-            
+            DrawMode0();
         }
 
         private void DrawMode3() {
@@ -121,7 +247,17 @@ namespace gbaemu.GBA {
         }
 
         private void DrawMode5() {
-            
+            IO.Register dispcnt = GBA.Io.GetRegister(0x04000000);
+
+            uint offset = BitUtils.BitTest16(dispcnt.Value, 4) ? 0x00005000U : 0x00000000U;
+
+            uint currentRow = this.currentRow - 16;
+
+            if(currentRow < 128) {
+                for(int x = 0; x < 160; x++) {
+                    frameBuffer[currentRow * 240 + x + 40] = ColorToRGB(Read16(0x06000000 | (uint)((currentRow * 160 + x + offset) << 1)));
+                }
+            }
         }
 
         private void DrawLine() {

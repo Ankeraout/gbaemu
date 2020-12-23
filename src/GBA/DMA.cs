@@ -193,7 +193,7 @@ namespace gbaemu.GBA {
                         running = true;
                     }
 
-                    System.Console.WriteLine(string.Format("Enabled DMA channel {0:d}. SAD={1:x8} DAD={2:x8} CNT={3:d} W={4:d}\n", index, sourceAddress, destinationAddress, wordCount, bitWidth ? 32 : 16));
+                    System.Console.WriteLine(string.Format("Enabled DMA channel {0:d}. SAD={1:x8} DAD={2:x8} CNT={3:d} W={4:d}", index, sourceAddress, destinationAddress, wordCount, bitWidth ? 32 : 16));
                 }
             }
         }
