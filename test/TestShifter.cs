@@ -18,7 +18,7 @@ namespace gbaemu.test {
         public void TestShifterRegisterImmediate() {
             List<uint> stack = RomUtil.ExecuteTestRom("test_shifter_reg_imm.gba");
 
-            Assert.Equal(16, stack.Count);
+            Assert.Equal(17, stack.Count);
             Assert.Equal(1U, stack[0]);
             Assert.Equal(0U, stack[1]);
             Assert.Equal(2U, stack[2]);
@@ -35,6 +35,7 @@ namespace gbaemu.test {
             Assert.Equal(0xa0000000U, stack[13]);
             Assert.Equal(0x80000000U, stack[14]);
             Assert.Equal(0xa0000000U, stack[15]);
+            Assert.Equal(0x00010000U, stack[16]);
         }
 
         [Fact]

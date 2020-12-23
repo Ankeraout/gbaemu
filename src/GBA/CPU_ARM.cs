@@ -434,53 +434,57 @@ namespace gbaemu.GBA {
             }
         }
 
+        private static void OpcodeArmPsrTransfer_Msr(CPU cpu, uint opcode, bool spsr, uint operand) {
+            uint mask = 0;
+
+            if(BitUtils.BitTest32(opcode, 19)) mask |= 0xff000000;
+            if(BitUtils.BitTest32(opcode, 18)) mask |= 0x00ff0000;
+            if(BitUtils.BitTest32(opcode, 17)) mask |= 0x0000ff00;
+            if(BitUtils.BitTest32(opcode, 16)) mask |= 0x000000ff;
+
+            uint registerValue;
+            
+            if(spsr) {
+                registerValue = cpu.Spsr;
+            } else {
+                registerValue = cpu.Cpsr;
+            }
+
+            registerValue &= ~mask;
+            registerValue |= operand & mask;
+
+            if(spsr) {
+                cpu.Spsr = registerValue;
+            } else {
+                cpu.Cpsr = registerValue;
+            }
+        }
+
         private static void OpcodeArmPsrTransfer(CPU cpu, uint opcode) {
             bool msr = BitUtils.BitTest32(opcode, 21);
             bool spsr = BitUtils.BitTest32(opcode, 22);
 
             if(msr) {
-                bool disableProtection = BitUtils.BitTest32(opcode, 16);
+                bool immediate = BitUtils.BitTest32(opcode, 25);
 
-                if(disableProtection) {
-                    if((opcode & 0x0fbffff0) != 0x0129f000) {
+                if(immediate) {
+                    uint shift = (opcode & 0x00000f00) >> 8;
+                    uint imm = opcode & 0x000000ff;
+
+                    uint operand = BitUtils.RotateRight32(imm, (int)shift << 1);
+
+                    OpcodeArmPsrTransfer_Msr(cpu, opcode, spsr, operand);
+                } else {
+                    if((opcode & 0x00000ff0) != 0x00000000) {
                         cpu.RaiseUND();
                     }
 
                     uint rm = opcode & 0x0000000f;
 
-                    if(spsr) {
-                        cpu.Spsr = cpu.r[rm];
-                    } else {
-                        cpu.Cpsr = cpu.r[rm];
-                    }
-                } else {
-                    bool immediate = BitUtils.BitTest32(opcode, 25);
-
-                    uint operand;
-
-                    if(immediate) {
-                        if((opcode & 0x0fbff000) != 0x0328f000) {
-                            cpu.RaiseUND();
-                        }
-
-                        operand = BitUtils.RotateRight32(opcode & 0x000000ff, (int)(opcode & 0x00000f00) >> 7);
-                    } else {
-                        if((opcode & 0x0fbffff0) != 0x0128f000) {
-                            cpu.RaiseUND();
-                        }
-
-                        uint rm = opcode & 0x0000000f;
-                        operand = cpu.r[rm];
-                    }
-
-                    if(spsr) {
-                        cpu.Spsr = (operand & 0xf0000000) | (cpu.Spsr & 0x0fffffff);
-                    } else {
-                        cpu.Cpsr = (operand & 0xf0000000) | (cpu.Cpsr & 0x0fffffff);
-                    }
+                    OpcodeArmPsrTransfer_Msr(cpu, opcode, spsr, cpu.r[rm]);
                 }
             } else {
-                if((opcode & 0x0fbf0fff) != 0x010f0000) {
+                if((opcode & 0x000f0fff) != 0x000f0000) {
                     cpu.RaiseUND();
                 }
 
@@ -582,7 +586,7 @@ namespace gbaemu.GBA {
                     }
 
                     uint rs = (opcode & 0x00000f00) >> 8;
-                    uint shift = r[rs];
+                    uint shift = r[rs] & 0x000000ff;
 
                     switch((opcode & 0x060) >> 5) {
                         case 0b00: // LSL

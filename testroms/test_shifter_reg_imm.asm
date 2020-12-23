@@ -69,6 +69,11 @@ _start:
     and r0, 0xf0000000
     str r0, [sp, -4]!
 
+    mov r0, 1
+    mov r1, 0xf10
+    lsl r0, r1
+    str r0, [sp, -4]!
+
     mov r12, testStatus
     mov r0, TEST_FINISHED
     strb r0, [r12]
