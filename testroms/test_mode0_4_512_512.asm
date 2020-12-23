@@ -18,7 +18,8 @@ _start:
     strh r0, [r12]
 
     ; Set BG0CNT (tile map = 0x06000000, tile data = 0x06004000)
-    mov r0, 0x00000004
+    mov r0, 0x0000c000
+    orr r0, 0x00000004
     strh r0, [r12, 8]
 
     ; DMA 3 copy tile data
@@ -42,10 +43,16 @@ _start:
     mov r0, 0x8000
     strh r0, [r12, 0xde] ; cnt_h = enable, sac = increment, dac = increment, 16 bits
 
+    ; Scroll to the tile
+    mov r0, 256
+    strh r0, [r12, 0x10]
+    strh r0, [r12, 0x12]
+
     ; Put tile on screen
     mov r12, 0x06000000
+    orr r12, 0x00001800
     mov r0, 0x0001
-    strh r0, [r12]
+    strh r0, [r12, 0x40]
 
     ; Halt
     b $

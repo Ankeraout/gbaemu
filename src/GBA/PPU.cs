@@ -170,7 +170,7 @@ namespace gbaemu.GBA {
 
                 uint mapOffset = mapOffsetX + mapOffsetY;
 
-                uint mapAddress = mapOffset + (yMap << 7) + (xMap << 1);
+                uint mapAddress = mapOffset + (yMap << 6) + (xMap << 1);
                 uint mapValue = vram[mapAddress] | ((uint)vram[mapAddress + 1] << 8);
 
                 uint tileNumber = mapValue & 0x03ff;
