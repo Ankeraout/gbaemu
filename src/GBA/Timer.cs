@@ -121,6 +121,8 @@ namespace gbaemu.GBA {
             foreach(Channel channel in channels) {
                 channel.Cycle(cycleCounter);
             }
+
+            cycleCounter++;
         }
     }
 }
