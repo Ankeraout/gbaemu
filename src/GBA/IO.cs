@@ -103,6 +103,14 @@ namespace gbaemu.GBA {
                     case 0x040000da: registers[i] = new Register(0x0000, null, 0x0000, 0x07ff); break; // DMA3DAD_H
                     case 0x040000dc: registers[i] = new Register(0x0000, null, 0x0000, 0xffff); break; // DMA3CNT_L
                     case 0x040000de: registers[i] = new Register(0x0000, GBA.Dma.Channel3.CntHWriteCallback, 0xffe0, 0xffe0); break; // DMA3CNT_H
+                    case 0x04000100: registers[i] = new Register(0x0000, GBA.Timer.Channel0.WriteCallback_Reload, 0xffff, 0x0000); break; // TM0D
+                    case 0x04000102: registers[i] = new Register(0x0000, GBA.Timer.Channel0.WriteCallback_Control, 0x00c3, 0x00c3); break; // TM0CNT
+                    case 0x04000104: registers[i] = new Register(0x0000, GBA.Timer.Channel1.WriteCallback_Reload, 0xffff, 0x0000); break; // TM1D
+                    case 0x04000106: registers[i] = new Register(0x0000, GBA.Timer.Channel1.WriteCallback_Control, 0x00c3, 0x00c3); break; // TM1CNT
+                    case 0x04000108: registers[i] = new Register(0x0000, GBA.Timer.Channel2.WriteCallback_Reload, 0xffff, 0x0000); break; // TM2D
+                    case 0x0400010a: registers[i] = new Register(0x0000, GBA.Timer.Channel2.WriteCallback_Control, 0x00c3, 0x00c3); break; // TM2CNT
+                    case 0x0400010c: registers[i] = new Register(0x0000, GBA.Timer.Channel3.WriteCallback_Reload, 0xffff, 0x0000); break; // TM3D
+                    case 0x0400010e: registers[i] = new Register(0x0000, GBA.Timer.Channel3.WriteCallback_Control, 0x00c3, 0x00c3); break; // TM3CNT
                     case 0x04000130: registers[i] = new Register(0xffff, null, 0x03ff, 0x0000); break; // KEYINPUT
                     case 0x04000132: registers[i] = new Register(0x0000, null, 0xc3ff, 0xc3ff); break; // KEYCNT
                     case 0x04000200: registers[i] = new Register(0x0000, null, 0x3fff, 0x3fff); break; // IE

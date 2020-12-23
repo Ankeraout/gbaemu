@@ -18,6 +18,7 @@ namespace gbaemu.GBA {
         public PPU Ppu {get; private set;}
         public Keypad Keypad {get; private set;}
         public IO Io {get; private set;}
+        public Timer Timer {get; private set;}
 
         public bool SkipBoot {get; set;}
 
@@ -53,6 +54,7 @@ namespace gbaemu.GBA {
             Keypad = new Keypad(this);
             Ppu = new PPU(this);
             Dma = new DMA(this);
+            Timer = new Timer(this);
             Io = new IO(this);
             Bus = new Bus(this);
         }
@@ -67,6 +69,7 @@ namespace gbaemu.GBA {
             }
             
             Ppu.Cycle();
+            Timer.Cycle();
         }
 
         public void SetInterruptFlag(ushort flag) {
