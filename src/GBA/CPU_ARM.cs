@@ -377,11 +377,7 @@ namespace gbaemu.GBA {
             uint rn_v = cpu.r[rn];
             uint rd_v = cpu.r[rd];
 
-            if((i || !l) && rn == 15) {
-                rn_v += 4;
-            }
-
-            if(i && rd == 15) {
+            if(!l && rd == 15) {
                 rd_v += 4;
             }
 
