@@ -697,7 +697,7 @@ namespace gbaemu.GBA {
                 rs += 8;
             }
 
-            cpu.r[rd] = cpu.r[rs];
+            cpu.OpcodeArmDataProcessingWriteRegister(rd, cpu.r[rs]);
         }
 
         private static void OpcodeThumbBx(CPU cpu, ushort opcode) {
