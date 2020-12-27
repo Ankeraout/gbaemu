@@ -630,7 +630,7 @@ namespace gbaemu.GBA {
                                 shifterCarry = flagC;
                             } else if(shift < 32) {
                                 shifterResult = rm_v << (int)shift;
-                                shifterCarry = BitUtils.BitTest32(rm_v >> (int)(shift - 1), 1);
+                                shifterCarry = BitUtils.BitTest32(rm_v >> (int)(32 - shift), 0);
                             } else if(shift == 32) {
                                 shifterResult = 0;
                                 shifterCarry = BitUtils.BitTest32(rm_v, 0);

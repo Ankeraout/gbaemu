@@ -121,6 +121,18 @@ _start:
     and r0, 0xf0000000
     str r0, [sp, -4]!
 
+    mrs r0, cpsr
+    bic r0, 0xf0000000
+    orr r0, 0x60000000
+    msr cpsr, r0
+    imm32 r0, 0x002d99b6
+    imm32 r1, 0x814fb596
+    mov r2, 0x1c
+    orrs r4, r0, r1, lsl r2
+    str r4, [sp, -4]!
+    mrs r0, cpsr
+    str r0, [sp, -4]!
+
     mov r12, testStatus
     mov r0, TEST_FINISHED
     strb r0, [r12]
