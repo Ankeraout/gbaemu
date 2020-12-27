@@ -421,7 +421,7 @@ namespace gbaemu.GBA {
                 result = rd_v;
             } else if(rs_v < 32) {
                 result = rd_v << (int)rs_v;
-                cpu.flagC = BitUtils.BitTest32(rd_v >> (int)(rs_v - 1), 1);
+                cpu.flagC = BitUtils.BitTest32(rd_v >> (int)(32 - rs_v), 0);
             } else if(rs_v == 32) {
                 result = 0;
                 cpu.flagC = BitUtils.BitTest32(rd_v, 0);
@@ -493,7 +493,7 @@ namespace gbaemu.GBA {
             uint rs_v = cpu.r[rs];
             uint rd_v = cpu.r[rd];
 
-            long result = rd_v + rs_v + (cpu.flagC ? 1 : 0);
+            ulong result = (ulong)rd_v + rs_v + (cpu.flagC ? 1UL : 0UL);
             cpu.flagC = result > uint.MaxValue;
             cpu.flagV = OpcodeArmAddOverflow(rd_v, rs_v, (uint)result);
             cpu.OpcodeArmDataProcessingArithmeticalSetFlags((uint)result);
