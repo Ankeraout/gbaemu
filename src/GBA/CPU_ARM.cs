@@ -124,22 +124,26 @@ namespace gbaemu.GBA {
                 w = true;
             }
 
-            if(w) {
-                if(p) {
-                    cpu.r[rn] = addr;
-                } else {
-                    if(u) {
-                        cpu.r[rn] = addr + offset;
+            if(l) {
+                if(w) {
+                    if(p) {
+                        cpu.r[rn] = addr;
                     } else {
-                        cpu.r[rn] = addr - offset;
+                        if(u) {
+                            cpu.r[rn] = addr + offset;
+                        } else {
+                            cpu.r[rn] = addr - offset;
+                        }
                     }
                 }
-            }
 
-            if(l) {
                 if(!s && h) { // LDRH
-                    cpu.OpcodeArmDataProcessingWriteRegister(rd, cpu.gba.Bus.Read16(addr & 0xfffffffe));
-                } else if(!h) { // LDRS
+                    if(BitUtils.BitTest32(addr, 0)) {
+                        cpu.OpcodeArmDataProcessingWriteRegister(rd, BitUtils.RotateRight32(cpu.gba.Bus.Read16(addr & 0xfffffffe), 8));
+                    } else {
+                        cpu.OpcodeArmDataProcessingWriteRegister(rd, cpu.gba.Bus.Read16(addr & 0xfffffffe));
+                    }
+                } else if(!h || BitUtils.BitTest32(addr, 0)) { // LDRSB
                     uint readValue = cpu.gba.Bus.Read8(addr);
 
                     if(BitUtils.BitTest32(readValue, 7)) {
@@ -153,7 +157,7 @@ namespace gbaemu.GBA {
                     if(BitUtils.BitTest32(readValue, 15)) {
                         readValue |= 0xffff0000;
                     }
-
+                    
                     cpu.OpcodeArmDataProcessingWriteRegister(rd, readValue);
                 }
             } else {
@@ -167,6 +171,18 @@ namespace gbaemu.GBA {
                     throw new InvalidOpcodeException();
                 } else { // STRH
                     cpu.gba.Bus.Write16(addr, (ushort)rd_v);
+                }
+
+                if(w) {
+                    if(p) {
+                        cpu.r[rn] = addr;
+                    } else {
+                        if(u) {
+                            cpu.r[rn] = addr + offset;
+                        } else {
+                            cpu.r[rn] = addr - offset;
+                        }
+                    }
                 }
             }
         }
