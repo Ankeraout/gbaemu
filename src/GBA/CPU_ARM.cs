@@ -265,7 +265,7 @@ namespace gbaemu.GBA {
 
                         if(s) {
                             bool notUserMode = cpu.mode != Mode.USR && cpu.mode != Mode.USR_OLD && cpu.mode != Mode.SYS;
-                            bool registerBanked = ((cpu.mode == Mode.FIQ || cpu.mode == Mode.FIQ_OLD) && i >= 8) || i >= 13;
+                            bool registerBanked = ((cpu.mode == Mode.FIQ || cpu.mode == Mode.FIQ_OLD) && i >= 8) || i == 13 || i == 14;
 
                             if(notUserMode && registerBanked) {
                                 cpu.gba.Bus.Write32(addr, cpu.r_usr[i - 8]);
@@ -273,7 +273,11 @@ namespace gbaemu.GBA {
                                 cpu.gba.Bus.Write32(addr, cpu.r[i]);
                             }
                         } else {
-                            cpu.gba.Bus.Write32(addr, cpu.r[i]);
+                            if(i == 15 && !secondCycle) {
+                                cpu.gba.Bus.Write32(addr, cpu.r[15] + 4);
+                            } else {
+                                cpu.gba.Bus.Write32(addr, cpu.r[i]);
+                            }
                         }
 
                         addr += 4;
