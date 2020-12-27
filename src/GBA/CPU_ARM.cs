@@ -196,99 +196,114 @@ namespace gbaemu.GBA {
             uint rn = (opcode & 0x000f0000) >> 16;
             uint rn_v = cpu.r[rn];
             uint registerCount = BitUtils.HammingWeight16((ushort)opcode);
+            ushort rlist = (ushort)opcode;
 
             uint addr = rn_v;
 
-            if(p) {
-                if(u) {
-                    addr += 4;
+            if(rlist == 0) {
+                if(l) {
+                    cpu.PerformJump(cpu.gba.Bus.Read32(addr));
                 } else {
-                    addr -= 4 * registerCount;
+                    cpu.gba.Bus.Write32(addr, cpu.r[15] + 4);
+                }
+
+                if(u) {
+                    cpu.r[rn] += 0x40;
+                } else {
+                    cpu.r[rn] -= 0x40;
                 }
             } else {
-                if(!u) {
-                    addr -= 4 * (registerCount - 1);
-                }
-            }
-
-            if(l) { // LDM
-                if(w) {
+                if(p) {
                     if(u) {
-                        cpu.r[rn] = rn_v + 4 * registerCount;
-                    } else {
-                        cpu.r[rn] = rn_v - 4 * registerCount;
-                    }
-                }
-
-                for(int i = 0; i < 16; i++) {
-                    if(BitUtils.BitTest32(opcode, i)) {
-                        if(s) {
-                            bool r15 = i == 15;
-                            bool notUserMode = cpu.mode != Mode.USR && cpu.mode != Mode.USR_OLD && cpu.mode != Mode.SYS;
-                            bool registerBanked = ((cpu.mode == Mode.FIQ || cpu.mode == Mode.FIQ_OLD) && i >= 8) || i >= 13;
-
-                            if(r15) {
-                                cpu.Cpsr = cpu.Spsr;
-                                cpu.PerformJump(cpu.gba.Bus.Read32(addr));
-                            } else if(notUserMode && registerBanked) {
-                                cpu.r_usr[i - 8] = cpu.gba.Bus.Read32(addr);
-                            } else{
-                                cpu.r[i] = cpu.gba.Bus.Read32(addr);
-                            }
-                        } else {
-                            cpu.OpcodeArmDataProcessingWriteRegister((uint)i, cpu.gba.Bus.Read32(addr));
-                        }
-
                         addr += 4;
+                    } else {
+                        addr -= 4 * registerCount;
+                    }
+                } else {
+                    if(!u) {
+                        addr -= 4 * (registerCount - 1);
                     }
                 }
-            } else { // STM
-                bool firstCycle = true;
-                bool secondCycle = false;
 
-                for(int i = 0; i < 16; i++) {
-                    if(BitUtils.BitTest32(opcode, i)) {
-                        if(firstCycle) {
-                            firstCycle = false;
-                            secondCycle = true;
-                        } else if(secondCycle) {
-                            if(w) {
-                                if(u) {
-                                    cpu.r[rn] = rn_v + registerCount * 4;
+                if(l) { // LDM
+                    if(w) {
+                        if(u) {
+                            cpu.r[rn] = rn_v + 4 * registerCount;
+                        } else {
+                            cpu.r[rn] = rn_v - 4 * registerCount;
+                        }
+                    }
+
+                    for(int i = 0; i < 16; i++) {
+                        if(BitUtils.BitTest32(opcode, i)) {
+                            if(s) {
+                                bool r15 = i == 15;
+                                bool notUserMode = cpu.mode != Mode.USR && cpu.mode != Mode.USR_OLD && cpu.mode != Mode.SYS;
+                                bool registerBanked = ((cpu.mode == Mode.FIQ || cpu.mode == Mode.FIQ_OLD) && i >= 8) || i >= 13;
+
+                                if(r15) {
+                                    cpu.Cpsr = cpu.Spsr;
+                                    cpu.PerformJump(cpu.gba.Bus.Read32(addr));
+                                } else if(notUserMode && registerBanked) {
+                                    cpu.r_usr[i - 8] = cpu.gba.Bus.Read32(addr);
+                                } else{
+                                    cpu.r[i] = cpu.gba.Bus.Read32(addr);
+                                }
+                            } else {
+                                cpu.OpcodeArmDataProcessingWriteRegister((uint)i, cpu.gba.Bus.Read32(addr));
+                            }
+
+                            addr += 4;
+                        }
+                    }
+                } else { // STM
+                    bool firstCycle = true;
+                    bool secondCycle = false;
+
+                    for(int i = 0; i < 16; i++) {
+                        if(BitUtils.BitTest16(rlist, i)) {
+                            if(firstCycle) {
+                                firstCycle = false;
+                                secondCycle = true;
+                            } else if(secondCycle) {
+                                if(w) {
+                                    if(u) {
+                                        cpu.r[rn] = rn_v + registerCount * 4;
+                                    } else {
+                                        cpu.r[rn] = rn_v - registerCount * 4;
+                                    }
+                                }
+
+                                secondCycle = false;
+                            }
+
+                            if(s) {
+                                bool notUserMode = cpu.mode != Mode.USR && cpu.mode != Mode.USR_OLD && cpu.mode != Mode.SYS;
+                                bool registerBanked = ((cpu.mode == Mode.FIQ || cpu.mode == Mode.FIQ_OLD) && i >= 8) || i == 13 || i == 14;
+
+                                if(notUserMode && registerBanked) {
+                                    cpu.gba.Bus.Write32(addr, cpu.r_usr[i - 8]);
+                                } else{
+                                    cpu.gba.Bus.Write32(addr, cpu.r[i]);
+                                }
+                            } else {
+                                if(i == 15 && !secondCycle) {
+                                    cpu.gba.Bus.Write32(addr, cpu.r[15] + 4);
                                 } else {
-                                    cpu.r[rn] = rn_v - registerCount * 4;
+                                    cpu.gba.Bus.Write32(addr, cpu.r[i]);
                                 }
                             }
 
-                            secondCycle = false;
+                            addr += 4;
                         }
-
-                        if(s) {
-                            bool notUserMode = cpu.mode != Mode.USR && cpu.mode != Mode.USR_OLD && cpu.mode != Mode.SYS;
-                            bool registerBanked = ((cpu.mode == Mode.FIQ || cpu.mode == Mode.FIQ_OLD) && i >= 8) || i == 13 || i == 14;
-
-                            if(notUserMode && registerBanked) {
-                                cpu.gba.Bus.Write32(addr, cpu.r_usr[i - 8]);
-                            } else{
-                                cpu.gba.Bus.Write32(addr, cpu.r[i]);
-                            }
-                        } else {
-                            if(i == 15 && !secondCycle) {
-                                cpu.gba.Bus.Write32(addr, cpu.r[15] + 4);
-                            } else {
-                                cpu.gba.Bus.Write32(addr, cpu.r[i]);
-                            }
-                        }
-
-                        addr += 4;
                     }
-                }
 
-                if(w && secondCycle) {
-                    if(u) {
-                        cpu.r[rn] = rn_v + 4;
-                    } else {
-                        cpu.r[rn] = rn_v - 4;
+                    if(w && secondCycle) {
+                        if(u) {
+                            cpu.r[rn] = rn_v + 4;
+                        } else {
+                            cpu.r[rn] = rn_v - 4;
+                        }
                     }
                 }
             }
