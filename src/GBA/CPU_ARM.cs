@@ -201,6 +201,22 @@ namespace gbaemu.GBA {
             uint addr = rn_v;
 
             if(rlist == 0) {
+                registerCount = 16;
+            }
+
+            if(p) {
+                if(u) {
+                    addr += 4;
+                } else {
+                    addr -= 4 * registerCount;
+                }
+            } else {
+                if(!u) {
+                    addr -= 4 * (registerCount - 1);
+                }
+            }
+
+            if(rlist == 0) {
                 if(l) {
                     cpu.PerformJump(cpu.gba.Bus.Read32(addr));
                 } else {
@@ -213,18 +229,6 @@ namespace gbaemu.GBA {
                     cpu.r[rn] -= 0x40;
                 }
             } else {
-                if(p) {
-                    if(u) {
-                        addr += 4;
-                    } else {
-                        addr -= 4 * registerCount;
-                    }
-                } else {
-                    if(!u) {
-                        addr -= 4 * (registerCount - 1);
-                    }
-                }
-
                 if(l) { // LDM
                     if(w) {
                         if(u) {
