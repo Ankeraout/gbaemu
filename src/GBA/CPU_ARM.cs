@@ -303,7 +303,7 @@ namespace gbaemu.GBA {
                 cpu.gba.Bus.Write8(rn_v, (byte)cpu.r[rm]);
                 cpu.r[rd] = tmp;
             } else {
-                uint tmp = cpu.gba.Bus.Read32(rn_v);
+                uint tmp = BitUtils.RotateRight32(cpu.gba.Bus.Read32(rn_v), (int)(rn_v & 3) << 3);
                 cpu.gba.Bus.Write32(rn_v, cpu.r[rm]);
                 cpu.r[rd] = tmp;
             }
