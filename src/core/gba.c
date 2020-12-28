@@ -4,6 +4,7 @@
 #include "core/bios.h"
 #include "core/ewram.h"
 #include "core/iwram.h"
+#include "core/ppu.h"
 
 void gba_cycle();
 void gba_frameAdvance();
@@ -33,6 +34,7 @@ void gba_init() {
 void gba_reset() {
     gba_ewram_reset();
     gba_iwram_reset();
+    gba_ppu_reset();
 }
 
 void gba_setBios(const void *buffer) {
