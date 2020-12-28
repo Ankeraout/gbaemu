@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <stdint.h>
 
 #include "platform.h"
 #include "core/bios.h"
@@ -7,6 +8,7 @@
 #include "core/io.h"
 #include "core/iwram.h"
 #include "core/ppu.h"
+#include "core/timer.h"
 
 void gba_cycle();
 void gba_frameAdvance();
@@ -40,6 +42,7 @@ void gba_reset() {
     gba_io_reset();
     gba_iwram_reset();
     gba_ppu_reset();
+    gba_timer_reset();
 }
 
 void gba_setBios(const void *buffer) {

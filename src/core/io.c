@@ -3,6 +3,7 @@
 
 #include "core/gba.h"
 #include "core/io.h"
+#include "core/timer.h"
 
 gba_io_register_t gba_io_registers[512];
 gba_io_register_t gba_io_register_internalMemoryControl_low;
@@ -103,14 +104,14 @@ void gba_io_reset() {
     gba_io_initRegister(0x040000da, 0x0000, NULL, 0x0000, 0x07ff); // DMA3DAD_H
     gba_io_initRegister(0x040000dc, 0x0000, NULL, 0x0000, 0x3fff); // DMA3CNT_L
     gba_io_initRegister(0x040000de, 0x0000, NULL, 0xffe0, 0xffe0); // DMA3CNT_H
-    gba_io_initRegister(0x04000100, 0x0000, NULL, 0xffff, 0x0000); // TM0D
-    gba_io_initRegister(0x04000102, 0x0000, NULL, 0x00c3, 0x00c3); // TM0CNT
-    gba_io_initRegister(0x04000104, 0x0000, NULL, 0xffff, 0x0000); // TM1D
-    gba_io_initRegister(0x04000106, 0x0000, NULL, 0x00c3, 0x00c3); // TM1CNT
-    gba_io_initRegister(0x04000108, 0x0000, NULL, 0xffff, 0x0000); // TM2D
-    gba_io_initRegister(0x0400010a, 0x0000, NULL, 0x00c3, 0x00c3); // TM2CNT
-    gba_io_initRegister(0x0400010c, 0x0000, NULL, 0xffff, 0x0000); // TM3D
-    gba_io_initRegister(0x0400010e, 0x0000, NULL, 0x00c3, 0x00c3); // TM3CNT
+    gba_io_initRegister(0x04000100, 0x0000, gba_timer_writeCallback_channel0_reload, 0xffff, 0x0000); // TM0D
+    gba_io_initRegister(0x04000102, 0x0000, gba_timer_writeCallback_channel0_control, 0x00c3, 0x00c3); // TM0CNT
+    gba_io_initRegister(0x04000104, 0x0000, gba_timer_writeCallback_channel1_reload, 0xffff, 0x0000); // TM1D
+    gba_io_initRegister(0x04000106, 0x0000, gba_timer_writeCallback_channel1_control, 0x00c3, 0x00c3); // TM1CNT
+    gba_io_initRegister(0x04000108, 0x0000, gba_timer_writeCallback_channel2_reload, 0xffff, 0x0000); // TM2D
+    gba_io_initRegister(0x0400010a, 0x0000, gba_timer_writeCallback_channel2_control, 0x00c3, 0x00c3); // TM2CNT
+    gba_io_initRegister(0x0400010c, 0x0000, gba_timer_writeCallback_channel3_reload, 0xffff, 0x0000); // TM3D
+    gba_io_initRegister(0x0400010e, 0x0000, gba_timer_writeCallback_channel3_control, 0x00c3, 0x00c3); // TM3CNT
     gba_io_initRegister(0x04000130, 0xffff, NULL, 0x03ff, 0x0000); // KEYINPUT
     gba_io_initRegister(0x04000132, 0x0000, NULL, 0xc3ff, 0xc3ff); // KEYCNT
     gba_io_initRegister(0x04000200, 0x0000, NULL, 0x3fff, 0x3fff); // IE
