@@ -1,5 +1,5 @@
 CC = gcc -c
-CFLAGS = -W -Wall -Wextra -pedantic -Isrc -std=c18 `sdl2-config --cflags`
+CFLAGS = -W -Wall -Wextra -pedantic -Isrc -std=c11 `sdl2-config --cflags`
 LD = gcc
 LDFLAGS = `sdl2-config --libs`
 FASMARM = fasmarm
