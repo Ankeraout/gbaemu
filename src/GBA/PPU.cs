@@ -333,10 +333,6 @@ namespace gbaemu.GBA {
             }
 
             currentCycle++;
-
-            if(currentCycle == 280896) {
-                currentCycle = 0;
-            }
         }
     }
 }

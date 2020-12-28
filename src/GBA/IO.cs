@@ -39,7 +39,7 @@ namespace gbaemu.GBA {
                 switch(0x04000000 | (i << 1)) {
                     case 0x04000000: registers[i] = new Register(0x0000, null, 0xffff, 0xffff); break; // DISPCNT
                     case 0x04000002: registers[i] = new Register(0x0000, null, 0xffff, 0xffff); break; // GREENSWP
-                    case 0x04000004: registers[i] = new Register(0x0000, null, 0xffff, 0xffff); break; // DISPSTAT
+                    case 0x04000004: registers[i] = new Register(0x0000, null, 0xff3f, 0xff3f); break; // DISPSTAT
                     case 0x04000006: registers[i] = new Register(0x0000, null, 0xffff, 0x0000); break; // VCOUNT
                     case 0x04000008: registers[i] = new Register(0x0000, null, 0xffff, 0xffff); break; // BG0CNT
                     case 0x0400000a: registers[i] = new Register(0x0000, null, 0xffff, 0xffff); break; // BG1CNT
@@ -164,6 +164,10 @@ namespace gbaemu.GBA {
             if(register.WriteCallback != null) {
                 register.WriteCallback(addr, val);
             }
+
+            if(register == nullRegister) {
+                System.Console.WriteLine(string.Format("IO Write 0x{0:x4} to 0x{1:x8}", val, addr));
+            }
         }
 
         public void Write32(uint addr, uint val) {
@@ -183,6 +187,11 @@ namespace gbaemu.GBA {
 
         public ushort Read16(uint addr) {
             Register register = GetRegister(ConvertAddress(addr));
+
+            if(register == nullRegister) {
+                System.Console.WriteLine(string.Format("IO Read 0x{0:x4} from 0x{1:x8}", register.Value & register.ReadMask, addr));
+            }
+
             return (ushort)(register.Value & register.ReadMask);
         }
 

@@ -18,7 +18,11 @@ namespace gbaemu.FrontEnd {
 
         private bool[] keys;
 
+        private int frameCount;
+        private DateTime timeStamp;
+
         public SDL2(GBA.GBA gba) {
+            frameCount = 0;
             this.gba = gba;
 
             window = SDL.SDL_CreateWindow("gbaemu", SDL.SDL_WINDOWPOS_UNDEFINED, SDL.SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN);
@@ -95,6 +99,16 @@ namespace gbaemu.FrontEnd {
             gba.Keypad.UpdatePressedKeys(keys);
         }
 
+        private void Frame_CountFPS() {
+            frameCount++;
+
+            if((DateTime.Now - timeStamp).Seconds != 0) {
+                SDL.SDL_SetWindowTitle(window, string.Format("gbaemu [{0:d} fps, {1:d}%]", frameCount, (frameCount * 100) / 60));
+                frameCount = 0;
+                timeStamp = DateTime.Now;
+            }
+        }
+
         public void Frame(uint[] color) {
             Frame_UpdatePixels(color);
 
@@ -102,6 +116,7 @@ namespace gbaemu.FrontEnd {
             SDL.SDL_UpdateWindowSurface(window);
 
             Frame_UpdateKeypad();
+            Frame_CountFPS();
         }
 
         public void Close() {
