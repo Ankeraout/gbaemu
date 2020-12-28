@@ -4,6 +4,7 @@
 #include "platform.h"
 #include "core/bios.h"
 #include "core/cartridge.h"
+#include "core/dma.h"
 #include "core/ewram.h"
 #include "core/io.h"
 #include "core/iwram.h"
@@ -38,6 +39,7 @@ void gba_init() {
 }
 
 void gba_reset() {
+    gba_dma_reset();
     gba_ewram_reset();
     gba_io_reset();
     gba_iwram_reset();
