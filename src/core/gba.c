@@ -2,6 +2,7 @@
 
 #include "platform.h"
 #include "core/bios.h"
+#include "core/cartridge.h"
 #include "core/ewram.h"
 #include "core/iwram.h"
 #include "core/ppu.h"
@@ -43,8 +44,8 @@ void gba_setBios(const void *buffer) {
 }
 
 void gba_setRom(const void *buffer, size_t size) {
-    UNUSED(buffer);
-    UNUSED(size);
+    gba_cartridge_init(buffer, size);
+    gba_reset();
 }
 
 void gba_setSram(void *buffer, size_t size) {

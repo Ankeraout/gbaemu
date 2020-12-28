@@ -2,6 +2,7 @@
 
 #include "platform.h"
 #include "core/bios.h"
+#include "core/cartridge.h"
 #include "core/ewram.h"
 #include "core/iwram.h"
 #include "core/ppu.h"
@@ -33,6 +34,22 @@ uint8_t gba_bus_read8(uint32_t address) {
 
         case 0x07: // OAM
         return gba_ppu_vram_read8(address);
+
+        case 0x08: // Game Pak ROM Wait State 0
+        case 0x09:
+        return gba_cartridge_rom_read8(address);
+
+        case 0x0a: // Game Pak ROM Wait State 0
+        case 0x0b:
+        return gba_cartridge_rom_read8(address);
+
+        case 0x0c: // Game Pak ROM Wait State 0
+        case 0x0d:
+        return gba_cartridge_rom_read8(address);
+
+        case 0x0e: // Game Pak SRAM
+        case 0x0f:
+        return gba_cartridge_sram_read8(address);
     }
 
     return 0x00;
@@ -58,6 +75,22 @@ uint16_t gba_bus_read16(uint32_t address) {
 
         case 0x07: // OAM
         return gba_ppu_vram_read16(address);
+
+        case 0x08: // Game Pak ROM Wait State 0
+        case 0x09:
+        return gba_cartridge_rom_read16(address);
+
+        case 0x0a: // Game Pak ROM Wait State 0
+        case 0x0b:
+        return gba_cartridge_rom_read16(address);
+
+        case 0x0c: // Game Pak ROM Wait State 0
+        case 0x0d:
+        return gba_cartridge_rom_read16(address);
+
+        case 0x0e: // Game Pak SRAM
+        case 0x0f:
+        return gba_cartridge_sram_read16(address);
     }
 
     return 0x0000;
@@ -83,6 +116,22 @@ uint32_t gba_bus_read32(uint32_t address) {
 
         case 0x07: // OAM
         return gba_ppu_vram_read32(address);
+
+        case 0x08: // Game Pak ROM Wait State 0
+        case 0x09:
+        return gba_cartridge_rom_read32(address);
+
+        case 0x0a: // Game Pak ROM Wait State 0
+        case 0x0b:
+        return gba_cartridge_rom_read32(address);
+
+        case 0x0c: // Game Pak ROM Wait State 0
+        case 0x0d:
+        return gba_cartridge_rom_read32(address);
+
+        case 0x0e: // Game Pak SRAM
+        case 0x0f:
+        return gba_cartridge_sram_read32(address);
     }
 
     return 0x00000000;
@@ -109,6 +158,11 @@ void gba_bus_write8(uint32_t address, uint8_t value) {
         case 0x07: // OAM
         gba_ppu_oam_write8(address, value);
         break;
+
+        case 0x0e: // Game Pak SRAM
+        case 0x0f:
+        gba_cartridge_sram_write8(address, value);
+        break;
     }
 }
 
@@ -133,6 +187,11 @@ void gba_bus_write16(uint32_t address, uint16_t value) {
         case 0x07: // OAM
         gba_ppu_oam_write16(address, value);
         break;
+
+        case 0x0e: // Game Pak SRAM
+        case 0x0f:
+        gba_cartridge_sram_write16(address, value);
+        break;
     }
 }
 
@@ -156,6 +215,11 @@ void gba_bus_write32(uint32_t address, uint32_t value) {
 
         case 0x07: // OAM
         gba_ppu_oam_write32(address, value);
+        break;
+
+        case 0x0e: // Game Pak SRAM
+        case 0x0f:
+        gba_cartridge_sram_write32(address, value);
         break;
     }
 }
