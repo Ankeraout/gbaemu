@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 
 #include "core/defines.h"
+#include "core/keypad.h"
 
 #define SCREEN_SCALE 2
 #define WINDOW_WIDTH (GBA_SCREEN_WIDTH * SCREEN_SCALE)
@@ -109,7 +110,7 @@ static inline void updateKeypad() {
                 // TODO
                 break;
             }
-            
+
             break;
 
             case SDL_KEYDOWN:
@@ -121,6 +122,8 @@ static inline void updateKeypad() {
             break;
         }
     }
+
+    gba_keypad_update(keys);
 }
 
 void frontend_frame(const uint32_t *buffer) {

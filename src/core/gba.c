@@ -16,6 +16,8 @@ void gba_reset();
 void gba_setBios(const void *buffer);
 void gba_setRom(const void *buffer, size_t size);
 void gba_setSram(void *buffer, size_t size);
+void gba_setInterruptFlag(uint16_t flag);
+void gba_writeToIF(uint32_t address, uint16_t flag);
 
 void gba_frameAdvance() {
 
@@ -53,4 +55,14 @@ void gba_setRom(const void *buffer, size_t size) {
 void gba_setSram(void *buffer, size_t size) {
     UNUSED(buffer);
     UNUSED(size);
+}
+
+void gba_setInterruptFlag(uint16_t flag) {
+    gba_io_getRegister(0x04000202)->value |= flag;
+}
+
+void gba_writeToIF(uint32_t address, uint16_t flag) {
+    UNUSED(address);
+
+    gba_io_getRegister(0x04000202)->value &= ~flag;
 }

@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "core/gba.h"
 #include "core/io.h"
 
 gba_io_register_t gba_io_registers[512];
@@ -113,7 +114,7 @@ void gba_io_reset() {
     gba_io_initRegister(0x04000130, 0xffff, NULL, 0x03ff, 0x0000); // KEYINPUT
     gba_io_initRegister(0x04000132, 0x0000, NULL, 0xc3ff, 0xc3ff); // KEYCNT
     gba_io_initRegister(0x04000200, 0x0000, NULL, 0x3fff, 0x3fff); // IE
-    gba_io_initRegister(0x04000202, 0x0000, NULL, 0x3fff, 0x0000); // IF
+    gba_io_initRegister(0x04000202, 0x0000, gba_writeToIF, 0x3fff, 0x0000); // IF
     gba_io_initRegister(0x04000208, 0x0000, NULL, 0x0001, 0x0001); // IME
 }
 
