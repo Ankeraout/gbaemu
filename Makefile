@@ -9,7 +9,9 @@ CORE_SOURCES = \
 
 SOURCES = \
 	$(CORE_SOURCES) \
-	src/gbaemu.c
+	src/gbaemu.c \
+	src/io.c \
+	src/frontend/sdl2.c
 
 TEST_SOURCES = \
 	test/main.c \

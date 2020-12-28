@@ -73,6 +73,8 @@ int readCommandLineArguments(int argc, const char **argv) {
             fprintf(stderr, "Invalid argument '%s'\n", argv[i]);
         }
     }
+
+    return 0;
 }
 
 void printHelp() {
@@ -90,7 +92,10 @@ void printHelp() {
 int checkConfiguration() {
     if(biosPath == NULL) {
         fprintf(stderr, "No BIOS file path specified.\n");
+        return 1;
     }
+
+    return 0;
 }
 
 int loadBios() {
@@ -107,6 +112,8 @@ int loadBios() {
         fprintf(stderr, "Failed to read BIOS file.\n");
         return 1;
     }
+
+    return 0;
 }
 
 int loadRom() {
@@ -118,4 +125,6 @@ int loadRom() {
         fprintf(stderr, "Failed to read ROM file.\n");
         return 1;
     }
+
+    return 0;
 }

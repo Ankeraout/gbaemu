@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 static inline long po2_ceil(long initialValue);
 void *readFile(const char *fileName, long *fileSize, bool po2);

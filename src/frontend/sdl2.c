@@ -109,6 +109,8 @@ static inline void updateKeypad() {
                 // TODO
                 break;
             }
+            
+            break;
 
             case SDL_KEYDOWN:
             updateKey(&e.key.keysym, true);
