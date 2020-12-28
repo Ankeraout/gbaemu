@@ -1,0 +1,10 @@
+#ifndef __CORE_DEFINES_H__
+#define __CORE_DEFINES_H__
+
+#define GBA_BIOS_FILE_SIZE 16384
+#define GBA_MAX_ROM_FILE_SIZE 33554432
+
+#define GBA_SCREEN_WIDTH 240
+#define GBA_SCREEN_HEIGHT 160
+
+#endif
