@@ -5,7 +5,7 @@ LDFLAGS = `sdl2-config --libs`
 FASMARM = fasmarm
 
 CORE_SOURCES = \
-	src/core/*.c
+	$(wildcard src/core/*.c)
 
 SOURCES = \
 	$(CORE_SOURCES) \
