@@ -13,6 +13,7 @@
 #include "core/timer.h"
 
 bool gba_skipBoot;
+bool gba_frame;
 
 void gba_cycle();
 void gba_frameAdvance();
@@ -26,7 +27,11 @@ void gba_setInterruptFlag(uint16_t flag);
 void gba_writeToIF(uint32_t address, uint16_t flag);
 
 void gba_frameAdvance() {
+    gba_frame = false;
 
+    while(!gba_frame) {
+        gba_cycle();
+    }
 }
 
 void gba_cycle() {
@@ -81,4 +86,8 @@ void gba_writeToIF(uint32_t address, uint16_t flag) {
     UNUSED(address);
 
     gba_io_getRegister(0x04000202)->value &= ~flag;
+}
+
+void gba_onFrame() {
+    gba_frame = true;
 }

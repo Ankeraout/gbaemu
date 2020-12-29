@@ -16,7 +16,8 @@ SOURCES = \
 TEST_SOURCES = \
 	test/main.c \
 	test/libtest.c \
-	test/test_dummy.c
+	test/test_dummy.c \
+	src/frontend/dummy.c
 
 OBJECTS = $(SOURCES:%.c=%.c.o)
 CORE_OBJECTS = $(CORE_SOURCES:%.c=%.c.o)

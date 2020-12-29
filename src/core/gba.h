@@ -14,5 +14,6 @@ extern void gba_setRom(const void *buffer, size_t size);
 extern void gba_setSram(void *buffer, size_t size);
 extern void gba_setInterruptFlag(uint16_t flag);
 extern void gba_writeToIF(uint32_t address, uint16_t flag);
+extern void gba_onFrame();
 
 #endif

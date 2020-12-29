@@ -6,6 +6,7 @@
 #include "io.h"
 #include "core/defines.h"
 #include "core/gba.h"
+#include "frontend/frontend.h"
 
 const char *biosPath;
 const char *romPath;
@@ -38,6 +39,18 @@ int main(int argc, const char **argv) {
     if(loadRom()) {
         return EXIT_FAILURE;
     }
+
+    if(frontend_init()) {
+        return EXIT_FAILURE;
+    }
+
+    gba_init(true);
+
+    while(true) {
+        gba_frameAdvance();
+    }
+
+    frontend_close();
 
     return EXIT_SUCCESS;
 }
