@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "platform.h"
 #include "core/bus.h"
 #include "core/io.h"
 
@@ -105,8 +106,8 @@ static inline void gba_cpu_setFlags_logical(uint32_t result);
 static inline void gba_cpu_setFlags_arithmetical(uint32_t result);
 static inline bool gba_cpu_getCarry_sbc(uint32_t left, uint32_t right, bool carry);
 static inline bool gba_cpu_getCarry_sub(uint32_t left, uint32_t right);
-static inline bool gba_cpu_getOverflow_sub(uint32_t left, uint32_t right);
-static inline bool gba_cpu_getOverflow_add(uint32_t left, uint32_t right);
+static inline bool gba_cpu_getOverflow_sub(uint32_t left, uint32_t right, uint32_t result);
+static inline bool gba_cpu_getOverflow_add(uint32_t left, uint32_t right, uint32_t result);
 static inline unsigned int gba_cpu_util_hammingWeight16(uint16_t value);
 static inline unsigned int gba_cpu_util_hammingWeight8(uint8_t value);
 static inline void gba_cpu_arm_halfwordSignedDataTransfer(uint32_t opcode);
@@ -952,15 +953,11 @@ static inline bool gba_cpu_getCarry_sub(uint32_t left, uint32_t right) {
     return left >= right;
 }
 
-static inline bool gba_cpu_getOverflow_sub(uint32_t left, uint32_t right) {
-    uint32_t result = left - right;
-
+static inline bool gba_cpu_getOverflow_sub(uint32_t left, uint32_t right, uint32_t result) {
     return ((left ^ right) >> 31) && ((left ^ result) >> 31);
 }
 
-static inline bool gba_cpu_getOverflow_add(uint32_t left, uint32_t right) {
-    uint32_t result = left + right;
-
+static inline bool gba_cpu_getOverflow_add(uint32_t left, uint32_t right, uint32_t result) {
     return (!((left ^ right) >> 31)) && ((left ^ result) >> 31);
 }
 
@@ -1305,6 +1302,8 @@ static inline void gba_cpu_arm_bx(uint32_t opcode) {
 }
 
 static inline void gba_cpu_arm_swi(uint32_t opcode) {
+    UNUSED(opcode);
+
     gba_cpu_raiseSwi();
 }
 
@@ -1515,7 +1514,7 @@ static inline void gba_cpu_arm_sub(uint32_t opcode) {
             gba_cpu_setCpsr(gba_cpu_getSpsr());
         } else {
             gba_cpu_flagC = gba_cpu_getCarry_sub(rn_v, gba_cpu_shifterResult);
-            gba_cpu_flagV = gba_cpu_getOverflow_sub(rn_v, gba_cpu_shifterResult);
+            gba_cpu_flagV = gba_cpu_getOverflow_sub(rn_v, gba_cpu_shifterResult, result);
             gba_cpu_setFlags_arithmetical(result);
         }
     }
@@ -1545,7 +1544,7 @@ static inline void gba_cpu_arm_rsb(uint32_t opcode) {
             gba_cpu_setCpsr(gba_cpu_getSpsr());
         } else {
             gba_cpu_flagC = gba_cpu_getCarry_sub(gba_cpu_shifterResult, rn_v);
-            gba_cpu_flagV = gba_cpu_getOverflow_sub(gba_cpu_shifterResult, rn_v);
+            gba_cpu_flagV = gba_cpu_getOverflow_sub(gba_cpu_shifterResult, rn_v, result);
             gba_cpu_setFlags_arithmetical(result);
         }
     }
@@ -1575,7 +1574,7 @@ static inline void gba_cpu_arm_add(uint32_t opcode) {
             gba_cpu_setCpsr(gba_cpu_getSpsr());
         } else {
             gba_cpu_flagC = result < rn_v;
-            gba_cpu_flagV = gba_cpu_getOverflow_add(rn_v, gba_cpu_shifterResult);
+            gba_cpu_flagV = gba_cpu_getOverflow_add(rn_v, gba_cpu_shifterResult, result);
             gba_cpu_setFlags_arithmetical(result);
         }
     }
@@ -1605,7 +1604,7 @@ static inline void gba_cpu_arm_adc(uint32_t opcode) {
             gba_cpu_setCpsr(gba_cpu_getSpsr());
         } else {
             gba_cpu_flagC = result > UINT32_MAX;
-            gba_cpu_flagV = gba_cpu_getOverflow_add(rn_v, gba_cpu_shifterResult);
+            gba_cpu_flagV = gba_cpu_getOverflow_add(rn_v, gba_cpu_shifterResult, result);
             gba_cpu_setFlags_arithmetical(result);
         }
     }
@@ -1635,7 +1634,7 @@ static inline void gba_cpu_arm_sbc(uint32_t opcode) {
             gba_cpu_setCpsr(gba_cpu_getSpsr());
         } else {
             gba_cpu_flagC = gba_cpu_getCarry_sbc(rn_v, gba_cpu_shifterResult, gba_cpu_flagC);
-            gba_cpu_flagV = gba_cpu_getOverflow_sub(rn_v, gba_cpu_shifterResult);
+            gba_cpu_flagV = gba_cpu_getOverflow_sub(rn_v, gba_cpu_shifterResult, result);
             gba_cpu_setFlags_arithmetical(result);
         }
     }
@@ -1665,7 +1664,7 @@ static inline void gba_cpu_arm_rsc(uint32_t opcode) {
             gba_cpu_setCpsr(gba_cpu_getSpsr());
         } else {
             gba_cpu_flagC = gba_cpu_getCarry_sbc(gba_cpu_shifterResult, rn_v, gba_cpu_flagC);
-            gba_cpu_flagV = gba_cpu_getOverflow_sub(gba_cpu_shifterResult, rn_v);
+            gba_cpu_flagV = gba_cpu_getOverflow_sub(gba_cpu_shifterResult, rn_v, result);
             gba_cpu_setFlags_arithmetical(result);
         }
     }
@@ -1749,7 +1748,7 @@ static inline void gba_cpu_arm_cmp(uint32_t opcode) {
             gba_cpu_setCpsr(gba_cpu_getSpsr());
         } else {
             gba_cpu_flagC = gba_cpu_getCarry_sub(rn_v, gba_cpu_shifterResult);
-            gba_cpu_flagV = gba_cpu_getOverflow_sub(rn_v, gba_cpu_shifterResult);
+            gba_cpu_flagV = gba_cpu_getOverflow_sub(rn_v, gba_cpu_shifterResult, result);
             gba_cpu_setFlags_arithmetical(result);
         }
     }
@@ -1777,7 +1776,7 @@ static inline void gba_cpu_arm_cmn(uint32_t opcode) {
             gba_cpu_setCpsr(gba_cpu_getSpsr());
         } else {
             gba_cpu_flagC = result < rn_v;
-            gba_cpu_flagV = gba_cpu_getOverflow_add(rn_v, gba_cpu_shifterResult);
+            gba_cpu_flagV = gba_cpu_getOverflow_add(rn_v, gba_cpu_shifterResult, result);
             gba_cpu_setFlags_arithmetical(result);
         }
     }
@@ -1892,173 +1891,761 @@ static inline void gba_cpu_arm_b(uint32_t opcode) {
 }
 
 static inline void gba_cpu_thumb_sub(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
+    bool i = (opcode & (1 << 10)) != 0;
+    uint32_t rs_v = gba_cpu_r[rs];
 
+    uint32_t op2;
+
+    if(i) {
+        op2 = (opcode & 0x01c0) >> 6;
+    } else {
+        uint16_t rn = (opcode & 0x01c0) >> 6;
+        op2 = gba_cpu_r[rn];
+    }
+
+    uint32_t result = rs_v - op2;
+
+    gba_cpu_flagC = gba_cpu_getCarry_sub(rs_v, op2);
+    gba_cpu_flagV = gba_cpu_getOverflow_sub(rs_v, op2, result);
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_add(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
+    bool i = (opcode & (1 << 10)) != 0;
+    uint32_t rs_v = gba_cpu_r[rs];
 
+    uint32_t op2;
+
+    if(i) {
+        op2 = (opcode & 0x01c0) >> 6;
+    } else {
+        uint16_t rn = (opcode & 0x01c0) >> 6;
+        op2 = gba_cpu_r[rn];
+    }
+
+    uint32_t result = rs_v + op2;
+
+    gba_cpu_flagC = result < op2;
+    gba_cpu_flagV = gba_cpu_getOverflow_add(rs_v, op2, result);
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_lsl(uint16_t opcode) {
+    uint16_t offset = (opcode & 0x07c0) >> 6;
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+
+    if(offset) {
+        gba_cpu_r[rd] = rs_v << offset;
+        gba_cpu_flagC = rs_v >> (32 - offset);
+    } else {
+        gba_cpu_r[rd] = rs_v;
+    }
+
+    gba_cpu_setFlags_arithmetical(gba_cpu_r[rd]);
 }
 
 static inline void gba_cpu_thumb_lsr(uint16_t opcode) {
+    uint16_t offset = (opcode & 0x07c0) >> 6;
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+
+    if(offset) {
+        gba_cpu_r[rd] = rs_v >> offset;
+        gba_cpu_flagC = (rs_v >> (offset - 1)) & (1 << 0);
+    } else {
+        gba_cpu_r[rd] = 0;
+        gba_cpu_flagC = rs_v >> 31;
+    }
+
+    gba_cpu_setFlags_arithmetical(gba_cpu_r[rd]);
 }
 
 static inline void gba_cpu_thumb_asr(uint16_t opcode) {
+    uint16_t offset = (opcode & 0x07c0) >> 6;
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+
+    if(offset) {
+        gba_cpu_r[rd] = (int)rs_v >> offset;
+        gba_cpu_flagC = (rs_v >> (offset - 1)) & (1 << 0);
+    } else {
+        gba_cpu_r[rd] = (int)rs_v >> 31;
+        gba_cpu_flagC = rs_v >> 31;
+    }
+
+    gba_cpu_setFlags_arithmetical(gba_cpu_r[rd]);
 }
 
 static inline void gba_cpu_thumb_mov(uint16_t opcode) {
+    uint16_t rd = (opcode & 0x0700) >> 8;
+    uint16_t offset = opcode & 0x00ff;
 
+    gba_cpu_r[rd] = offset;
+
+    gba_cpu_flagZ = offset == 0;
+    gba_cpu_flagN = false;
 }
 
 static inline void gba_cpu_thumb_cmp(uint16_t opcode) {
+    uint16_t rd = (opcode & 0x0700) >> 8;
+    uint16_t offset = opcode & 0x00ff;
 
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint32_t result = rd_v - offset;
+
+    gba_cpu_flagC = gba_cpu_getCarry_sub(rd_v, offset);
+    gba_cpu_flagV = gba_cpu_getOverflow_sub(rd_v, offset, result);
+    gba_cpu_setFlags_arithmetical(result);
 }
 
 static inline void gba_cpu_thumb_add2(uint16_t opcode) {
+    uint16_t rd = (opcode & 0x0700) >> 8;
+    uint16_t offset = opcode & 0x00ff;
 
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint32_t result = rd_v + offset;
+
+    gba_cpu_flagC = result < offset;
+    gba_cpu_flagV = gba_cpu_getOverflow_add(rd_v, offset, result);
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_sub2(uint16_t opcode) {
+    uint16_t rd = (opcode & 0x0700) >> 8;
+    uint16_t offset = opcode & 0x00ff;
 
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint32_t result = rd_v - offset;
+
+    gba_cpu_flagC = gba_cpu_getCarry_sub(rd_v, offset);
+    gba_cpu_flagV = gba_cpu_getOverflow_sub(rd_v, offset, result);
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_ldrStrh(uint16_t opcode) {
+    bool h = (opcode & (1 << 11)) != 0;
+    bool s = (opcode & (1 << 10)) != 0;
+    uint16_t ro = (opcode & 0x01c0) >> 6;
+    uint16_t rb = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t ro_v = gba_cpu_r[ro];
+    uint32_t rb_v = gba_cpu_r[rb];
+
+    uint32_t offset = ro_v + rb_v;
+
+    if(s) {
+        if(h) {
+            uint32_t result = gba_bus_read16(offset);
+
+            if(result & (1 << 15)) {
+                result |= 0xffff0000;
+            }
+
+            gba_cpu_r[rd] = result;
+        } else {
+            uint32_t result = gba_bus_read8(offset);
+
+            if(result & (1 << 7)) {
+                result |= 0xffffff00;
+            }
+
+            gba_cpu_r[rd] = result;
+        }
+    } else {
+        if(h) {
+            gba_cpu_r[rd] = gba_bus_read16(offset);
+        } else {
+            uint32_t rd_v = gba_cpu_r[rd];
+            gba_bus_write16(offset, rd_v);
+        }
+    }
 }
 
 static inline void gba_cpu_thumb_ldrStr(uint16_t opcode) {
+    bool l = (opcode & (1 << 11)) != 0;
+    bool b = (opcode & (1 << 10)) != 0;
+    uint16_t ro = (opcode & 0x01c0) >> 6;
+    uint16_t rb = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t ro_v = gba_cpu_r[ro];
+    uint32_t rb_v = gba_cpu_r[rb];
+
+    uint32_t offset = ro_v + rb_v;
+
+    if(l) {
+        if(b) {
+            gba_cpu_r[rd] = gba_bus_read8(offset);
+        } else {
+            gba_cpu_r[rd] = gba_cpu_util_ror32(gba_bus_read32(offset), (offset & 0x00000003) << 3);
+        }
+    } else {
+        uint32_t rd_v = gba_cpu_r[rd];
+
+        if(b) {
+            gba_bus_write8(offset, rd_v);
+        } else {
+            gba_bus_write32(offset, rd_v);
+        }
+    }
 }
 
 static inline void gba_cpu_thumb_ldr(uint16_t opcode) {
+    uint16_t rd = (opcode & 0x0700) >> 8;
+    uint16_t immediate = opcode & 0x00ff;
+    uint32_t result = (gba_cpu_r[15] & 0xfffffffc) + (immediate << 2);
 
+    gba_cpu_r[rd] = gba_bus_read32(result);
 }
 
 static inline void gba_cpu_thumb_bx(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
 
+    if(opcode & (1 << 6)) {
+        rs += 8;
+    }
+
+    uint32_t dest = gba_cpu_r[rs];
+
+    gba_cpu_flagT = dest & (1 << 0);
+    gba_cpu_performJump(dest);
 }
 
 static inline void gba_cpu_thumb_add3(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    if(opcode & (1 << 7)) {
+        rd += 8;
+    }
+
+    if(opcode & (1 << 6)) {
+        rs += 8;
+    }
+
+    gba_cpu_writeRegister(rd, gba_cpu_r[rd] + gba_cpu_r[rs]);
 }
 
 static inline void gba_cpu_thumb_cmp3(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    if(opcode & (1 << 7)) {
+        rd += 8;
+    }
+
+    if(opcode & (1 << 6)) {
+        rs += 8;
+    }
+
+    uint32_t rs_v = gba_cpu_r[rs];
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint32_t result = rd_v - rs_v;
+    gba_cpu_flagC = gba_cpu_getCarry_sub(rd_v, rs_v);
+    gba_cpu_flagV = gba_cpu_getOverflow_sub(rd_v, rs_v, result);
+    gba_cpu_setFlags_arithmetical(result);
 }
 
 static inline void gba_cpu_thumb_mov2(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    if(opcode & (1 << 7)) {
+        rd += 8;
+    }
+
+    if(opcode & (1 << 6)) {
+        rs += 8;
+    }
+
+    gba_cpu_writeRegister(rd, gba_cpu_r[rs]);
 }
 
 static inline void gba_cpu_thumb_and(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint32_t result = rs_v & rd_v;
+
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_eor(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint32_t result = rs_v ^ rd_v;
+
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_lsl2(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint32_t result;
+
+    if(rs_v == 0) {
+        result = rd_v;
+    } else if(rs_v < 32) {
+        result = rd_v << rs_v;
+        gba_cpu_flagC = (rd_v >> (32 - rs_v)) & (1 << 0);
+    } else if(rs_v == 32) {
+        result = 0;
+        gba_cpu_flagC = rd_v & (1 << 0);
+    } else {
+        result = 0;
+        gba_cpu_flagC = false;
+    }
+
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_lsr2(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint32_t result;
+
+    if(rs_v == 0) {
+        result = rd_v;
+    } else if(rs_v < 32) {
+        result = rd_v >> rs_v;
+        gba_cpu_flagC = (rd_v >> (rs_v - 1)) & (1 << 0);
+    } else if(rs_v == 32) {
+        result = 0;
+        gba_cpu_flagC = rd_v >> 31;
+    } else {
+        result = 0;
+        gba_cpu_flagC = false;
+    }
+
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_asr2(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint32_t result;
+
+    if(rs_v == 0) {
+        result = rd_v;
+    } else if(rs_v < 32) {
+        result = (int)rd_v >> rs_v;
+        gba_cpu_flagC = (rd_v >> (rs_v - 1)) & (1 << 0);
+    } else {
+        result = (int)rd_v >> 31;
+        gba_cpu_flagC = rd_v >> 31;
+    }
+
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_adc(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint64_t result = (uint64_t)rd_v + (uint64_t)rs_v + gba_cpu_flagC;
+
+    gba_cpu_flagC = result > UINT32_MAX;
+    gba_cpu_flagV = gba_cpu_getOverflow_add(rd_v, rs_v, result);
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_sbc(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint64_t result = (uint64_t)rd_v - (uint64_t)rs_v - !gba_cpu_flagC;
+
+    gba_cpu_flagC = gba_cpu_getCarry_sbc(rd_v, rs_v, gba_cpu_flagC);
+    gba_cpu_flagV = gba_cpu_getOverflow_sub(rd_v, rs_v, result);
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_ror(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint32_t result;
+    int rotation = rs_v & 0x1f;
+
+    if(rs_v == 0) {
+        result = rd_v;
+    } else if(rotation == 0) {
+        result = rd_v;
+        gba_cpu_flagC = rd_v >> 31;
+    } else {
+        result = gba_cpu_util_ror32(rd_v, rotation);
+        gba_cpu_flagC = (rd_v >> (rotation - 1)) & (1 << 0);
+    }
+
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_tst(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint32_t result = rs_v & rd_v;
+
+    gba_cpu_setFlags_arithmetical(result);
 }
 
 static inline void gba_cpu_thumb_neg(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+
+    uint32_t result = -rs_v;
+    gba_cpu_flagC = gba_cpu_getCarry_sub(0, rs_v);
+    gba_cpu_flagV = gba_cpu_getOverflow_sub(0, rs_v, result);
+
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_cmp2(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint32_t result = rd_v - rs_v;
+
+    gba_cpu_flagC = gba_cpu_getCarry_sub(rd_v, rs_v);
+    gba_cpu_flagV = gba_cpu_getOverflow_sub(rd_v, rs_v, result);
+    gba_cpu_setFlags_arithmetical(result);
 }
 
 static inline void gba_cpu_thumb_cmn(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint32_t result = rd_v + rs_v;
+
+    gba_cpu_flagC = result < rd_v;
+    gba_cpu_flagV = gba_cpu_getOverflow_add(rd_v, rs_v, result);
+    gba_cpu_setFlags_arithmetical(result);
 }
 
 static inline void gba_cpu_thumb_orr(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint32_t result = rs_v | rd_v;
+
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_mul(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint32_t result = rs_v * rd_v;
+
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_bic(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+    uint32_t rd_v = gba_cpu_r[rd];
+
+    uint32_t result = rs_v & ~rd_v;
+
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_mvn(uint16_t opcode) {
+    uint16_t rs = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rs_v = gba_cpu_r[rs];
+
+    uint32_t result = ~rs_v;
+
+    gba_cpu_setFlags_arithmetical(result);
+
+    gba_cpu_r[rd] = result;
 }
 
 static inline void gba_cpu_thumb_ldrStr2(uint16_t opcode) {
+    bool b = (opcode & (1 << 12)) != 0;
+    bool l = (opcode & (1 << 11)) != 0;
+    uint16_t offset = (opcode & 0x07c0) >> 6;
+    uint16_t rb = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rb_v = gba_cpu_r[rb];
+
+    if(b) {
+        uint32_t addr = rb_v + offset;
+
+        if(l) {
+            gba_cpu_r[rd] = gba_bus_read8(addr);
+        } else {
+            uint32_t rd_v = gba_cpu_r[rd];
+            gba_bus_write8(addr, rd_v);
+        }
+    } else {
+        uint32_t addr = rb_v + (offset << 2);
+
+        if(l) {
+            gba_cpu_r[rd] = gba_cpu_util_ror32(gba_bus_read32(addr), (addr & 0x00000003) << 3);
+        } else {
+            uint32_t rd_v = gba_cpu_r[rd];
+            gba_bus_write32(addr, rd_v);
+        }
+    }
 }
 
 static inline void gba_cpu_thumb_ldrStr3(uint16_t opcode) {
+    bool l = (opcode & (1 << 11)) != 0;
 
+    uint16_t rd = (opcode & 0x0700) >> 8;
+    uint16_t immediate = opcode & 0x00ff;
+
+    uint32_t offset = gba_cpu_r[13] + (immediate << 2);
+
+    if(l) {
+        gba_cpu_r[rd] = gba_cpu_util_ror32(gba_bus_read32(offset), (offset & 0x00000003) << 3);
+    } else {
+        uint32_t rd_v = gba_cpu_r[rd];
+        gba_bus_write32(offset, rd_v);
+    }
 }
 
 static inline void gba_cpu_thumb_ldrStrh2(uint16_t opcode) {
+    bool l = (opcode & (1 << 11)) != 0;
+    uint16_t offset = (opcode & 0x07c0) >> 6;
+    uint16_t rb = (opcode & 0x0038) >> 3;
+    uint16_t rd = opcode & 0x0007;
 
+    uint32_t rb_v = gba_cpu_r[rb];
+
+    uint32_t addr = rb_v + (offset << 1);
+
+    if(l) {
+        gba_cpu_r[rd] = gba_bus_read16(addr);
+    } else {
+        uint32_t rd_v = gba_cpu_r[rd];
+        gba_bus_write16(addr, rd_v);
+    }
 }
 
 static inline void gba_cpu_thumb_add5(uint16_t opcode) {
+    bool s = (opcode & (1 << 7)) != 0;
+    uint16_t immediate = (opcode & 0x007f) << 2;
 
+    if(s) {
+        gba_cpu_r[13] -= immediate;
+    } else {
+        gba_cpu_r[13] += immediate;
+    }
 }
 
 static inline void gba_cpu_thumb_pushPop(uint16_t opcode) {
+    bool l = (opcode & (1 << 11)) != 0;
+    bool r = (opcode & (1 << 8)) != 0;
+    uint8_t rlist = opcode;
+    uint32_t registerCount = gba_cpu_util_hammingWeight8(rlist);
 
+    if(r) {
+        registerCount++;
+    }
+
+    uint32_t addr;
+
+    if(l) {
+        addr = gba_cpu_r[13];
+        gba_cpu_r[13] += registerCount * 4;
+    } else {
+        gba_cpu_r[13] -= registerCount * 4;
+        addr = gba_cpu_r[13];
+    }
+
+    for(int i = 0; i < 8; i++) {
+        if(rlist & (1 << i)) {
+            if(l) {
+                gba_cpu_r[i] = gba_bus_read32(addr);
+            } else {
+                gba_bus_write32(addr, gba_cpu_r[i]);
+            }
+
+            addr += 4;
+        }
+    }
+
+    if(r) {
+        if(l) {
+            gba_cpu_performJump(gba_bus_read32(addr));
+        } else {
+            gba_bus_write32(addr, gba_cpu_r[14]);
+        }
+    }
 }
 
 static inline void gba_cpu_thumb_add4(uint16_t opcode) {
+    bool sp = (opcode & (1 << 11));
+    uint16_t rd = (opcode & 0x07c0) >> 8;
+    uint16_t immediate = opcode & 0x00ff;
 
+    if(sp) {
+        gba_cpu_r[rd] = gba_cpu_r[13] + (immediate << 2);
+    } else {
+        gba_cpu_r[rd] = (gba_cpu_r[15] & 0xfffffffc) + (immediate << 2);
+    }
 }
 
 static inline void gba_cpu_thumb_swi(uint16_t opcode) {
+    UNUSED(opcode);
 
+    gba_cpu_raiseSwi();
 }
 
 static inline void gba_cpu_thumb_b(uint16_t opcode) {
+    gba_cpu_condition_t condition = (opcode & 0x0f00) >> 8;
+    int8_t immediate = opcode;
 
+    if(gba_cpu_checkCondition(condition)) {
+        gba_cpu_performJump(gba_cpu_r[15] + (immediate << 1));
+    }
 }
 
 static inline void gba_cpu_thumb_ldmStm(uint16_t opcode) {
+    bool l = (opcode & (1 << 11)) != 0;
+    uint16_t rb = (opcode & 0x0700) >> 8;
+    uint8_t rlist = opcode;
 
+    for(int i = 0; i < 7; i++) {
+        if(rlist & (1 << i)) {
+            if(l) {
+                gba_cpu_r[i] = gba_bus_read32(gba_cpu_r[rb]);
+            } else {
+                gba_bus_write32(gba_cpu_r[rb], gba_cpu_r[i]);
+            }
+
+            gba_cpu_r[rb] += 4;
+        }
+    }
 }
 
 static inline void gba_cpu_thumb_bl(uint16_t opcode) {
+    bool h = (opcode & (1 << 11)) != 0;
+    uint32_t offset = opcode & 0x07ff;
 
+    if(h) {
+        gba_cpu_r[14] += (offset << 1);
+        
+        uint32_t pc_v = gba_cpu_r[15];
+        
+        gba_cpu_performJump(gba_cpu_r[14]);
+
+        gba_cpu_r[14] = (pc_v - 2) | 0x00000001;
+    } else {
+        if(opcode & (1 << 10)) {
+            offset |= 0xfffff800;
+        }
+
+        gba_cpu_r[14] = gba_cpu_r[15] + (offset << 12);
+    }
 }
 
 static inline void gba_cpu_thumb_b2(uint16_t opcode) {
+    uint32_t immediate = opcode & 0x07ff;
 
+    if(opcode & (1 << 10)) {
+        immediate |= 0xfffff800;
+    }
+
+    gba_cpu_performJump(gba_cpu_r[15] + (immediate << 1));
 }
