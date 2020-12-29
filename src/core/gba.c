@@ -4,6 +4,7 @@
 #include "platform.h"
 #include "core/bios.h"
 #include "core/cartridge.h"
+#include "core/cpu.h"
 #include "core/dma.h"
 #include "core/ewram.h"
 #include "core/io.h"
@@ -11,10 +12,12 @@
 #include "core/ppu.h"
 #include "core/timer.h"
 
+bool gba_skipBoot;
+
 void gba_cycle();
 void gba_frameAdvance();
 size_t gba_getSramSize();
-void gba_init();
+void gba_init(bool skipBoot);
 void gba_reset();
 void gba_setBios(const void *buffer);
 void gba_setRom(const void *buffer, size_t size);
@@ -27,18 +30,26 @@ void gba_frameAdvance() {
 }
 
 void gba_cycle() {
-    
+    if(!gba_dma_cycle()) {
+        gba_cpu_cycle();
+    }
+
+    gba_ppu_cycle();
+    gba_timer_cycle();
 }
 
 size_t gba_getSramSize() {
     return 0;
 }
 
-void gba_init() {
-    gba_reset();
+void gba_init(bool skipBoot) {
+    gba_skipBoot = skipBoot;
+    gba_reset(skipBoot);
+    gba_cpu_init();
 }
 
 void gba_reset() {
+    gba_cpu_reset(gba_skipBoot);
     gba_dma_reset();
     gba_ewram_reset();
     gba_io_reset();

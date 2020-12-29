@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 extern void gba_ppu_reset();
+extern void gba_ppu_cycle();
 extern uint8_t gba_ppu_palette_read8(uint32_t address);
 extern uint16_t gba_ppu_palette_read16(uint32_t address);
 extern uint32_t gba_ppu_palette_read32(uint32_t address);

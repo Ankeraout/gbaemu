@@ -34,6 +34,10 @@ void gba_ppu_reset() {
     memset(oam, 0, GBA_OAM_SIZE);
 }
 
+void gba_ppu_cycle() {
+    
+}
+
 uint8_t gba_ppu_palette_read8(uint32_t address) {
     return palette[address & 0x000003ff];
 }
