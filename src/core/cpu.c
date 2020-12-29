@@ -100,6 +100,83 @@ static inline void gba_cpu_initDecodeThumb();
 static inline void gba_cpu_initDecodeArm();
 static inline void gba_cpu_arm_shift(uint32_t opcode);
 static inline uint32_t gba_cpu_util_ror32(uint32_t value, int bits);
+static inline void gba_cpu_writeRegister(int r, uint32_t value);
+static inline void gba_cpu_setFlags_logical(uint32_t result);
+static inline void gba_cpu_setFlags_arithmetical(uint32_t result);
+static inline bool gba_cpu_getCarry_sbc(uint32_t left, uint32_t right, bool carry);
+static inline bool gba_cpu_getCarry_sub(uint32_t left, uint32_t right);
+static inline bool gba_cpu_getOverflow_sub(uint32_t left, uint32_t right);
+static inline bool gba_cpu_getOverflow_add(uint32_t left, uint32_t right);
+static inline void gba_cpu_arm_halfwordSignedDataTransfer(uint32_t opcode);
+static inline void gba_cpu_arm_blockDataTransfer(uint32_t opcode);
+static inline void gba_cpu_arm_swp(uint32_t opcode);
+static inline void gba_cpu_arm_mul(uint32_t opcode);
+static inline void gba_cpu_arm_mull(uint32_t opcode);
+static inline void gba_cpu_arm_bx(uint32_t opcode);
+static inline void gba_cpu_arm_swi(uint32_t opcode);
+static inline void gba_cpu_arm_singleDataTransfer(uint32_t opcode);
+static inline void gba_cpu_arm_psrTransfer_msr(uint32_t opcode);
+static inline void gba_cpu_arm_psrTransfer(uint32_t opcode);
+static inline void gba_cpu_arm_and(uint32_t opcode);
+static inline void gba_cpu_arm_eor(uint32_t opcode);
+static inline void gba_cpu_arm_sub(uint32_t opcode);
+static inline void gba_cpu_arm_rsb(uint32_t opcode);
+static inline void gba_cpu_arm_add(uint32_t opcode);
+static inline void gba_cpu_arm_adc(uint32_t opcode);
+static inline void gba_cpu_arm_sbc(uint32_t opcode);
+static inline void gba_cpu_arm_rsc(uint32_t opcode);
+static inline void gba_cpu_arm_tst(uint32_t opcode);
+static inline void gba_cpu_arm_teq(uint32_t opcode);
+static inline void gba_cpu_arm_cmp(uint32_t opcode);
+static inline void gba_cpu_arm_cmn(uint32_t opcode);
+static inline void gba_cpu_arm_orr(uint32_t opcode);
+static inline void gba_cpu_arm_mov(uint32_t opcode);
+static inline void gba_cpu_arm_bic(uint32_t opcode);
+static inline void gba_cpu_arm_mvn(uint32_t opcode);
+static inline void gba_cpu_arm_b(uint32_t opcode);
+static inline void gba_cpu_thumb_sub(uint16_t opcode);
+static inline void gba_cpu_thumb_add(uint16_t opcode);
+static inline void gba_cpu_thumb_lsl(uint16_t opcode);
+static inline void gba_cpu_thumb_lsr(uint16_t opcode);
+static inline void gba_cpu_thumb_asr(uint16_t opcode);
+static inline void gba_cpu_thumb_mov(uint16_t opcode);
+static inline void gba_cpu_thumb_cmp(uint16_t opcode);
+static inline void gba_cpu_thumb_add2(uint16_t opcode);
+static inline void gba_cpu_thumb_sub2(uint16_t opcode);
+static inline void gba_cpu_thumb_ldrStrh(uint16_t opcode);
+static inline void gba_cpu_thumb_ldrStr(uint16_t opcode);
+static inline void gba_cpu_thumb_ldr(uint16_t opcode);
+static inline void gba_cpu_thumb_bx(uint16_t opcode);
+static inline void gba_cpu_thumb_add3(uint16_t opcode);
+static inline void gba_cpu_thumb_cmp3(uint16_t opcode);
+static inline void gba_cpu_thumb_mov2(uint16_t opcode);
+static inline void gba_cpu_thumb_and(uint16_t opcode);
+static inline void gba_cpu_thumb_eor(uint16_t opcode);
+static inline void gba_cpu_thumb_lsl2(uint16_t opcode);
+static inline void gba_cpu_thumb_lsr2(uint16_t opcode);
+static inline void gba_cpu_thumb_asr2(uint16_t opcode);
+static inline void gba_cpu_thumb_adc(uint16_t opcode);
+static inline void gba_cpu_thumb_sbc(uint16_t opcode);
+static inline void gba_cpu_thumb_ror(uint16_t opcode);
+static inline void gba_cpu_thumb_tst(uint16_t opcode);
+static inline void gba_cpu_thumb_neg(uint16_t opcode);
+static inline void gba_cpu_thumb_cmp2(uint16_t opcode);
+static inline void gba_cpu_thumb_cmn(uint16_t opcode);
+static inline void gba_cpu_thumb_orr(uint16_t opcode);
+static inline void gba_cpu_thumb_mul(uint16_t opcode);
+static inline void gba_cpu_thumb_bic(uint16_t opcode);
+static inline void gba_cpu_thumb_mvn(uint16_t opcode);
+static inline void gba_cpu_thumb_ldrStr2(uint16_t opcode);
+static inline void gba_cpu_thumb_ldrStr3(uint16_t opcode);
+static inline void gba_cpu_thumb_ldrStrh2(uint16_t opcode);
+static inline void gba_cpu_thumb_add5(uint16_t opcode);
+static inline void gba_cpu_thumb_pushPop(uint16_t opcode);
+static inline void gba_cpu_thumb_add4(uint16_t opcode);
+static inline void gba_cpu_thumb_swi(uint16_t opcode);
+static inline void gba_cpu_thumb_b(uint16_t opcode);
+static inline void gba_cpu_thumb_ldmStm(uint16_t opcode);
+static inline void gba_cpu_thumb_bl(uint16_t opcode);
+static inline void gba_cpu_thumb_b2(uint16_t opcode);
 
 void gba_cpu_init() {
     gba_cpu_initDecodeArm();
@@ -489,15 +566,15 @@ static inline void gba_cpu_initDecodeThumb() {
             case 0:
             if((opcode & 0x1800) == 0x1800) {
                 if(opcode & (1 << 9)) {
-                    gba_cpu_decodeTable_thumb[i] = NULL;
+                    gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_sub;
                 } else {
-                    gba_cpu_decodeTable_thumb[i] = NULL;
+                    gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_add;
                 }
             } else {
                 switch((opcode & 0x1800) >> 11) {
-                    case 0: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                    case 1: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                    case 2: gba_cpu_decodeTable_thumb[i] = NULL; break;
+                    case 0: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_lsl; break;
+                    case 1: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_lsr; break;
+                    case 2: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_asr; break;
                 }
             }
 
@@ -505,10 +582,10 @@ static inline void gba_cpu_initDecodeThumb() {
 
             case 1:
             switch((opcode & 0x1800) >> 11) {
-                case 0: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                case 1: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                case 2: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                case 3: gba_cpu_decodeTable_thumb[i] = NULL; break;
+                case 0: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_mov; break;
+                case 1: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_cmp; break;
+                case 2: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_add2; break;
+                case 3: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_sub2; break;
             }
 
             break;
@@ -516,44 +593,44 @@ static inline void gba_cpu_initDecodeThumb() {
             case 2:
             if(opcode & (1 << 12)) {
                 if(opcode & (1 << 9)) {
-                    gba_cpu_decodeTable_thumb[i] = NULL;
+                    gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_ldrStrh;
                 } else {
-                    gba_cpu_decodeTable_thumb[i] = NULL;
+                    gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_ldrStr;
                 }
             } else {
                 if(opcode & (1 << 11)) {
-                    gba_cpu_decodeTable_thumb[i] = NULL;
+                    gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_ldr;
                 } else {
                     if(opcode & (1 << 10)) {
                         if((opcode & 0x0380) == 0x0300) {
-                            gba_cpu_decodeTable_thumb[i] = NULL;
+                            gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_bx;
                         } else if((opcode & 0x0300) != 0x0300) {
                             if((opcode & 0x00c0) != 0x0000) {
                                 switch((opcode & 0x0300) >> 8) {
-                                    case 0: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                                    case 1: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                                    case 2: gba_cpu_decodeTable_thumb[i] = NULL; break;
+                                    case 0: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_add3; break;
+                                    case 1: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_cmp3; break;
+                                    case 2: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_mov2; break;
                                 }
                             }
                         }
                     } else {
                         switch((opcode & 0x03c0) >> 6) {
-                            case 0x0: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                            case 0x1: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                            case 0x2: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                            case 0x3: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                            case 0x4: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                            case 0x5: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                            case 0x6: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                            case 0x7: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                            case 0x8: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                            case 0x9: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                            case 0xa: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                            case 0xb: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                            case 0xc: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                            case 0xd: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                            case 0xe: gba_cpu_decodeTable_thumb[i] = NULL; break;
-                            case 0xf: gba_cpu_decodeTable_thumb[i] = NULL; break;
+                            case 0x0: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_and; break;
+                            case 0x1: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_eor; break;
+                            case 0x2: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_lsl2; break;
+                            case 0x3: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_lsr2; break;
+                            case 0x4: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_asr2; break;
+                            case 0x5: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_adc; break;
+                            case 0x6: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_sbc; break;
+                            case 0x7: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_ror; break;
+                            case 0x8: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_tst; break;
+                            case 0x9: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_neg; break;
+                            case 0xa: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_cmp2; break;
+                            case 0xb: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_cmn; break;
+                            case 0xc: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_orr; break;
+                            case 0xd: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_mul; break;
+                            case 0xe: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_bic; break;
+                            case 0xf: gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_mvn; break;
                         }
                     }
                 }
@@ -562,14 +639,14 @@ static inline void gba_cpu_initDecodeThumb() {
             break;
 
             case 3:
-                gba_cpu_decodeTable_thumb[i] = NULL;
+                gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_ldrStr2;
                 break;
 
             case 4:
                 if(opcode & (1 << 12)) {
-                    gba_cpu_decodeTable_thumb[i] = NULL;
+                    gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_ldrStr3;
                 } else {
-                    gba_cpu_decodeTable_thumb[i] = NULL;
+                    gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_ldrStrh2;
                 }
 
                 break;
@@ -577,12 +654,12 @@ static inline void gba_cpu_initDecodeThumb() {
             case 5:
                 if(opcode & (1 << 12)) {
                     if((opcode & 0x0f00) == 0x0000) {
-                        gba_cpu_decodeTable_thumb[i] = NULL;
+                        gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_add5;
                     } else if((opcode & 0x0600) == 0x0400) {
-                        gba_cpu_decodeTable_thumb[i] = NULL;
+                        gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_pushPop;
                     }
                 } else {
-                    gba_cpu_decodeTable_thumb[i] = NULL;
+                    gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_add4;
                 }
 
                 break;
@@ -590,22 +667,22 @@ static inline void gba_cpu_initDecodeThumb() {
             case 6:
                 if(opcode & (1 << 12)) {
                     if((opcode & 0x0f00) == 0x0f00) {
-                        gba_cpu_decodeTable_thumb[i] = NULL;
+                        gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_swi;
                     } else {
-                        gba_cpu_decodeTable_thumb[i] = NULL;
+                        gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_b;
                     }
                 } else {
-                    gba_cpu_decodeTable_thumb[i] = NULL;
+                    gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_ldmStm;
                 }
 
                 break;
 
             case 7:
                 if(opcode & (1 << 12)) {
-                    gba_cpu_decodeTable_thumb[i] = NULL;
+                    gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_bl;
                 } else {
                     if(!(opcode & (1 << 11))) {
-                        gba_cpu_decodeTable_thumb[i] = NULL;
+                        gba_cpu_decodeTable_thumb[i] = gba_cpu_thumb_b2;
                     }
                 }
 
@@ -623,39 +700,39 @@ static inline void gba_cpu_initDecodeArm() {
         switch((opcode & 0x0c000000) >> 26) {
             case 0x0:
                 if((opcode & 0x0ff000f0) == 0x01200010) {
-                    gba_cpu_decodeTable_arm[i] = NULL;
+                    gba_cpu_decodeTable_arm[i] = gba_cpu_arm_bx;
                 } else if((opcode & 0x02000090) == 0x00000090) {
                     if((opcode & 0x0fb000f0) == 0x01000090) {
-                        gba_cpu_decodeTable_arm[i] = NULL;
+                        gba_cpu_decodeTable_arm[i] = gba_cpu_arm_swp;
                     } else if((opcode & 0x0fc000f0) == 0x00000090) {
-                        gba_cpu_decodeTable_arm[i] = NULL;
+                        gba_cpu_decodeTable_arm[i] = gba_cpu_arm_mul;
                     } else if((opcode & 0x0f8000f0) == 0x00800090) {
-                        gba_cpu_decodeTable_arm[i] = NULL;
+                        gba_cpu_decodeTable_arm[i] = gba_cpu_arm_mull;
                     } else if((opcode & 0x0e000090) == 0x00000090) {
-                        gba_cpu_decodeTable_arm[i] = NULL;
+                        gba_cpu_decodeTable_arm[i] = gba_cpu_arm_halfwordSignedDataTransfer;
                     }
                 } else if((opcode & 0x01900000) == 0x01000000) {
                     if((opcode & (1 << 25)) || ((opcode & 0x000000f0) == 0x00000000)) {
-                        gba_cpu_decodeTable_arm[i] = NULL;
+                        gba_cpu_decodeTable_arm[i] = gba_cpu_arm_psrTransfer;
                     }
                 } else {
                     switch((opcode & 0x01e00000) >> 21) {
-                        case 0x0: gba_cpu_decodeTable_arm[i] = NULL; break;
-                        case 0x1: gba_cpu_decodeTable_arm[i] = NULL; break;
-                        case 0x2: gba_cpu_decodeTable_arm[i] = NULL; break;
-                        case 0x3: gba_cpu_decodeTable_arm[i] = NULL; break;
-                        case 0x4: gba_cpu_decodeTable_arm[i] = NULL; break;
-                        case 0x5: gba_cpu_decodeTable_arm[i] = NULL; break;
-                        case 0x6: gba_cpu_decodeTable_arm[i] = NULL; break;
-                        case 0x7: gba_cpu_decodeTable_arm[i] = NULL; break;
-                        case 0x8: gba_cpu_decodeTable_arm[i] = NULL; break;
-                        case 0x9: gba_cpu_decodeTable_arm[i] = NULL; break;
-                        case 0xa: gba_cpu_decodeTable_arm[i] = NULL; break;
-                        case 0xb: gba_cpu_decodeTable_arm[i] = NULL; break;
-                        case 0xc: gba_cpu_decodeTable_arm[i] = NULL; break;
-                        case 0xd: gba_cpu_decodeTable_arm[i] = NULL; break;
-                        case 0xe: gba_cpu_decodeTable_arm[i] = NULL; break;
-                        case 0xf: gba_cpu_decodeTable_arm[i] = NULL; break;
+                        case 0x0: gba_cpu_decodeTable_arm[i] = gba_cpu_arm_and; break;
+                        case 0x1: gba_cpu_decodeTable_arm[i] = gba_cpu_arm_eor; break;
+                        case 0x2: gba_cpu_decodeTable_arm[i] = gba_cpu_arm_sub; break;
+                        case 0x3: gba_cpu_decodeTable_arm[i] = gba_cpu_arm_rsb; break;
+                        case 0x4: gba_cpu_decodeTable_arm[i] = gba_cpu_arm_add; break;
+                        case 0x5: gba_cpu_decodeTable_arm[i] = gba_cpu_arm_adc; break;
+                        case 0x6: gba_cpu_decodeTable_arm[i] = gba_cpu_arm_sbc; break;
+                        case 0x7: gba_cpu_decodeTable_arm[i] = gba_cpu_arm_rsc; break;
+                        case 0x8: gba_cpu_decodeTable_arm[i] = gba_cpu_arm_tst; break;
+                        case 0x9: gba_cpu_decodeTable_arm[i] = gba_cpu_arm_teq; break;
+                        case 0xa: gba_cpu_decodeTable_arm[i] = gba_cpu_arm_cmp; break;
+                        case 0xb: gba_cpu_decodeTable_arm[i] = gba_cpu_arm_cmn; break;
+                        case 0xc: gba_cpu_decodeTable_arm[i] = gba_cpu_arm_orr; break;
+                        case 0xd: gba_cpu_decodeTable_arm[i] = gba_cpu_arm_mov; break;
+                        case 0xe: gba_cpu_decodeTable_arm[i] = gba_cpu_arm_bic; break;
+                        case 0xf: gba_cpu_decodeTable_arm[i] = gba_cpu_arm_mvn; break;
                     }
                 }
 
@@ -663,24 +740,26 @@ static inline void gba_cpu_initDecodeArm() {
 
             case 0x1:
             if((opcode & 0x02000010) != 0x02000010) {
-                gba_cpu_decodeTable_arm[i] = NULL;
+                gba_cpu_decodeTable_arm[i] = gba_cpu_arm_singleDataTransfer;
             }
 
             break;
 
             case 0x2:
             if(opcode & (1 << 25)) {
-                gba_cpu_decodeTable_arm[i] = NULL;
+                gba_cpu_decodeTable_arm[i] = gba_cpu_arm_b;
             } else {
-                gba_cpu_decodeTable_arm[i] = NULL;
+                gba_cpu_decodeTable_arm[i] = gba_cpu_arm_blockDataTransfer;
             }
 
             break;
 
             case 0x3:
             if((opcode & 0x03000000) == 0x03000000) {
-                gba_cpu_decodeTable_arm[i] = NULL;
+                gba_cpu_decodeTable_arm[i] = gba_cpu_arm_swi;
             }
+
+            break;
         }
     }
 }
@@ -836,4 +915,324 @@ static inline void gba_cpu_arm_shift(uint32_t opcode) {
 
 static inline uint32_t gba_cpu_util_ror32(uint32_t value, int bits) {
     return (value >> bits) | (value << (32 - bits));
+}
+
+
+static inline void gba_cpu_writeRegister(int rd, uint32_t value) {
+    if(rd == 15) {
+        gba_cpu_performJump(value);
+    } else {
+        gba_cpu_r[rd] = value;
+    }
+}
+
+static inline void gba_cpu_setFlags_logical(uint32_t result) {
+    gba_cpu_setFlags_arithmetical(result);
+    gba_cpu_flagC = gba_cpu_shifterCarry;
+}
+
+static inline void gba_cpu_setFlags_arithmetical(uint32_t result) {
+    gba_cpu_flagN = result >> 31;
+    gba_cpu_flagZ = result == 0;
+}
+
+static inline bool gba_cpu_getCarry_sbc(uint32_t left, uint32_t right, bool carry) {
+    return (left >= right) && ((left - right) >= carry);
+}
+
+static inline bool gba_cpu_getCarry_sub(uint32_t left, uint32_t right) {
+    return left >= right;
+}
+
+static inline bool gba_cpu_getOverflow_sub(uint32_t left, uint32_t right) {
+    uint32_t result = left - right;
+
+    return ((left ^ right) >> 31) && ((left ^ result) >> 31);
+}
+
+static inline bool gba_cpu_getOverflow_add(uint32_t left, uint32_t right) {
+    uint32_t result = left + right;
+
+    return (!((left ^ right) >> 31)) && ((left ^ result) >> 31);
+}
+
+
+static inline void gba_cpu_arm_halfwordSignedDataTransfer(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_blockDataTransfer(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_swp(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_mul(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_mull(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_bx(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_swi(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_singleDataTransfer(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_psrTransfer_msr(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_psrTransfer(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_and(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_eor(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_sub(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_rsb(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_add(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_adc(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_sbc(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_rsc(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_tst(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_teq(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_cmp(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_cmn(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_orr(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_mov(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_bic(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_mvn(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_arm_b(uint32_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_sub(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_add(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_lsl(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_lsr(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_asr(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_mov(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_cmp(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_add2(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_sub2(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_ldrStrh(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_ldrStr(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_ldr(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_bx(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_add3(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_cmp3(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_mov2(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_and(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_eor(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_lsl2(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_lsr2(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_asr2(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_adc(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_sbc(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_ror(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_tst(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_neg(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_cmp2(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_cmn(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_orr(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_mul(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_bic(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_mvn(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_ldrStr2(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_ldrStr3(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_ldrStrh2(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_add5(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_pushPop(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_add4(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_swi(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_b(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_ldmStm(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_bl(uint16_t opcode) {
+
+}
+
+static inline void gba_cpu_thumb_b2(uint16_t opcode) {
+
 }
