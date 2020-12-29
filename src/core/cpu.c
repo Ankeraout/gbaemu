@@ -2460,7 +2460,7 @@ static inline void gba_cpu_thumb_bic(uint16_t opcode) {
     uint32_t rs_v = gba_cpu_r[rs];
     uint32_t rd_v = gba_cpu_r[rd];
 
-    uint32_t result = rs_v & ~rd_v;
+    uint32_t result = rd_v & ~rs_v;
 
     gba_cpu_setFlags_arithmetical(result);
 

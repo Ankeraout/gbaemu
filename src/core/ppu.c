@@ -61,8 +61,6 @@ void gba_ppu_cycle() {
     if((gba_ppu_currentCycle & 0x03) == 0x03) {
         gba_io_register_t *dispstat = gba_io_getRegister(0x04000004);
 
-        gba_ppu_currentColumn++;
-
         if(gba_ppu_currentColumn == 308) {
             gba_ppu_currentColumn = 0;
             gba_ppu_currentRow++;
@@ -106,6 +104,8 @@ void gba_ppu_cycle() {
                 gba_ppu_drawLine();
             }
         }
+
+        gba_ppu_currentColumn++;
     }
 
     gba_ppu_currentCycle++;

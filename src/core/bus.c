@@ -4,6 +4,7 @@
 #include "core/bios.h"
 #include "core/cartridge.h"
 #include "core/ewram.h"
+#include "core/io.h"
 #include "core/iwram.h"
 #include "core/ppu.h"
 
@@ -26,6 +27,9 @@ uint8_t gba_bus_read8(uint32_t address) {
         case 0x03: // IWRAM
         return gba_iwram_read8(address);
 
+        case 0x04: // IO
+        return gba_io_read8(address);
+
         case 0x05: // Palette
         return gba_ppu_palette_read8(address);
 
@@ -33,7 +37,7 @@ uint8_t gba_bus_read8(uint32_t address) {
         return gba_ppu_vram_read8(address);
 
         case 0x07: // OAM
-        return gba_ppu_vram_read8(address);
+        return gba_ppu_oam_read8(address);
 
         case 0x08: // Game Pak ROM Wait State 0
         case 0x09:
@@ -67,6 +71,9 @@ uint16_t gba_bus_read16(uint32_t address) {
         case 0x03: // IWRAM
         return gba_iwram_read16(address);
 
+        case 0x04: // IO
+        return gba_io_read16(address);
+
         case 0x05: // Palette
         return gba_ppu_palette_read16(address);
 
@@ -74,7 +81,7 @@ uint16_t gba_bus_read16(uint32_t address) {
         return gba_ppu_vram_read16(address);
 
         case 0x07: // OAM
-        return gba_ppu_vram_read16(address);
+        return gba_ppu_oam_read16(address);
 
         case 0x08: // Game Pak ROM Wait State 0
         case 0x09:
@@ -108,6 +115,9 @@ uint32_t gba_bus_read32(uint32_t address) {
         case 0x03: // IWRAM
         return gba_iwram_read32(address);
 
+        case 0x04: // IO
+        return gba_io_read32(address);
+
         case 0x05: // Palette
         return gba_ppu_palette_read32(address);
 
@@ -115,7 +125,7 @@ uint32_t gba_bus_read32(uint32_t address) {
         return gba_ppu_vram_read32(address);
 
         case 0x07: // OAM
-        return gba_ppu_vram_read32(address);
+        return gba_ppu_oam_read32(address);
 
         case 0x08: // Game Pak ROM Wait State 0
         case 0x09:
@@ -147,6 +157,10 @@ void gba_bus_write8(uint32_t address, uint8_t value) {
         gba_iwram_write8(address, value);
         break;
 
+        case 0x04: // IO
+        gba_io_write8(address, value);
+        break;
+
         case 0x05: // Palette
         gba_ppu_palette_write8(address, value);
         break;
@@ -176,6 +190,10 @@ void gba_bus_write16(uint32_t address, uint16_t value) {
         gba_iwram_write16(address, value);
         break;
 
+        case 0x04: // IO
+        gba_io_write16(address, value);
+        break;
+
         case 0x05: // Palette
         gba_ppu_palette_write16(address, value);
         break;
@@ -203,6 +221,10 @@ void gba_bus_write32(uint32_t address, uint32_t value) {
 
         case 0x03: // IWRAM
         gba_iwram_write32(address, value);
+        break;
+
+        case 0x04: // IO
+        gba_io_write32(address, value);
         break;
 
         case 0x05: // Palette
