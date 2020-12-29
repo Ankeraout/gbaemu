@@ -13,7 +13,9 @@ const char *romPath;
 
 const void *biosBuffer;
 const void *romBuffer;
+size_t romBufferSize;
 void *sramBuffer;
+size_t sramBufferSize;
 
 int main(int argc, const char **argv);
 int readCommandLineArguments(int argc, const char **argv);
@@ -45,6 +47,8 @@ int main(int argc, const char **argv) {
     }
 
     gba_init(true);
+    gba_setBios(biosBuffer);
+    gba_setRom(romBuffer, romBufferSize);
 
     while(true) {
         gba_frameAdvance();
@@ -138,6 +142,8 @@ int loadRom() {
         fprintf(stderr, "Failed to read ROM file.\n");
         return 1;
     }
+
+    romBufferSize = fileSize;
 
     return 0;
 }

@@ -32,7 +32,7 @@ void gba_cartridge_init(const void *buffer, size_t size) {
 
     gba_cartridge_rom_addressMask8 = size - 1;
     gba_cartridge_rom_addressMask16 = gba_cartridge_rom_addressMask8 & ~0x00000001;
-    gba_cartridge_rom_addressMask16 = gba_cartridge_rom_addressMask16 & ~0x00000002;
+    gba_cartridge_rom_addressMask32 = gba_cartridge_rom_addressMask16 & ~0x00000002;
 }
 
 uint8_t gba_cartridge_rom_read8(uint32_t address) {

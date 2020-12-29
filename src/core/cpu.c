@@ -234,7 +234,29 @@ void gba_cpu_reset(bool skipBoot) {
 }
 
 void gba_cpu_cycle() {
+    uint32_t fetchAddress = gba_cpu_r[15];
 
+    gba_cpu_execute();
+    gba_cpu_decode();
+    gba_cpu_fetch(fetchAddress);
+
+    switch(gba_cpu_pipelineState) {
+        case GBA_CPU_PIPELINESTATE_FLUSH:
+            gba_cpu_pipelineState = GBA_CPU_PIPELINESTATE_FETCH;
+            break;
+
+        case GBA_CPU_PIPELINESTATE_FETCH:
+            gba_cpu_pipelineState = GBA_CPU_PIPELINESTATE_DECODE;
+            break;
+
+        case GBA_CPU_PIPELINESTATE_DECODE:
+            gba_cpu_pipelineState = GBA_CPU_PIPELINESTATE_EXECUTE;
+            break;
+
+        case GBA_CPU_PIPELINESTATE_EXECUTE:
+            gba_cpu_pipelineState = GBA_CPU_PIPELINESTATE_EXECUTE;
+            break;
+    }
 }
 
 static inline uint32_t gba_cpu_getCpsr() {
@@ -515,16 +537,16 @@ static inline void gba_cpu_raiseUnd() {
 }
 
 static inline void gba_cpu_execute() {
-    // Check for interrupts
-    if(
-        (gba_io_read16(0x04000208) & 0x0001)
-        && (gba_io_read16(0x04000200) & gba_io_read16(0x04000202) & 0x3fff)
-        && !gba_cpu_flagI
-    ) {
-        gba_cpu_raiseIrq();
-    }
-
     if(gba_cpu_pipelineState == GBA_CPU_PIPELINESTATE_EXECUTE) {
+        // Check for interrupts
+        if(
+            (gba_io_read16(0x04000208) & 0x0001)
+            && (gba_io_read16(0x04000200) & gba_io_read16(0x04000202) & 0x3fff)
+            && !gba_cpu_flagI
+        ) {
+            gba_cpu_raiseIrq();
+        }
+        
         if(gba_cpu_flagT) {
             if(gba_cpu_decodedOpcodeThumbHandler) {
                 gba_cpu_decodedOpcodeThumbHandler(gba_cpu_decodedOpcodeThumbValue);

@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include <SDL2/SDL.h>
 
@@ -107,7 +108,7 @@ static inline void updateKeypad() {
             case SDL_WINDOWEVENT:
             switch(e.window.event) {
                 case SDL_WINDOWEVENT_CLOSE:
-                // TODO
+                exit(0);
                 break;
             }
 
@@ -129,6 +130,7 @@ static inline void updateKeypad() {
 void frontend_frame(const uint32_t *buffer) {
     updateScreen(buffer);
     updateKeypad();
+    updateFps();
 }
 
 void frontend_close() {
