@@ -77,6 +77,8 @@ gba_cpu_opcodeHandlerArm_t *gba_cpu_decodedOpcodeArmHandler;
 gba_cpu_opcodeHandlerThumb_t *gba_cpu_decodedOpcodeThumbHandler;
 gba_cpu_opcodeHandlerArm_t *gba_cpu_decodeTable_arm[4096];
 gba_cpu_opcodeHandlerThumb_t *gba_cpu_decodeTable_thumb[1024];
+uint32_t gba_cpu_shifterResult;
+bool gba_cpu_shifterCarry;
 
 void gba_cpu_init();
 void gba_cpu_reset(bool skipBoot);
@@ -96,9 +98,12 @@ static inline void gba_cpu_decode();
 static inline void gba_cpu_fetch();
 static inline void gba_cpu_initDecodeThumb();
 static inline void gba_cpu_initDecodeArm();
+static inline void gba_cpu_arm_shift(uint32_t opcode);
+static inline uint32_t gba_cpu_util_ror32(uint32_t value, int bits);
 
 void gba_cpu_init() {
-
+    gba_cpu_initDecodeArm();
+    gba_cpu_initDecodeThumb();
 }
 
 void gba_cpu_reset(bool skipBoot) {
@@ -678,4 +683,157 @@ static inline void gba_cpu_initDecodeArm() {
             }
         }
     }
+}
+
+static inline void gba_cpu_arm_shift(uint32_t opcode) {
+    if(!(opcode & 0x02000000)) {
+        uint32_t rm = opcode & 0x0000000f;
+        uint32_t rm_v = gba_cpu_r[rm];
+
+        if(!(opcode & 0x00000010)) {
+            int immediate = (opcode & 0x00000f80) >> 7;
+
+            switch((opcode & 0x060) >> 5) {
+                case 0: // LSL
+                    if(immediate == 0) {
+                        gba_cpu_shifterResult = rm_v;
+                        gba_cpu_shifterCarry = gba_cpu_flagC;
+                    } else {
+                        gba_cpu_shifterResult = rm_v << immediate;
+                        gba_cpu_shifterCarry = (rm_v >> (32 - immediate)) & 1;
+                    }
+
+                    break;
+
+                case 1: // LSR
+                    if(immediate == 0) {
+                        gba_cpu_shifterResult = 0;
+                        gba_cpu_shifterCarry = rm_v >> 31;
+                    } else {
+                        gba_cpu_shifterResult = rm_v >> immediate;
+                        gba_cpu_shifterCarry = (rm_v >> (immediate - 1)) & 1;
+                    }
+
+                    break;
+
+                case 2: // ASR
+                    if(immediate == 0) {
+                        gba_cpu_shifterResult = (int)rm_v >> 31;
+                        gba_cpu_shifterCarry = rm_v >> 31;
+                    } else {
+                        gba_cpu_shifterResult = (int)rm_v >> immediate;
+                        gba_cpu_shifterCarry = (rm_v >> (immediate - 1)) & 1;
+                    }
+
+                    break;
+
+                case 3: // ROR/RRX
+                    if(immediate == 0) {
+                        // RRX
+                        gba_cpu_shifterResult = (gba_cpu_flagC ? 1 << 31 : 0) | (rm_v >> 1);
+                        gba_cpu_shifterCarry = rm_v & 1;
+                    } else {
+                        // ROR
+                        gba_cpu_shifterResult = gba_cpu_util_ror32(rm_v, immediate);
+                        gba_cpu_shifterCarry = (rm_v >> (immediate - 1)) & 1;
+                    }
+
+                    break;
+            }
+        } else {
+            if(rm == 15) {
+                rm_v += 4;
+            }
+
+            if((opcode & 0x00000080) != 0) {
+                gba_cpu_raiseUnd();
+            }
+
+            uint32_t rs = (opcode & 0x00000f00) >> 8;
+            uint32_t shift = gba_cpu_r[rs] & 0x000000ff;
+
+            switch((opcode & 0x060) >> 5) {
+                case 0: // LSL
+                    if(shift == 0) {
+                        gba_cpu_shifterResult = rm_v;
+                        gba_cpu_shifterCarry = gba_cpu_flagC;
+                    } else if(shift < 32) {
+                        gba_cpu_shifterResult = rm_v << shift;
+                        gba_cpu_shifterCarry = (rm_v >> (32 - shift)) & 1;
+                    } else if(shift == 32) {
+                        gba_cpu_shifterResult = 0;
+                        gba_cpu_shifterCarry = rm_v & 1;
+                    } else {
+                        gba_cpu_shifterResult = 0;
+                        gba_cpu_shifterCarry = false;
+                    }
+
+                    break;
+
+                case 1: // LSR
+                    if(shift == 0) {
+                        gba_cpu_shifterResult = rm_v;
+                        gba_cpu_shifterCarry = gba_cpu_flagC;
+                    } else if(shift < 32) {
+                        gba_cpu_shifterResult = rm_v >> shift;
+                        gba_cpu_shifterCarry = (rm_v >> (shift - 1)) & 1;
+                    } else if(shift == 32) {
+                        gba_cpu_shifterResult = 0;
+                        gba_cpu_shifterCarry = rm_v >> 31;
+                    } else {
+                        gba_cpu_shifterResult = 0;
+                        gba_cpu_shifterCarry = false;
+                    }
+
+                    break;
+
+                case 2: // ASR
+                    if(shift == 0) {
+                        gba_cpu_shifterResult = rm_v;
+                        gba_cpu_shifterCarry = gba_cpu_flagC;
+                    } else if(shift < 32) {
+                        gba_cpu_shifterResult = (int)rm_v >> shift;
+                        gba_cpu_shifterCarry = (rm_v >> (shift - 1)) & 1;
+                    } else {
+                        gba_cpu_shifterResult = (int)rm_v >> 31;
+                        gba_cpu_shifterCarry = rm_v >> 31;
+                    }
+
+                    break;
+                    
+                case 3: // ROR
+                    {
+                        int rotation = shift & 0x1f;
+
+                        if(shift == 0) {
+                            gba_cpu_shifterResult = rm_v;
+                            gba_cpu_shifterCarry = gba_cpu_flagC;
+                        } else if(rotation == 0) {
+                            gba_cpu_shifterResult = rm_v;
+                            gba_cpu_shifterCarry = rm_v >> 31;
+                        } else {
+                            gba_cpu_shifterResult = gba_cpu_util_ror32(rm_v, rotation);
+                            gba_cpu_shifterCarry = (rm_v >> (rotation - 1)) & 1;
+                        }
+
+                        break;
+                    }
+            }
+        }
+    } else {
+        uint32_t rotation = (opcode >> 7) & 0x1e;
+        uint32_t immediate = opcode & 0xff;
+
+        if(rotation) {
+            gba_cpu_shifterResult = gba_cpu_util_ror32(immediate, rotation);
+            gba_cpu_shifterCarry = gba_cpu_shifterResult >> 31;
+        } else {
+            gba_cpu_shifterResult = immediate;
+            gba_cpu_shifterCarry = gba_cpu_flagC;
+        }
+    }
+}
+
+static inline uint32_t gba_cpu_util_ror32(uint32_t value, int bits) {
+    return (value >> bits) | (value << (32 - bits));
 }
