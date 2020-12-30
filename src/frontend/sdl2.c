@@ -65,7 +65,7 @@ int frontend_init() {
 }
 
 static inline void updateScreen(const uint32_t *buffer) {
-    memcpy(screenSurface->pixels, buffer, GBA_SCREEN_WIDTH * GBA_SCREEN_HEIGHT);
+    memcpy(screenSurface->pixels, buffer, GBA_SCREEN_WIDTH * GBA_SCREEN_HEIGHT * 4);
     SDL_BlitScaled(screenSurface, NULL, windowSurface, NULL);
     SDL_UpdateWindowSurface(window);
 }

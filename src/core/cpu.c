@@ -493,7 +493,7 @@ static inline bool gba_cpu_checkCondition(gba_cpu_condition_t condition) {
         case GBA_CPU_CONDITION_HI: return gba_cpu_flagC && !gba_cpu_flagZ;
         case GBA_CPU_CONDITION_LS: return (!gba_cpu_flagC) || gba_cpu_flagZ;
         case GBA_CPU_CONDITION_GE: return gba_cpu_flagN == gba_cpu_flagV;
-        case GBA_CPU_CONDITION_LT: return gba_cpu_flagN == gba_cpu_flagV;
+        case GBA_CPU_CONDITION_LT: return gba_cpu_flagN != gba_cpu_flagV;
         case GBA_CPU_CONDITION_GT: return (!gba_cpu_flagZ) && (gba_cpu_flagN == gba_cpu_flagV);
         case GBA_CPU_CONDITION_LE: return gba_cpu_flagZ || (gba_cpu_flagN != gba_cpu_flagV);
         case GBA_CPU_CONDITION_AL: return true;
@@ -968,7 +968,7 @@ static inline void gba_cpu_setFlags_arithmetical(uint32_t result) {
 }
 
 static inline bool gba_cpu_getCarry_sbc(uint32_t left, uint32_t right, bool carry) {
-    return (left >= right) && ((left - right) >= carry);
+    return (left >= right) && ((left - right) >= (!carry));
 }
 
 static inline bool gba_cpu_getCarry_sub(uint32_t left, uint32_t right) {
@@ -976,7 +976,7 @@ static inline bool gba_cpu_getCarry_sub(uint32_t left, uint32_t right) {
 }
 
 static inline bool gba_cpu_getOverflow_sub(uint32_t left, uint32_t right, uint32_t result) {
-    return ((left ^ right) >> 31) && ((left ^ result) >> 31);
+    return ((left ^ right) & (left ^ result)) >> 31;
 }
 
 static inline bool gba_cpu_getOverflow_add(uint32_t left, uint32_t right, uint32_t result) {
@@ -1744,8 +1744,6 @@ static inline void gba_cpu_arm_teq(uint32_t opcode) {
             gba_cpu_setFlags_logical(result);
         }
     }
-
-    gba_cpu_writeRegister(rd, result);
 }
 
 static inline void gba_cpu_arm_cmp(uint32_t opcode) {
@@ -2079,7 +2077,7 @@ static inline void gba_cpu_thumb_ldrStrh(uint16_t opcode) {
     uint32_t offset = ro_v + rb_v;
 
     if(s) {
-        if(h) {
+        if(h && (!(offset & (1 << 0)))) {
             uint32_t result = gba_bus_read16(offset);
 
             if(result & (1 << 15)) {
@@ -2098,7 +2096,7 @@ static inline void gba_cpu_thumb_ldrStrh(uint16_t opcode) {
         }
     } else {
         if(h) {
-            gba_cpu_r[rd] = gba_bus_read16(offset);
+            gba_cpu_r[rd] = gba_cpu_util_ror32(gba_bus_read16(offset), (offset & (1 << 0)) << 3);
         } else {
             uint32_t rd_v = gba_cpu_r[rd];
             gba_bus_write16(offset, rd_v);
@@ -2537,7 +2535,7 @@ static inline void gba_cpu_thumb_ldrStrh2(uint16_t opcode) {
     uint32_t addr = rb_v + (offset << 1);
 
     if(l) {
-        gba_cpu_r[rd] = gba_bus_read16(addr);
+        gba_cpu_r[rd] = gba_cpu_util_ror32(gba_bus_read16(addr), (addr & 0x00000001) << 3);
     } else {
         uint32_t rd_v = gba_cpu_r[rd];
         gba_bus_write16(addr, rd_v);
@@ -2628,16 +2626,49 @@ static inline void gba_cpu_thumb_ldmStm(uint16_t opcode) {
     uint16_t rb = (opcode & 0x0700) >> 8;
     uint8_t rlist = opcode;
 
-    for(int i = 0; i < 7; i++) {
-        if(rlist & (1 << i)) {
-            if(l) {
-                gba_cpu_r[i] = gba_bus_read32(gba_cpu_r[rb]);
-            } else {
-                gba_bus_write32(gba_cpu_r[rb], gba_cpu_r[i]);
-            }
+    if(rlist) {
+        unsigned int registerCount = gba_cpu_util_hammingWeight8(rlist);
 
-            gba_cpu_r[rb] += 4;
+        const uint8_t lookupTable[8] = {
+            0x00,
+            0x01,
+            0x03,
+            0x07,
+            0x0f,
+            0x1f,
+            0x3f,
+            0x7f
+        };
+
+        bool baseInRlist = (rlist & (1 << rb)) != 0;
+        bool baseFirstInRlist = !(rlist & lookupTable[rb]);
+        uint32_t addr = gba_cpu_r[rb];
+
+        if(baseInRlist && !baseFirstInRlist) {
+            gba_cpu_r[rb] += registerCount * 4;
         }
+
+        for(int i = 0; i < 7; i++) {
+            if(rlist & (1 << i)) {
+                if(l) {
+                    gba_cpu_r[i] = gba_bus_read32(addr);
+                } else {
+                    gba_bus_write32(addr, gba_cpu_r[i]);
+                }
+
+                addr += 4;
+            }
+        }
+
+        gba_cpu_r[rb] = addr;
+    } else {
+        if(l) {
+            gba_cpu_performJump(gba_bus_read32(gba_cpu_r[rb]));
+        } else {
+            gba_bus_write32(gba_cpu_r[rb], gba_cpu_r[15] + 2);
+        }
+
+        gba_cpu_r[rb] += 0x40;
     }
 }
 
