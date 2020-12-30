@@ -102,8 +102,8 @@ void gba_io_reset() {
     gba_io_initRegister(0x040000d4, 0x0000, NULL, 0x0000, 0xffff); // DMA3SAD_L
     gba_io_initRegister(0x040000d6, 0x0000, NULL, 0x0000, 0x0fff); // DMA3SAD_H
     gba_io_initRegister(0x040000d8, 0x0000, NULL, 0x0000, 0xffff); // DMA3DAD_L
-    gba_io_initRegister(0x040000da, 0x0000, NULL, 0x0000, 0x07ff); // DMA3DAD_H
-    gba_io_initRegister(0x040000dc, 0x0000, NULL, 0x0000, 0x3fff); // DMA3CNT_L
+    gba_io_initRegister(0x040000da, 0x0000, NULL, 0x0000, 0x0fff); // DMA3DAD_H
+    gba_io_initRegister(0x040000dc, 0x0000, NULL, 0x0000, 0xffff); // DMA3CNT_L
     gba_io_initRegister(0x040000de, 0x0000, gba_dma_writeCallback_cntH3, 0xffe0, 0xffe0); // DMA3CNT_H
     gba_io_initRegister(0x04000100, 0x0000, gba_timer_writeCallback_channel0_reload, 0xffff, 0x0000); // TM0D
     gba_io_initRegister(0x04000102, 0x0000, gba_timer_writeCallback_channel0_control, 0x00c3, 0x00c3); // TM0CNT

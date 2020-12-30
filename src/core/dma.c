@@ -219,7 +219,7 @@ static inline void gba_dma_channel_reloadSourceAddress(gba_dma_channel_t *channe
 }
 
 static inline void gba_dma_channel_reloadDestinationAddress(gba_dma_channel_t *channel) {
-    channel->sourceAddress = (uint32_t)gba_io_getRegister(channel->iobase + 4)->value | (uint32_t)(gba_io_getRegister(channel->iobase + 6)->value << 16);
+    channel->destinationAddress = (uint32_t)gba_io_getRegister(channel->iobase + 4)->value | (uint32_t)(gba_io_getRegister(channel->iobase + 6)->value << 16);
 }
 
 static inline void gba_dma_channel_reloadWordCount(gba_dma_channel_t *channel) {
