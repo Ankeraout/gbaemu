@@ -197,7 +197,6 @@ static inline void gba_dma_channel_finish(gba_dma_channel_t *channel) {
 
 static inline void gba_dma_channel_repeat(gba_dma_channel_t *channel) {
     gba_dma_channel_reloadRegisters(channel, true);
-    channel->running = true;
 }
 
 static inline void gba_dma_channel_reloadRegisters(gba_dma_channel_t *channel, bool repeat) {
