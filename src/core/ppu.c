@@ -319,7 +319,7 @@ static inline void gba_ppu_drawLayer(int layer) {
             uint32_t tileDataAddress = (tileNumber << 5) | (yTileReal << 2) | (xTileReal >> 1);
             uint8_t tileValue = gba_ppu_vram[tileBase + tileDataAddress];
 
-            if((xTileReal & (1 << 0)) ^ flipHorizontal) {
+            if(!((xTileReal & (1 << 0)) ^ flipHorizontal)) {
                 tileValue >>= 4;
             } else {
                 tileValue &= 0x0f;
