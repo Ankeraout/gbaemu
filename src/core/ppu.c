@@ -214,11 +214,17 @@ void gba_ppu_oam_write32(uint32_t address, uint32_t value) {
 }
 
 static inline uint32_t gba_ppu_colorToRgb(uint16_t color) {
-    unsigned int blue = (color & 0x7c00) >> 10;
-    unsigned int green = (color & 0x03e0) >> 5;
-    unsigned int red = color & 0x001f;
+    uint32_t blue = (color & 0x7c00) >> 7;
+    uint32_t green = (color & 0x03e0) >> 2;
+    uint32_t red = color & 0x001f;
 
-    return 0xff000000 | (red << 3) | (green << 11) | (blue << 19);
+    red <<= 3;
+    
+    red |= red >> 5;
+    green |= green >> 5;
+    blue |= blue >> 5;
+
+    return 0xff000000 | red | (green << 8) | (blue << 16);
 }
 
 static inline uint16_t gba_ppu_getPaletteColor(uint8_t index) {

@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "debug.h"
 #include "platform.h"
 #include "core/bus.h"
 #include "core/io.h"
@@ -546,6 +547,30 @@ static inline void gba_cpu_execute() {
         ) {
             gba_cpu_raiseIrq();
         } else {
+            /*
+            debug("[%08x] r0=%08x r1=%08x r2=%08x r3=%08x r4=%08x r5=%08x r6=%08x r7=%08x r8=%08x r9=%08x r10=%08x r11=%08x r12=%08x r13=%08x r14=%08x r15=%08x cpsr=%08x spsr=%08x\n", 
+                (gba_cpu_flagT ? (gba_cpu_r[15] - 4) : (gba_cpu_r[15] - 8)),
+                gba_cpu_r[0],
+                gba_cpu_r[1],
+                gba_cpu_r[2],
+                gba_cpu_r[3],
+                gba_cpu_r[4],
+                gba_cpu_r[5],
+                gba_cpu_r[6],
+                gba_cpu_r[7],
+                gba_cpu_r[8],
+                gba_cpu_r[9],
+                gba_cpu_r[10],
+                gba_cpu_r[11],
+                gba_cpu_r[12],
+                gba_cpu_r[13],
+                gba_cpu_r[14],
+                gba_cpu_r[15],
+                gba_cpu_getCpsr(),
+                gba_cpu_getSpsr()
+            );
+            */
+
             if(gba_cpu_flagT) {
                 if(gba_cpu_decodedOpcodeThumbHandler) {
                     gba_cpu_decodedOpcodeThumbHandler(gba_cpu_decodedOpcodeThumbValue);
