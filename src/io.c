@@ -3,9 +3,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "io.h"
+
+/**
+ * @brief Rounds the given value to the higher power of two.
+ * 
+ * @param[in] initialValue The value to round.
+ * 
+ * @returns The value rounded to the higher power of two.
+ */
 static inline long po2_ceil(long initialValue);
-void *readFile(const char *fileName, long *fileSize, bool po2);
-int writeFile(const char *fileName, const void *buffer, size_t bufferSize);
 
 static inline long po2_ceil(long initialValue) {
     int hammingWeight = 0;
@@ -36,7 +43,7 @@ void *readFile(const char *fileName, long *fileSize, bool po2) {
 
     // If the file could not be opened, return an error
     if(!file) {
-        fprintf(stderr, "readFile(): Failed to open %s.", fileName);
+        fprintf(stderr, "readFile(): Failed to open %s.\n", fileName);
         return NULL;
     }
 
@@ -47,7 +54,7 @@ void *readFile(const char *fileName, long *fileSize, bool po2) {
 
     // Compare the file size
     if(*fileSize > 0 && foundFileSize > *fileSize) {
-        fprintf(stderr, "readFile(): File is too large: %s.", fileName);
+        fprintf(stderr, "readFile(): File is too large: %s.\n", fileName);
         return NULL;
     }
 
@@ -81,7 +88,7 @@ int writeFile(const char *fileName, const void *buffer, size_t bufferSize) {
 
     // If the file could not be opened, return an error
     if(!file) {
-        fprintf(stderr, "writeFile(): Failed to open %s.", fileName);
+        fprintf(stderr, "writeFile(): Failed to open %s.\n", fileName);
         return 1;
     }
 
@@ -93,7 +100,7 @@ int writeFile(const char *fileName, const void *buffer, size_t bufferSize) {
 
     // If the file could not be written, return an error
     if(writtenBytes != bufferSize) {
-        fprintf(stderr, "writeFile(): Failed to write %ld bytes in %s.", bufferSize, fileName);
+        fprintf(stderr, "writeFile(): Failed to write %ld bytes in %s.\n", bufferSize, fileName);
         return 1;
     }
 

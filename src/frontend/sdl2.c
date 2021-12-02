@@ -4,27 +4,48 @@
 #include <SDL2/SDL.h>
 
 #include "core/defines.h"
-#include "core/keypad.h"
+#include "frontend/frontend.h"
 
 #define SCREEN_SCALE 2
 #define WINDOW_WIDTH (GBA_SCREEN_WIDTH * SCREEN_SCALE)
 #define WINDOW_HEIGHT (GBA_SCREEN_HEIGHT * SCREEN_SCALE)
 
-SDL_Window *window;
-SDL_Surface *windowSurface;
-SDL_Surface *screenSurface;
+static SDL_Window *window;
+static SDL_Surface *windowSurface;
+static SDL_Surface *screenSurface;
 
-Uint32 timestamp;
-int frameCounter;
+static Uint32 timestamp;
+static int frameCounter;
 
-bool keys[10];
+static bool keys[10];
+static frontend_keypadHandler_t *keypadHandler;
+static void *keypadHandlerParameter;
 
-void frontend_close();
-void frontend_frame(const uint32_t *buffer);
-int frontend_init();
+/**
+ * @brief Updates the framerate counter in the window title.
+ */
 static inline void updateFps();
+
+/**
+ * @brief Updates the keypad. This function is called when a key is pressed or
+ *        released.
+ * 
+ * @param[in] keysym The symbol of the modified key.
+ * @param[in] pressed A boolean value that indicates whether the key is being
+ *                    pressed or not.
+ */
 static inline void updateKey(SDL_Keysym *keysym, bool pressed);
-static inline void updateKeypad();
+
+/**
+ * @brief Processes the incoming events of the application.
+ */
+static inline void processEvents();
+
+/**
+ * @brief Updates the application screen.
+ * 
+ * @param[in] buffer The buffer to copy to the screen.
+ */
 static inline void updateScreen(const uint32_t *buffer);
 
 int frontend_init() {
@@ -100,7 +121,7 @@ static inline void updateKey(SDL_Keysym *keysym, bool pressed) {
     }
 }
 
-static inline void updateKeypad() {
+static inline void processEvents() {
     SDL_Event e;
 
     while(SDL_PollEvent(&e)) {
@@ -124,12 +145,12 @@ static inline void updateKeypad() {
         }
     }
 
-    gba_keypad_update(keys);
+    keypadHandler(keypadHandlerParameter, keys);
 }
 
 void frontend_frame(const uint32_t *buffer) {
     updateScreen(buffer);
-    updateKeypad();
+    processEvents();
     updateFps();
 }
 
@@ -137,4 +158,9 @@ void frontend_close() {
     SDL_FreeSurface(screenSurface);
     SDL_DestroyWindow(window);
     SDL_Quit();
+}
+
+void frontend_setKeypadHandler(frontend_keypadHandler_t *callback, void *callbackParameter) {
+    keypadHandler = callback;
+    keypadHandlerParameter = callbackParameter;
 }

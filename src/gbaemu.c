@@ -8,21 +8,73 @@
 #include "core/gba.h"
 #include "frontend/frontend.h"
 
-const char *biosPath;
-const char *romPath;
+static const char *biosPath;
+static const char *romPath;
 
-const void *biosBuffer;
-const void *romBuffer;
-size_t romBufferSize;
-void *sramBuffer;
-size_t sramBufferSize;
+static void *biosBuffer;
+static void *romBuffer;
+static size_t romBufferSize;
 
+/**
+ * @brief The entry point of the application.
+ * 
+ * @param[in] argc The argument count of the application.
+ * @param[in] argv The arguments of the application.
+ * 
+ * @returns An integer value that indicates the result of the execution of the
+ *          program.
+ * @retval 0 if the program executed normally without error.
+ * @retval Any other value if the program exited with an error.
+ */
 int main(int argc, const char **argv);
-int readCommandLineArguments(int argc, const char **argv);
-void printHelp();
-int checkConfiguration();
-int loadBios();
-int loadRom();
+
+/**
+ * @brief Reads the application parameters.
+ * 
+ * @param[in] argc The argument count of the application.
+ * @param[in] argv The arguments of the application.
+ * 
+ * @returns An integer value that indicates the result of the parsing of the
+ *          program parameters.
+ * @retval 0 if the parameters were parsed successfully.
+ * @retval Any other value if an error occurred.
+ */
+static int readCommandLineArguments(int argc, const char **argv);
+
+/**
+ * @brief Prints the help message.
+ */
+static void printHelp();
+
+/**
+ * @brief Checks if the configuration of the program is valid.
+ * 
+ * @returns An integer value that indicates whether the program configuration
+ *          is valid or not.
+ * @retval 0 if the program configuration is valid.
+ * @retval Any other value otherwise.
+ */
+static int checkConfiguration();
+
+/**
+ * @brief Loads the GameBoy Advance BIOS.
+ * 
+ * @returns An integer value that indicates whether the BIOS was loaded
+ *          successfully.
+ * @retval 0 if the BIOS was loaded successfully.
+ * @retval Any other value otherwise.
+ */
+static int loadBios();
+
+/**
+ * @brief Loads the GameBoy Advance ROM.
+ * 
+ * @returns An integer value that indicates whether the ROM was loaded
+ *          successfully.
+ * @retval 0 if the ROM was loaded successfully.
+ * @retval Any other value otherwise.
+ */
+static int loadRom();
 
 int main(int argc, const char **argv) {
     if(readCommandLineArguments(argc, argv)) {
@@ -46,9 +98,10 @@ int main(int argc, const char **argv) {
         return EXIT_FAILURE;
     }
 
-    gba_init(true);
-    gba_setBios(biosBuffer);
-    gba_setRom(romBuffer, romBufferSize);
+    gba_init(true, biosBuffer, romBuffer, romBufferSize);
+
+    free(biosBuffer);
+    free(romBuffer);
 
     while(true) {
         gba_frameAdvance();
@@ -59,7 +112,7 @@ int main(int argc, const char **argv) {
     return EXIT_SUCCESS;
 }
 
-int readCommandLineArguments(int argc, const char **argv) {
+static int readCommandLineArguments(int argc, const char **argv) {
     bool flag_bios = false;
     bool flag_rom = false;
     
@@ -94,7 +147,7 @@ int readCommandLineArguments(int argc, const char **argv) {
     return 0;
 }
 
-void printHelp() {
+static void printHelp() {
     printf("gbaemu\n");
     printf("======\n");
     printf("\n");
@@ -106,7 +159,7 @@ void printHelp() {
     printf("  --help\n");
 }
 
-int checkConfiguration() {
+static int checkConfiguration() {
     if(biosPath == NULL) {
         fprintf(stderr, "No BIOS file path specified.\n");
         return 1;
@@ -115,7 +168,7 @@ int checkConfiguration() {
     return 0;
 }
 
-int loadBios() {
+static int loadBios() {
     long fileSize = GBA_BIOS_FILE_SIZE;
 
     biosBuffer = readFile(biosPath, &fileSize, true);
@@ -133,7 +186,7 @@ int loadBios() {
     return 0;
 }
 
-int loadRom() {
+static int loadRom() {
     long fileSize = GBA_MAX_ROM_FILE_SIZE;
 
     romBuffer = readFile(romPath, &fileSize, true);
