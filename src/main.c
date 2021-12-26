@@ -12,10 +12,10 @@
 
 /**
  * @brief This function is the entry point of the emulator.
- * 
+ *
  * @param[in] p_argc Contains the number of elements in p_argv (arguments).
  * @param[in] p_argv Contains the command-line parameters of the program.
- * 
+ *
  * @returns An integer that indicates the result of the execution of the
  *          emulator.
  * @retval 0 if no error occurred.

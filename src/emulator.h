@@ -13,10 +13,10 @@
  *          and then preparing the core.
  *          If an error occurs while executing this function, then a message
  *          describing the error will be printed to the standard output.
- * 
+ *
  * @param[in] p_argc Contains the number of elements in p_argv (arguments).
  * @param[in] p_argv Contains the command-line parameters of the program.
- * 
+ *
  * @returns An integer that indicates the result of the execution of this
  *          function.
  * @retval 0 if no error occurred.
