@@ -11,7 +11,8 @@ DEPS := $(OBJS:.o=.d)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CFLAGS ?= $(INC_FLAGS) -MMD -MP -W -Wall -Wextra
+CFLAGS ?= $(INC_FLAGS) -MMD -MP -W -Wall -Wextra -s -O3
+LDFLAGS ?= -s
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
