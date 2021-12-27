@@ -16,7 +16,20 @@
 //==============================================================================
 // Private variables
 //==============================================================================
-uint32_t s_romAddressMask;
+/**
+ * @brief This variable contains the ROM address mask for byte accesses.
+ */
+uint32_t s_romAddressMask8;
+
+/**
+ * @brief This variable contains the ROM address mask for halfword accesses.
+ */
+uint32_t s_romAddressMask16;
+
+/**
+ * @brief This variable contains the ROM address mask for word accesses.
+ */
+uint32_t s_romAddressMask32;
 
 //==============================================================================
 // Private functions declaration
@@ -26,17 +39,19 @@ uint32_t s_romAddressMask;
 // Public functions definition
 //==============================================================================
 void cartridgeInit(void) {
-    s_romAddressMask = (uint32_t)(g_romBufferSize - 1);
+    s_romAddressMask8 = (uint32_t)(g_romBufferSize - 1);
+    s_romAddressMask16 = s_romAddressMask8 & 0xfffffffe;
+    s_romAddressMask32 = s_romAddressMask8 & 0xfffffffc;
 }
 
 uint8_t cartridgeRomRead8(uint32_t p_address) {
-    uint32_t l_address = p_address & s_romAddressMask;
+    uint32_t l_address = p_address & s_romAddressMask8;
 
     return g_romBuffer[l_address];
 }
 
 uint16_t cartridgeRomRead16(uint32_t p_address) {
-    uint32_t l_address = p_address & s_romAddressMask;
+    uint32_t l_address = p_address & s_romAddressMask16;
 
     return (
         g_romBuffer[l_address]
@@ -45,7 +60,7 @@ uint16_t cartridgeRomRead16(uint32_t p_address) {
 }
 
 uint32_t cartridgeRomRead32(uint32_t p_address) {
-    uint32_t l_address = p_address & s_romAddressMask;
+    uint32_t l_address = p_address & s_romAddressMask32;
 
     return (
         g_romBuffer[l_address]
