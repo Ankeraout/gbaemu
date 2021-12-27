@@ -6,6 +6,8 @@
 #include "cartrige.h"
 #include "common.h"
 #include "ewram.h"
+#include "gpu.h"
+#include "io.h"
 #include "iwram.h"
 
 //==============================================================================
@@ -105,39 +107,39 @@ const t_busOperationHandlers s_busOperationHandlers[16] = {
     },
     // 0xx4xxxxxx: I/O registers
     {
-        .read8 = NULL,
-        .read16 = NULL,
-        .read32 = NULL,
-        .write8 = NULL,
-        .write16 = NULL,
-        .write32 = NULL
+        .read8 = ioRead8,
+        .read16 = ioRead16,
+        .read32 = ioRead32,
+        .write8 = ioWrite8,
+        .write16 = ioWrite16,
+        .write32 = ioWrite32
     },
     // 0xx5xxxxxx: Palette
     {
-        .read8 = NULL,
-        .read16 = NULL,
-        .read32 = NULL,
-        .write8 = NULL,
-        .write16 = NULL,
-        .write32 = NULL
+        .read8 = gpuPaletteRead8,
+        .read16 = gpuPaletteRead16,
+        .read32 = gpuPaletteRead32,
+        .write8 = gpuPaletteWrite8,
+        .write16 = gpuPaletteWrite16,
+        .write32 = gpuPaletteWrite32
     },
     // 0xx6xxxxxx: VRAM
     {
-        .read8 = NULL,
-        .read16 = NULL,
-        .read32 = NULL,
-        .write8 = NULL,
-        .write16 = NULL,
-        .write32 = NULL
+        .read8 = gpuVramRead8,
+        .read16 = gpuVramRead16,
+        .read32 = gpuVramRead32,
+        .write8 = gpuVramWrite8,
+        .write16 = gpuVramWrite16,
+        .write32 = gpuVramWrite32
     },
     // 0xx7xxxxxx: OAM
     {
-        .read8 = NULL,
-        .read16 = NULL,
-        .read32 = NULL,
-        .write8 = NULL,
-        .write16 = NULL,
-        .write32 = NULL
+        .read8 = gpuOamRead8,
+        .read16 = gpuOamRead16,
+        .read32 = gpuOamRead32,
+        .write8 = gpuOamWrite8,
+        .write16 = gpuOamWrite16,
+        .write32 = gpuOamWrite32
     },
     // 0xx8xxxxxx: Game Pak ROM (wait state 0)
     {
