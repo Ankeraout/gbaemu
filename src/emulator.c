@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "emulator.h"
+
 //==============================================================================
 // Private constants
 //==============================================================================
@@ -28,32 +30,10 @@
 //==============================================================================
 // Public variables
 //==============================================================================
-/**
- * @brief This variable contains a pointer to an array that contains the BIOS
- *        ROM data.
- */
 uint8_t *g_biosBuffer = NULL;
-
-/**
- * @brief This variable contains a pointer to an array that contains the ROM
- *        data.
- */
 uint8_t *g_romBuffer = NULL;
-
-/**
- * @brief This variable contains the size of the ROM buffer.
- */
 long g_romBufferSize;
-
-/**
- * @brief This variable contains a pointer to an array that contains the SRAM
- *        data.
- */
 uint8_t *g_sramBuffer = NULL;
-
-/**
- * @brief This variable contains the size of the SRAM buffer.
- */
 long g_sramBufferSize;
 
 //==============================================================================

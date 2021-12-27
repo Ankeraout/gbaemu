@@ -2,6 +2,42 @@
 #define __EMULATOR_H__
 
 //==============================================================================
+// Included files
+//==============================================================================
+#include <stdint.h>
+
+//==============================================================================
+// Public variables
+//==============================================================================
+/**
+ * @brief This variable contains a pointer to an array that contains the BIOS
+ *        ROM data.
+ */
+extern uint8_t *g_biosBuffer;
+
+/**
+ * @brief This variable contains a pointer to an array that contains the ROM
+ *        data.
+ */
+extern uint8_t *g_romBuffer;
+
+/**
+ * @brief This variable contains the size of the ROM buffer.
+ */
+extern long g_romBufferSize;
+
+/**
+ * @brief This variable contains a pointer to an array that contains the SRAM
+ *        data.
+ */
+extern uint8_t *g_sramBuffer;
+
+/**
+ * @brief This variable contains the size of the SRAM buffer.
+ */
+extern long g_sramBufferSize;
+
+//==============================================================================
 // Public functions declaration
 //==============================================================================
 

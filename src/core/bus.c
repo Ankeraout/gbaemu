@@ -1,8 +1,11 @@
 //==============================================================================
 // Included files
 //==============================================================================
+#include "bios.h"
 #include "bus.h"
 #include "common.h"
+#include "ewram.h"
+#include "iwram.h"
 
 //==============================================================================
 // Private constants
@@ -65,39 +68,39 @@ static void busDummyWrite32(uint32_t p_address, uint32_t p_value);
 const t_busOperationHandlers s_busOperationHandlers[16] = {
     // 0xx0xxxxxx: BIOS
     {
-        .read8 = NULL,
-        .read16 = NULL,
-        .read32 = NULL,
+        .read8 = biosRead8,
+        .read16 = biosRead16,
+        .read32 = biosRead32,
         .write8 = busDummyWrite8,
         .write16 = busDummyWrite16,
         .write32 = busDummyWrite32
     },
     // 0xx1xxxxxx: BIOS
     {
-        .read8 = NULL,
-        .read16 = NULL,
-        .read32 = NULL,
+        .read8 = biosRead8,
+        .read16 = biosRead16,
+        .read32 = biosRead32,
         .write8 = busDummyWrite8,
         .write16 = busDummyWrite16,
         .write32 = busDummyWrite32
     },
     // 0xx2xxxxxx: EWRAM
     {
-        .read8 = NULL,
-        .read16 = NULL,
-        .read32 = NULL,
-        .write8 = NULL,
-        .write16 = NULL,
-        .write32 = NULL
+        .read8 = ewramRead8,
+        .read16 = ewramRead16,
+        .read32 = ewramRead32,
+        .write8 = ewramWrite8,
+        .write16 = ewramWrite16,
+        .write32 = ewramWrite32
     },
     // 0xx3xxxxxx: IWRAM
     {
-        .read8 = NULL,
-        .read16 = NULL,
-        .read32 = NULL,
-        .write8 = NULL,
-        .write16 = NULL,
-        .write32 = NULL
+        .read8 = iwramRead8,
+        .read16 = iwramRead16,
+        .read32 = iwramRead32,
+        .write8 = iwramWrite8,
+        .write16 = iwramWrite16,
+        .write32 = iwramWrite32
     },
     // 0xx4xxxxxx: I/O registers
     {
