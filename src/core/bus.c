@@ -3,6 +3,7 @@
 //==============================================================================
 #include "bios.h"
 #include "bus.h"
+#include "cartrige.h"
 #include "common.h"
 #include "ewram.h"
 #include "iwram.h"
@@ -140,75 +141,75 @@ const t_busOperationHandlers s_busOperationHandlers[16] = {
     },
     // 0xx8xxxxxx: Game Pak ROM (wait state 0)
     {
-        .read8 = NULL,
-        .read16 = NULL,
-        .read32 = NULL,
+        .read8 = cartridgeRomRead8,
+        .read16 = cartridgeRomRead16,
+        .read32 = cartridgeRomRead32,
         .write8 = busDummyWrite8,
         .write16 = busDummyWrite16,
         .write32 = busDummyWrite32
     },
     // 0xx9xxxxxx: Game Pak ROM (wait state 0)
     {
-        .read8 = NULL,
-        .read16 = NULL,
-        .read32 = NULL,
+        .read8 = cartridgeRomRead8,
+        .read16 = cartridgeRomRead16,
+        .read32 = cartridgeRomRead32,
         .write8 = busDummyWrite8,
         .write16 = busDummyWrite16,
         .write32 = busDummyWrite32
     },
     // 0xxaxxxxxx: Game Pak ROM (wait state 1)
     {
-        .read8 = NULL,
-        .read16 = NULL,
-        .read32 = NULL,
+        .read8 = cartridgeRomRead8,
+        .read16 = cartridgeRomRead16,
+        .read32 = cartridgeRomRead32,
         .write8 = busDummyWrite8,
         .write16 = busDummyWrite16,
         .write32 = busDummyWrite32
     },
     // 0xxbxxxxxx: Game Pak ROM (wait state 1)
     {
-        .read8 = NULL,
-        .read16 = NULL,
-        .read32 = NULL,
+        .read8 = cartridgeRomRead8,
+        .read16 = cartridgeRomRead16,
+        .read32 = cartridgeRomRead32,
         .write8 = busDummyWrite8,
         .write16 = busDummyWrite16,
         .write32 = busDummyWrite32
     },
     // 0xxcxxxxxx: Game Pak ROM (wait state 2)
     {
-        .read8 = NULL,
-        .read16 = NULL,
-        .read32 = NULL,
+        .read8 = cartridgeRomRead8,
+        .read16 = cartridgeRomRead16,
+        .read32 = cartridgeRomRead32,
         .write8 = busDummyWrite8,
         .write16 = busDummyWrite16,
         .write32 = busDummyWrite32
     },
     // 0xxdxxxxxx: Game Pak ROM (wait state 2)
     {
-        .read8 = NULL,
-        .read16 = NULL,
-        .read32 = NULL,
+        .read8 = cartridgeRomRead8,
+        .read16 = cartridgeRomRead16,
+        .read32 = cartridgeRomRead32,
         .write8 = busDummyWrite8,
         .write16 = busDummyWrite16,
         .write32 = busDummyWrite32
     },
     // 0xxexxxxxx: Game Pak SRAM
     {
-        .read8 = NULL,
-        .read16 = NULL,
-        .read32 = NULL,
-        .write8 = NULL,
-        .write16 = NULL,
-        .write32 = NULL
+        .read8 = cartridgeSramRead8,
+        .read16 = cartridgeSramRead16,
+        .read32 = cartridgeSramRead32,
+        .write8 = cartridgeSramWrite8,
+        .write16 = cartridgeSramWrite16,
+        .write32 = cartridgeSramWrite32
     },
     // 0xxfxxxxxx: Game Pak SRAM
     {
-        .read8 = NULL,
-        .read16 = NULL,
-        .read32 = NULL,
-        .write8 = NULL,
-        .write16 = NULL,
-        .write32 = NULL
+        .read8 = cartridgeSramRead8,
+        .read16 = cartridgeSramRead16,
+        .read32 = cartridgeSramRead32,
+        .write8 = cartridgeSramWrite8,
+        .write16 = cartridgeSramWrite16,
+        .write32 = cartridgeSramWrite32
     },
 };
 
