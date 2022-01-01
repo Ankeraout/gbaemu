@@ -9,13 +9,41 @@
 //==============================================================================
 // Public constants definition
 //==============================================================================
+/**
+ * @brief This constant defines the mask for the least significant bit.
+ */
 #define C_IOADDR_MASK_BIT_0 0x00000001
+
+/**
+ * @brief This constant defines the mask for a 16-bit aligned address.
+ */
 #define C_IOADDR_MASK_16 0xfffffffe
+
+/**
+ * @brief This constant defines the mask for a 32-bit aligned address.
+ */
 #define C_IOADDR_MASK_32 0xfffffffc
+
+/**
+ * @brief This constant defines the mask for the least significant byte of a
+ *        16-bit value.
+ */
 #define C_UINT16_MASK_LSB 0x000000ff
+
+/**
+ * @brief This constant defines the mask for the most significant byte of a
+ *        16-bit value.
+ */
 #define C_UINT16_MASK_MSB 0x0000ff00
-#define C_UINT32_MASK_MSH 0xffff0000
+
+/**
+ * @brief This constant defines the address of the POSTFLG register.
+ */
 #define C_IOADDR_POSTFLG 0x04000300
+
+/**
+ * @brief This constant defines the address of the HALTCNT register.
+ */
 #define C_IOADDR_HALTCNT 0x04000301
 
 //==============================================================================
