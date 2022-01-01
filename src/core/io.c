@@ -7,167 +7,103 @@
 #include "io.h"
 
 //==============================================================================
-// Private constants
+// Public constants definition
 //==============================================================================
-/**
- * @brief This constant defines the size of the I/O map in number of entries.
- */
-#define C_IO_MAP_SIZE 0x400
-
-//==============================================================================
-// Private types
-//==============================================================================
-/**
- * @brief This structure represents an entry in the I/O registers map.
- */
-typedef struct {
-    uint8_t (*read8)(uint32_t p_address); /**< Handler for the read8
-                                               operation. */
-    uint16_t (*read16)(uint32_t p_address); /**< Handler for the read16
-                                                 operation. */
-    uint32_t (*read32)(uint32_t p_address); /**< Handler for the read32
-                                                 operation. */
-    void (*write8)(uint32_t p_address, uint8_t p_value); /**< Handler for the
-                                                              write8
-                                                              operation. */
-    void (*write16)(uint32_t p_address, uint16_t p_value); /**< Handler for the
-                                                              write16
-                                                              operation. */
-    void (*write32)(uint32_t p_address, uint32_t p_value); /**< Handler for the
-                                                              write32
-                                                              operation. */
-} t_ioMapEntry;
-
-//==============================================================================
-// Private functions declaration
-//==============================================================================
-/**
- * @brief Reads a byte from the register at the given address in the I/O
- *        registers address space.
- *
- * @param[in] p_address The address of the byte to read.
- *
- * @returns The byte read at the given address.
- */
-uint8_t ioReadDummy8(uint32_t p_address);
-
-/**
- * @brief Reads a halfword from the register at the given address in the I/O
- *        registers address space.
- *
- * @param[in] p_address The address of the halfword to read.
- *
- * @returns The halfword read at the given address.
- */
-uint16_t ioReadDummy16(uint32_t p_address);
-
-/**
- * @brief Reads a word from the register at the given address in the I/O
- *        registers address space.
- *
- * @param[in] p_address The address of the word to read.
- *
- * @returns The word read at the given address.
- */
-uint32_t ioReadDummy32(uint32_t p_address);
-
-/**
- * @brief Writes a byte to the register at the given address in the I/O
- *        registers address space.
- *
- * @param[in] p_address The address where the byte shall be written.
- * @param[in] p_value The byte to write.
- */
-void ioWriteDummy8(uint32_t p_address, uint8_t p_value);
-
-/**
- * @brief Writes a halfword to the register at the given address in the I/O
- *        registers address space.
- *
- * @param[in] p_address The address where the halfword shall be written.
- * @param[in] p_value The halfword to write.
- */
-void ioWriteDummy16(uint32_t p_address, uint16_t p_value);
-
-/**
- * @brief Writes a word to the register at the given address in the I/O
- *        registers address space.
- *
- * @param[in] p_address The address where the word shall be written.
- * @param[in] p_value The word to write.
- */
-void ioWriteDummy32(uint32_t p_address, uint32_t p_value);
-
-//==============================================================================
-// Private variables
-//==============================================================================
-t_ioMapEntry s_ioMap[C_IO_MAP_SIZE];
+#define C_IOADDR_MASK_BIT_0 0x00000001
+#define C_IOADDR_MASK_16 0xfffffffe
+#define C_IOADDR_MASK_32 0xfffffffc
+#define C_UINT16_MASK_LSB 0x000000ff
+#define C_UINT16_MASK_MSB 0x0000ff00
+#define C_UINT32_MASK_MSH 0xffff0000
+#define C_IOADDR_POSTFLG 0x04000300
+#define C_IOADDR_HALTCNT 0x04000301
 
 //==============================================================================
 // Public functions definition
 //==============================================================================
 uint8_t ioRead8(uint32_t p_address) {
-    M_UNUSED_PARAMETER(p_address);
-    return 0;
+    uint8_t l_returnValue;
+
+    switch(p_address) {
+        case C_IOADDR_POSTFLG: return 0; break; // TODO: Implement POSTFLG
+        case C_IOADDR_HALTCNT: return 0; break; // TODO: Implement HALTCNT
+        default:
+            uint16_t l_value = ioRead16(p_address);
+
+            if((p_address & C_IOADDR_MASK_BIT_0) == 0) {
+                l_returnValue = (uint8_t)l_value;
+            } else {
+                l_returnValue = (uint8_t)(l_value >> 8);
+            }
+
+            break;
+    }
+
+    return l_returnValue;
 }
 
 uint16_t ioRead16(uint32_t p_address) {
-    M_UNUSED_PARAMETER(p_address);
-    return 0;
+    uint32_t l_address = p_address & C_IOADDR_MASK_16;
+
+    switch(l_address) {
+        default:
+            return 0;
+    }
 }
 
 uint32_t ioRead32(uint32_t p_address) {
-    M_UNUSED_PARAMETER(p_address);
-    return 0;
+    uint32_t l_address = p_address & C_IOADDR_MASK_32;
+
+    switch(l_address) {
+        default:
+            uint16_t l_lowHalfword = ioRead16(l_address);
+            uint16_t l_highHalfword = ioRead16(l_address + 2);
+
+            return l_lowHalfword | (l_highHalfword << 16);
+    }
 }
 
 void ioWrite8(uint32_t p_address, uint8_t p_value) {
-    M_UNUSED_PARAMETER(p_address);
-    M_UNUSED_PARAMETER(p_value);
+    switch(p_address) {
+        case C_IOADDR_POSTFLG: break; // TODO: Implement POSTFLG
+        case C_IOADDR_HALTCNT: break; // TODO: Implement HALTCNT
+        default:
+            uint16_t l_value = ioRead16(p_address);
+
+            if((p_address & C_IOADDR_MASK_BIT_0) == 0) {
+                l_value &= (uint16_t)C_UINT16_MASK_MSB;
+                l_value |= (uint16_t)p_value;
+            } else {
+                l_value &= (uint16_t)C_UINT16_MASK_LSB;
+                l_value |= (uint16_t)(p_value << 8);
+            }
+
+            ioWrite16(p_address, l_value);
+
+            break;
+    }
 }
 
 void ioWrite16(uint32_t p_address, uint16_t p_value) {
-    M_UNUSED_PARAMETER(p_address);
-    M_UNUSED_PARAMETER(p_value);
+    uint32_t l_address = p_address & C_IOADDR_MASK_16;
+
+    switch(l_address) {
+        default:
+            break;
+    }
 }
 
 void ioWrite32(uint32_t p_address, uint32_t p_value) {
-    M_UNUSED_PARAMETER(p_address);
-    M_UNUSED_PARAMETER(p_value);
-}
+    uint32_t l_address = p_address & C_IOADDR_MASK_32;
 
-//==============================================================================
-// Private functions definition
-//==============================================================================
-uint8_t ioReadDummy8(uint32_t p_address) {
-    M_UNUSED_PARAMETER(p_address);
+    switch(l_address) {
+        default:
+            uint16_t l_lowHalfword = (uint16_t)p_value;
+            uint16_t l_highHalfword = (uint16_t)(p_value >> 16);
 
-    return 0;
-}
+            ioWrite16(l_address, l_lowHalfword);
+            ioWrite16(l_address + 2, l_highHalfword);
 
-uint16_t ioReadDummy16(uint32_t p_address) {
-    M_UNUSED_PARAMETER(p_address);
-
-    return 0;
-}
-
-uint32_t ioReadDummy32(uint32_t p_address) {
-    M_UNUSED_PARAMETER(p_address);
-
-    return 0;
-}
-
-void ioWriteDummy8(uint32_t p_address, uint8_t p_value) {
-    M_UNUSED_PARAMETER(p_address);
-    M_UNUSED_PARAMETER(p_value);
-}
-
-void ioWriteDummy16(uint32_t p_address, uint16_t p_value) {
-    M_UNUSED_PARAMETER(p_address);
-    M_UNUSED_PARAMETER(p_value);
-}
-
-void ioWriteDummy32(uint32_t p_address, uint32_t p_value) {
-    M_UNUSED_PARAMETER(p_address);
-    M_UNUSED_PARAMETER(p_value);
+            break;
+    }
 }
