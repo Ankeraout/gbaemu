@@ -56,6 +56,18 @@ uint32_t gpuVramComputeAddress(uint32_t p_address);
 //==============================================================================
 // Public functions definition
 //==============================================================================
+void gpuInit(void) {
+
+}
+
+void gpuReset(void) {
+
+}
+
+void gpuCycle(void) {
+
+}
+
 uint8_t gpuOamRead8(uint32_t p_address) {
     return s_oamData[p_address & C_OAM_ADDRESS_MASK_8];
 }

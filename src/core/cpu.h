@@ -1,55 +1,44 @@
+#ifndef __CPU_H__
+#define __CPU_H__
+
 //==============================================================================
 // Included files
 //==============================================================================
 #include <stdbool.h>
 
-#include "cpu.h"
-#include "gba.h"
-#include "gpu.h"
-
 //==============================================================================
-// Private constants
+// Public macros
 //==============================================================================
 
 //==============================================================================
-// Private types
+// Public constants
 //==============================================================================
 
 //==============================================================================
-// Private variables
+// Public types
 //==============================================================================
 
 //==============================================================================
-// Private functions declaration
+// Public variables
 //==============================================================================
 
 //==============================================================================
-// Public functions definition
+// Public functions declaration
 //==============================================================================
-int gbaInit(void) {
-    cpuInit();
-    gpuInit();
-    return 0;
-}
+/**
+ * @brief This function initializes the CPU module.
+ */
+void cpuInit(void);
 
-void gbaReset(bool p_skipBoot) {
-    cpuReset(p_skipBoot);
-    gpuReset();
-}
+/**
+ * @brief This function resets the CPU.
+ */
 
+void cpuReset(bool p_skipBoot);
+/**
+ * @brief This function performs a CPU cycle (note that a CPU cycle could last
+ *        for more than one clock cycle).
+ */
+void cpuCycle(void);
 
-void gbaCycle(void) {
-    cpuCycle();
-}
-
-void gbaCycleNoCPU(void) {
-    gpuCycle();
-}
-
-void gbaFrameAdvance(void) {
-    // TODO
-}
-
-//==============================================================================
-// Private functions definition
-//==============================================================================
+#endif // __CPU_H__

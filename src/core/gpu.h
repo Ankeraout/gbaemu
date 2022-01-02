@@ -10,6 +10,21 @@
 // Public functions declaration
 //==============================================================================
 /**
+ * @brief This function initializes the GPU.
+ */
+void gpuInit(void);
+
+/**
+ * @brief This function performs a GPU reset.
+ */
+void gpuReset(void);
+
+/**
+ * @brief This function performs a GPU cycle.
+ */
+void gpuCycle(void);
+
+/**
  * @brief Reads a byte from the OAM address space.
  *
  * @param[in] p_address The address where the byte shall be read.
