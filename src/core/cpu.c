@@ -5,7 +5,9 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "bitops.h"
 #include "bus.h"
+#include "common.h"
 #include "cpu.h"
 
 //==============================================================================
@@ -184,6 +186,31 @@ typedef enum {
     E_CPUCONDITION_NV /**< This constant indicates the "never" condition
                            (false). */
 } t_cpuCondition;
+
+/**
+ * @brief This enumeration defines constants for the registers that have a
+ *        special purpose.
+ */
+enum {
+    E_CPUREGISTER_IP = 12, ///< This constant designates the IP (R12) register.
+    E_CPUREGISTER_SP = 13, ///< This constant designates the SP (R13) register.
+    E_CPUREGISTER_LR = 14, ///< This constant designates the LR (R14) register.
+    E_CPUREGISTER_PC = 15  ///< This constant designates the PC (R15) register.
+};
+
+/**
+ * @brief This enumeration defines the different shift types.
+ */
+typedef enum {
+    E_SHIFTTYPE_LSL, /**< This constant means that the shift is a logical left
+                          shift. */
+    E_SHIFTTYPE_LSR, /**< This constant means that the shift is a logical right
+                          shift. */
+    E_SHIFTTYPE_ASR, /**< This constant means that the shift is an arithmetical
+                          right shift. */
+    E_SHIFTTYPE_ROR /**< This constant means that the shift is a right rotation.
+                         */
+} t_shiftType;
 
 //==============================================================================
 // Private variables
@@ -464,6 +491,251 @@ static void cpuInitArmDecodeTable(void);
  * @brief Initializes the Thumb opcode decoding table.
  */
 static void cpuInitThumbDecodeTable(void);
+
+/**
+ * @brief Gets the operand of a data processing opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static inline void cpuUtilArmDataProcessingGetOperand(uint32_t p_opcode);
+
+/**
+ * @brief Sets the Z and N flags of the CPU according to the given operation
+ *        result.
+ *
+ * @param[in] p_result The result of the operation.
+ */
+static inline void cpuUtilSetFlagsArithmetical(uint32_t p_result);
+
+/**
+ * @brief Sets the Z and N flags of the CPU according to the given operation
+ *        result. The C flag will be set to the shifter carry flag value.
+ *
+ * @param[in] p_result The result of the operation.
+ */
+static inline void cpuUtilSetFlagsLogical(uint32_t p_result);
+
+/**
+ * @brief Sets the C flag according to the operands of the SUB opcode.
+ *
+ * @param[in] p_leftOperand The left operand of the SUB operation.
+ * @param[in] p_rightOperand The right operand of the SUB operation.
+ */
+static inline void cpuUtilSetCarryFlagSub(
+    uint32_t p_leftOperand,
+    uint32_t p_rightOperand
+);
+
+/**
+ * @brief Sets the C flag according to the operands of the SUB opcode.
+ *
+ * @param[in] p_leftOperand The left operand of the SUB operation.
+ * @param[in] p_rightOperand The right operand of the SUB operation.
+ * @param[in] p_result The result of the SUB operation.
+ */
+static inline void cpuUtilSetOverflowFlagSub(
+    uint32_t p_leftOperand,
+    uint32_t p_rightOperand,
+    uint32_t p_result
+);
+
+/**
+ * @brief Sets the C flag according to the operands of the SBC opcode.
+ *
+ * @param[in] p_leftOperand The left operand of the SBC operation.
+ * @param[in] p_rightOperand The right operand of the SBC operation.
+ */
+static inline void cpuUtilSetCarryFlagSbc(
+    uint32_t p_leftOperand,
+    uint32_t p_rightOperand
+);
+
+/**
+ * @brief Sets the C flag according to the operands of the ADD opcode.
+ *
+ * @param[in] p_leftOperand The left operand of the ADD operation.
+ * @param[in] p_rightOperand The right operand of the ADD operation.
+ * @param[in] p_result The result of the ADD operation.
+ */
+static inline void cpuUtilSetOverflowFlagAdd(
+    uint32_t p_leftOperand,
+    uint32_t p_rightOperand,
+    uint32_t p_result
+);
+
+/**
+ * @brief Sets CPSR to the value of SPSR.
+ */
+static inline void cpuRestoreCpsr(void);
+
+/**
+ * @brief Sets the given register to the given value.
+ *
+ * @param[in] p_register The register to write.
+ * @param[in] p_value The value to write in the register.
+ */
+static inline void cpuWriteRegister(uint32_t p_register, uint32_t p_value);
+
+/**
+ * @brief Executes the ARM ADC opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmAdc(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM ADD opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmAdd(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM AND opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmAnd(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM B opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmB(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM BIC opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmBic(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM BL opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmBl(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM BX opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmBx(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM CMN opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmCmn(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM CMP opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmCmp(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM EOR opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmEor(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM MOV opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmMov(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM MRS opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmMrs(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM MSR opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmMsr(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM MVN opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmMvn(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM ORR opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmOrr(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM RSB opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmRsb(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM RSC opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmRsc(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM SBC opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmSbc(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM SUB opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmSub(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM TEQ opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmTeq(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM TST opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmTst(uint32_t p_opcode);
+
+/**
+ * @brief Puts the CPU in UND mode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmUnd(uint32_t p_opcode);
+
+/**
+ * @brief Puts the CPU in UND mode.
+ *
+ * @param[in] p_opcode The opcode as a 16-bit halfword.
+ */
+static void cpuOpcodeThumbUnd(uint16_t p_opcode);
 
 //==============================================================================
 // Public functions definition
@@ -789,30 +1061,40 @@ static uint32_t cpuGetCpsr(void) {
 }
 
 static uint32_t cpuGetSpsr(void) {
+    uint32_t l_spsr = 0;
+
     switch(s_cpuMode) {
         case E_CPUMODE_OLD_USR:
         case E_CPUMODE_USR:
         case E_CPUMODE_SYS:
-            return cpuGetCpsr();
+            l_spsr = cpuGetCpsr();
+            break;
 
         case E_CPUMODE_OLD_FIQ:
         case E_CPUMODE_FIQ:
-            return s_cpuRegisterSpsrFiq;
+            l_spsr = s_cpuRegisterSpsrFiq;
+            break;
 
         case E_CPUMODE_OLD_IRQ:
         case E_CPUMODE_IRQ:
-            return s_cpuRegisterSpsrIrq;
+            l_spsr = s_cpuRegisterSpsrIrq;
+            break;
 
         case E_CPUMODE_OLD_SVC:
         case E_CPUMODE_SVC:
-            return s_cpuRegisterSpsrSvc;
+            l_spsr = s_cpuRegisterSpsrSvc;
+            break;
 
         case E_CPUMODE_ABT:
-            return s_cpuRegisterSpsrAbt;
+            l_spsr = s_cpuRegisterSpsrAbt;
+            break;
 
         case E_CPUMODE_UND:
-            return s_cpuRegisterSpsrUnd;
+            l_spsr = s_cpuRegisterSpsrUnd;
+            break;
     }
+
+    return l_spsr;
 }
 
 static void cpuSetCpsr(uint32_t p_value) {
@@ -866,6 +1148,49 @@ static void cpuInitArmDecodeTable(void) {
             ((l_tableIndex & 0x00000ff0) << 16)
             | ((l_tableIndex & 0x0000000f) << 4)
         );
+
+        void (*l_opcodeHandler)(uint32_t p_opcode);
+
+        if((l_opcode & 0x0ffffff0) == 0x01200010) { // BX
+            l_opcodeHandler = cpuOpcodeArmBx;
+        } else if((l_opcode & 0x0e000000) == 0x0e000000) { // B/BL
+            if((l_opcode & 0x0f000000) == 0x0e000000) {
+                l_opcodeHandler = cpuOpcodeArmB;
+            } else {
+                l_opcodeHandler = cpuOpcodeArmBl;
+            }
+        } else if(
+            ((l_opcode & 0x0c000000) == 0x00000000) // Data processing
+            && ((l_opcode & 0x00000090) != 0x00000090) // b4 and b7 set
+            && ((l_opcode & 0x01900000) != 0x01000000) // test opcode, S clear
+        ) {
+            switch((l_opcode & 0x01e00000) >> 21) {
+                case 0b0000: l_opcodeHandler = cpuOpcodeArmAnd; break;
+                case 0b0001: l_opcodeHandler = cpuOpcodeArmEor; break;
+                case 0b0010: l_opcodeHandler = cpuOpcodeArmSub; break;
+                case 0b0011: l_opcodeHandler = cpuOpcodeArmRsb; break;
+                case 0b0100: l_opcodeHandler = cpuOpcodeArmAdd; break;
+                case 0b0101: l_opcodeHandler = cpuOpcodeArmAdc; break;
+                case 0b0110: l_opcodeHandler = cpuOpcodeArmSbc; break;
+                case 0b0111: l_opcodeHandler = cpuOpcodeArmRsc; break;
+                case 0b1000: l_opcodeHandler = cpuOpcodeArmTst; break;
+                case 0b1001: l_opcodeHandler = cpuOpcodeArmTeq; break;
+                case 0b1010: l_opcodeHandler = cpuOpcodeArmCmp; break;
+                case 0b1011: l_opcodeHandler = cpuOpcodeArmCmn; break;
+                case 0b1100: l_opcodeHandler = cpuOpcodeArmOrr; break;
+                case 0b1101: l_opcodeHandler = cpuOpcodeArmMov; break;
+                case 0b1110: l_opcodeHandler = cpuOpcodeArmBic; break;
+                case 0b1111: l_opcodeHandler = cpuOpcodeArmMvn; break;
+            }
+        } else if((l_opcode & 0x0fb000f0) == 0x01000000) { // MRS
+            l_opcodeHandler = cpuOpcodeArmMrs;
+        } else if((l_opcode & 0x0db00000) == 0x01200000) { // MSR
+            l_opcodeHandler = cpuOpcodeArmMsr;
+        } else {
+            l_opcodeHandler = cpuOpcodeArmUnd;
+        }
+
+        s_cpuDecodeTable.arm[l_opcode] = l_opcodeHandler;
     }
 }
 
@@ -873,6 +1198,948 @@ static void cpuInitThumbDecodeTable(void) {
     for(uint16_t l_tableIndex = 0; l_tableIndex < 1024; l_tableIndex++) {
         uint16_t l_opcode = l_tableIndex << 6;
 
+        void (*l_opcodeHandler)(uint16_t p_opcode);
 
+        l_opcodeHandler = cpuOpcodeThumbUnd;
+
+        s_cpuDecodeTable.thumb[l_opcode] = l_opcodeHandler;
     }
+}
+
+static inline void cpuUtilArmDataProcessingGetOperand(uint32_t p_opcode) {
+    bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
+
+    if(l_isImmediate) {
+        uint32_t l_immediate = (uint32_t)(p_opcode & 0x000000ff);
+        uint32_t l_shift = (uint32_t)((p_opcode >> 8) & 0x0000000f);
+
+        l_shift <<= 1;
+
+        if(l_shift == 0) {
+            s_cpuShifterResult = l_immediate;
+            s_cpuShifterCarry = s_cpuFlagC;
+        } else {
+            s_cpuShifterResult = rotateRight(l_immediate, l_shift);
+            s_cpuShifterCarry = ((uint32_t)s_cpuShifterResult >> 31) != 0;
+        }
+    } else {
+        t_shiftType l_shiftType = ((uint32_t)(p_opcode & 0x00000060)) >> 5;
+        bool l_shiftByRegister = ((uint32_t)(p_opcode & 0x00000010)) != 0;
+        uint32_t l_operandRegister = (uint32_t)(p_opcode & 0x0000000f);
+        uint32_t l_operand = s_cpuRegisterR[l_operandRegister];
+
+        if(l_operandRegister == E_CPUREGISTER_PC) {
+            l_operand += C_INSTRUCTION_SIZE_ARM;
+        }
+
+        if(l_shiftByRegister) {
+            uint32_t l_shiftRegister = ((uint32_t)(p_opcode & 0x00000f00)) >> 8;
+            uint32_t l_shift = s_cpuRegisterR[l_shiftRegister];
+
+            switch(l_shiftType) {
+                case E_SHIFTTYPE_LSL:
+                    if(l_shift == 0) {
+                        s_cpuShifterResult = l_operand;
+                        s_cpuShifterCarry = s_cpuFlagC;
+                    } else if(l_shift < 32) {
+                        s_cpuShifterResult = (uint32_t)(l_operand << l_shift);
+                        s_cpuShifterCarry =
+                            ((l_operand >> (32 - l_shift)) & 0x00000001) != 0;
+                    } else if(l_shift == 32) {
+                        s_cpuShifterResult = 0;
+                        s_cpuShifterCarry = (l_operand & 0x00000001) != 0;
+                    } else {
+                        s_cpuShifterResult = 0;
+                        s_cpuShifterCarry = false;
+                    }
+
+                    break;
+
+                case E_SHIFTTYPE_LSR:
+                    if(l_shift == 0) {
+                        s_cpuShifterResult = l_operand;
+                        s_cpuShifterCarry = s_cpuFlagC;
+                    } else if(l_shift < 32) {
+                        s_cpuShifterResult = (uint32_t)(l_operand >> l_shift);
+                        s_cpuShifterCarry =
+                            ((l_operand >> (l_shift - 1)) & 0x00000001) != 0;
+                    } else if(l_shift == 32) {
+                        s_cpuShifterResult = 0;
+                        s_cpuShifterCarry = (l_operand & 0x80000000) != 0;
+                    } else {
+                        s_cpuShifterResult = 0;
+                        s_cpuShifterCarry = false;
+                    }
+
+                    break;
+
+                case E_SHIFTTYPE_ASR:
+                    if(l_shift == 0) {
+                        s_cpuShifterResult = l_operand;
+                        s_cpuShifterCarry = s_cpuFlagC;
+                    } else if(l_shift < 32) {
+                        s_cpuShifterResult =
+                            (uint32_t)(((int32_t)l_operand) >> l_shift);
+                        s_cpuShifterCarry =
+                            ((l_operand >> (l_shift - 1)) & 0x00000001) != 0;
+                    } else {
+                        s_cpuShifterResult =
+                            (uint32_t)(((int32_t)l_operand) >> 31);
+                        s_cpuShifterCarry = (l_operand & 0x80000000) != 0;
+                    }
+
+                    break;
+
+                case E_SHIFTTYPE_ROR:
+                    uint32_t l_rotation = l_shift & 0x0000001f;
+
+                    if(l_shift == 0) {
+                        s_cpuShifterResult = l_operand;
+                        s_cpuShifterCarry = s_cpuFlagC;
+                    } else if(l_rotation == 0) {
+                        s_cpuShifterResult = l_operand;
+                        s_cpuShifterCarry = (l_operand & 0x80000000) != 0;
+                    } else {
+                        s_cpuShifterResult = rotateRight(l_operand, l_rotation);
+                        s_cpuShifterCarry =
+                            ((l_operand >> (l_rotation - 1)) & 0x00000001) != 0;
+                    }
+
+                    break;
+            }
+        } else {
+            uint32_t l_shiftAmount = (uint32_t)((p_opcode & 0x00000f80) >> 7);
+
+            switch(l_shiftType) {
+                case E_SHIFTTYPE_LSL:
+                    if(l_shiftAmount == 0) {
+                        s_cpuShifterResult = l_operand;
+                        s_cpuShifterCarry = s_cpuFlagC;
+                    } else {
+                        s_cpuShifterResult = l_operand << l_shiftAmount;
+                        s_cpuShifterCarry =
+                            ((l_operand >> (32 - l_shiftAmount)) & 0x00000001)
+                            != 0;
+                    }
+
+                    break;
+
+                case E_SHIFTTYPE_LSR:
+                    if(l_shiftAmount == 0) {
+                        s_cpuShifterResult = 0;
+                        s_cpuShifterCarry = (l_operand & 0x80000000) != 0;
+                    } else {
+                        s_cpuShifterResult = l_operand >> l_shiftAmount;
+                        s_cpuShifterCarry =
+                            ((l_operand >> (l_shiftAmount - 1)) & 0x00000001)
+                            != 0;
+                    }
+
+                    break;
+
+                case E_SHIFTTYPE_ASR:
+                    if(l_shiftAmount == 0) {
+                        s_cpuShifterResult =
+                            (uint32_t)(((int32_t)l_operand) >> 31);
+                        s_cpuShifterCarry = (l_operand & 0x80000000) != 0;
+                    } else {
+                        s_cpuShifterResult =
+                            (uint32_t)(((int32_t)l_operand) >> l_shiftAmount);
+                        s_cpuShifterCarry =
+                            ((l_operand >> (l_shiftAmount - 1)) & 0x00000001)
+                            != 0;
+                    }
+
+                    break;
+
+                case E_SHIFTTYPE_ROR:
+                    if(l_shiftAmount == 0) {
+                        s_cpuShifterResult = l_operand >> 1;
+
+                        if(s_cpuFlagC) {
+                            s_cpuShifterResult |= 0x80000000;
+                        }
+                    } else {
+                        s_cpuShifterResult =
+                            rotateRight(l_operand, l_shiftAmount);
+                        s_cpuShifterCarry =
+                            ((l_operand >> (l_shiftAmount - 1)) & 0x00000001)
+                            != 0;
+                    }
+
+                    break;
+
+            }
+        }
+    }
+}
+
+static inline void cpuUtilSetFlagsArithmetical(uint32_t p_result) {
+    s_cpuFlagZ = p_result == 0;
+    s_cpuFlagN = (p_result & 0x80000000) != 0;
+}
+
+static inline void cpuUtilSetFlagsLogical(uint32_t p_result) {
+    cpuUtilSetFlagsArithmetical(p_result);
+    s_cpuFlagC = s_cpuShifterCarry;
+}
+
+static inline void cpuUtilSetCarryFlagSub(
+    uint32_t p_leftOperand,
+    uint32_t p_rightOperand
+) {
+    s_cpuFlagC = (p_leftOperand >= p_rightOperand);
+}
+
+static inline void cpuUtilSetOverflowFlagSub(
+    uint32_t p_leftOperand,
+    uint32_t p_rightOperand,
+    uint32_t p_result
+) {
+    bool l_operandsHaveDifferentSign =
+        ((p_leftOperand ^ p_rightOperand) & 0x80000000) != 0x00000000;
+
+    if(l_operandsHaveDifferentSign) {
+        bool l_resultHasDifferentSign =
+            ((p_leftOperand ^ p_result) & 0x80000000) != 0x00000000;
+
+        if(l_resultHasDifferentSign) {
+            s_cpuFlagV = true;
+        } else {
+            s_cpuFlagV = false;
+        }
+    } else {
+        s_cpuFlagV = false;
+    }
+}
+
+static inline void cpuUtilSetCarryFlagSbc(
+    uint32_t p_leftOperand,
+    uint32_t p_rightOperand
+) {
+    uint32_t l_carryValue;
+
+    if(s_cpuFlagC) {
+        l_carryValue = 0;
+    } else {
+        l_carryValue = 1;
+    }
+
+    s_cpuFlagC = (p_leftOperand >= p_rightOperand) && (
+        ((p_leftOperand - p_rightOperand) >= l_carryValue)
+    );
+}
+
+static inline void cpuUtilSetOverflowFlagAdd(
+    uint32_t p_leftOperand,
+    uint32_t p_rightOperand,
+    uint32_t p_result
+) {
+    bool l_operandsHaveSameSign =
+        ((p_leftOperand ^ p_rightOperand) & 0x80000000) == 0x00000000;
+
+    if(l_operandsHaveSameSign) {
+        bool l_resultHasDifferentSign =
+            ((p_leftOperand ^ p_result) & 0x80000000) != 0x00000000;
+
+        if(l_resultHasDifferentSign) {
+            s_cpuFlagV = true;
+        } else {
+            s_cpuFlagV = false;
+        }
+    } else {
+        s_cpuFlagV = false;
+    }
+}
+
+static inline void cpuRestoreCpsr(void) {
+    cpuSetCpsr(cpuGetSpsr());
+}
+
+static inline void cpuWriteRegister(uint32_t p_register, uint32_t p_value) {
+    if(p_register == E_CPUREGISTER_PC) {
+        cpuJump(p_value);
+    } else {
+        s_cpuRegisterR[p_register] = p_value;
+    }
+}
+
+static void cpuOpcodeArmAdc(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+    uint32_t l_firstOperandRegister = (uint32_t)((p_opcode & 0x000f0000) >> 16);
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+
+    if(l_firstOperandRegister == E_CPUREGISTER_PC) {
+        bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
+
+        if(!l_isImmediate) {
+            bool l_shiftByRegister = (p_opcode & 0x00000010) != 0x00000000;
+
+            if(l_shiftByRegister) {
+                l_firstOperand += C_INSTRUCTION_SIZE_ARM;
+            }
+        }
+    }
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+    uint64_t l_carryFlagValue;
+
+    if(s_cpuFlagC) {
+        l_carryFlagValue = 1;
+    } else {
+        l_carryFlagValue = 0;
+    }
+
+    uint64_t l_result =
+        (uint64_t)l_firstOperand
+        + (uint64_t)s_cpuShifterResult
+        + l_carryFlagValue;
+
+    if(l_setFlags) {
+        if(l_destinationRegister == E_CPUREGISTER_PC) {
+            cpuRestoreCpsr();
+        } else {
+            s_cpuFlagC = l_result > UINT32_MAX;
+
+            cpuUtilSetOverflowFlagAdd(
+                l_firstOperand,
+                s_cpuShifterResult,
+                (uint32_t)l_result
+            );
+
+            cpuUtilSetFlagsArithmetical((uint32_t)l_result);
+        }
+    }
+
+    cpuWriteRegister(l_destinationRegister, (uint32_t)l_result);
+}
+
+static void cpuOpcodeArmAdd(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+    uint32_t l_firstOperandRegister = (uint32_t)((p_opcode & 0x000f0000) >> 16);
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+
+    if(l_firstOperandRegister == E_CPUREGISTER_PC) {
+        bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
+
+        if(!l_isImmediate) {
+            bool l_shiftByRegister = (p_opcode & 0x00000010) != 0x00000000;
+
+            if(l_shiftByRegister) {
+                l_firstOperand += C_INSTRUCTION_SIZE_ARM;
+            }
+        }
+    }
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+    uint32_t l_result = l_firstOperand + s_cpuShifterResult;
+
+    if(l_setFlags) {
+        if(l_destinationRegister == E_CPUREGISTER_PC) {
+            cpuRestoreCpsr();
+        } else {
+            s_cpuFlagC = l_result < l_firstOperand;
+
+            cpuUtilSetOverflowFlagAdd(
+                l_firstOperand,
+                s_cpuShifterResult,
+                l_result
+            );
+
+            cpuUtilSetFlagsArithmetical(l_result);
+        }
+    }
+
+    cpuWriteRegister(l_destinationRegister, (uint32_t)l_result);
+}
+
+static void cpuOpcodeArmAnd(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+    uint32_t l_firstOperandRegister = (uint32_t)((p_opcode & 0x000f0000) >> 16);
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+
+    if(l_firstOperandRegister == E_CPUREGISTER_PC) {
+        bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
+
+        if(!l_isImmediate) {
+            bool l_shiftByRegister = (p_opcode & 0x00000010) != 0x00000000;
+
+            if(l_shiftByRegister) {
+                l_firstOperand += C_INSTRUCTION_SIZE_ARM;
+            }
+        }
+    }
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+    uint32_t l_result = l_firstOperand & s_cpuShifterResult;
+
+    if(l_setFlags) {
+        if(l_destinationRegister == E_CPUREGISTER_PC) {
+            cpuRestoreCpsr();
+        } else {
+            cpuUtilSetFlagsLogical(l_result);
+        }
+    }
+
+    cpuWriteRegister(l_destinationRegister, l_result);
+}
+
+static void cpuOpcodeArmB(uint32_t p_opcode) {
+    uint32_t l_offset = (uint32_t)(p_opcode & 0x00ffffff);
+
+    l_offset <<= 2;
+    l_offset = signExtend26to32(l_offset);
+
+    cpuJump(s_cpuRegisterR[E_CPUREGISTER_PC] + l_offset);
+}
+
+static void cpuOpcodeArmBic(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+    uint32_t l_firstOperandRegister = (uint32_t)((p_opcode & 0x000f0000) >> 16);
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+
+    if(l_firstOperandRegister == E_CPUREGISTER_PC) {
+        bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
+
+        if(!l_isImmediate) {
+            bool l_shiftByRegister = (p_opcode & 0x00000010) != 0x00000000;
+
+            if(l_shiftByRegister) {
+                l_firstOperand += C_INSTRUCTION_SIZE_ARM;
+            }
+        }
+    }
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+    uint32_t l_result = l_firstOperand & (~s_cpuShifterResult);
+
+    if(l_setFlags) {
+        if(l_destinationRegister == E_CPUREGISTER_PC) {
+            cpuRestoreCpsr();
+        } else {
+            cpuUtilSetFlagsLogical(l_result);
+        }
+    }
+
+    cpuWriteRegister(l_destinationRegister, l_result);
+}
+
+static void cpuOpcodeArmBl(uint32_t p_opcode) {
+    uint32_t l_offset = (uint32_t)(p_opcode & 0x00ffffff);
+
+    l_offset <<= 2;
+    l_offset = signExtend26to32(l_offset);
+
+    s_cpuRegisterR[E_CPUREGISTER_LR] =
+        s_cpuRegisterR[E_CPUREGISTER_PC] - C_INSTRUCTION_SIZE_ARM;
+
+    cpuJump(s_cpuRegisterR[E_CPUREGISTER_PC] + l_offset);
+}
+
+static void cpuOpcodeArmBx(uint32_t p_opcode) {
+    if((p_opcode & 0x0ffffff0) != 0x012fff10) {
+        cpuRaiseUnd();
+        return;
+    }
+
+    uint32_t l_register = p_opcode & 0x0000000f;
+    uint32_t l_jumpAddress = s_cpuRegisterR[l_register];
+
+    if((l_jumpAddress & 0x00000001) == 0x00000000) {
+        s_cpuFlagT = false;
+        l_jumpAddress &= 0xfffffffe;
+    } else {
+        s_cpuFlagT = true;
+        l_jumpAddress &= 0xfffffffc;
+    }
+
+    cpuJump(l_jumpAddress);
+}
+
+static void cpuOpcodeArmCmn(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    uint32_t l_firstOperandRegister = (uint32_t)((p_opcode & 0x000f0000) >> 16);
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+
+    if(l_firstOperandRegister == E_CPUREGISTER_PC) {
+        bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
+
+        if(!l_isImmediate) {
+            bool l_shiftByRegister = (p_opcode & 0x00000010) != 0x00000000;
+
+            if(l_shiftByRegister) {
+                l_firstOperand += C_INSTRUCTION_SIZE_ARM;
+            }
+        }
+    }
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+    uint32_t l_result = l_firstOperand + s_cpuShifterResult;
+
+    if(l_destinationRegister == E_CPUREGISTER_PC) {
+        cpuRestoreCpsr();
+    } else {
+        s_cpuFlagC = l_result < l_firstOperand;
+
+        cpuUtilSetOverflowFlagAdd(
+            l_firstOperand,
+            s_cpuShifterResult,
+            l_result
+        );
+
+        cpuUtilSetFlagsArithmetical(l_result);
+    }
+
+    cpuWriteRegister(l_destinationRegister, (uint32_t)l_result);
+}
+
+static void cpuOpcodeArmCmp(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    uint32_t l_firstOperandRegister = (uint32_t)((p_opcode & 0x000f0000) >> 16);
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+
+    if(l_firstOperandRegister == E_CPUREGISTER_PC) {
+        bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
+
+        if(!l_isImmediate) {
+            bool l_shiftByRegister = (p_opcode & 0x00000010) != 0x00000000;
+
+            if(l_shiftByRegister) {
+                l_firstOperand += C_INSTRUCTION_SIZE_ARM;
+            }
+        }
+    }
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+    uint32_t l_result = l_firstOperand - s_cpuShifterResult;
+
+    if(l_destinationRegister == E_CPUREGISTER_PC) {
+        cpuRestoreCpsr();
+    } else {
+        cpuUtilSetCarryFlagSub(l_firstOperand, s_cpuShifterResult);
+        cpuUtilSetOverflowFlagSub(
+            l_firstOperand,
+            s_cpuShifterResult,
+            l_result
+        );
+        cpuUtilSetFlagsArithmetical(l_result);
+    }
+
+    cpuWriteRegister(l_destinationRegister, l_result);
+}
+
+static void cpuOpcodeArmEor(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+    uint32_t l_firstOperandRegister = (uint32_t)((p_opcode & 0x000f0000) >> 16);
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+
+    if(l_firstOperandRegister == E_CPUREGISTER_PC) {
+        bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
+
+        if(!l_isImmediate) {
+            bool l_shiftByRegister = (p_opcode & 0x00000010) != 0x00000000;
+
+            if(l_shiftByRegister) {
+                l_firstOperand += C_INSTRUCTION_SIZE_ARM;
+            }
+        }
+    }
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+    uint32_t l_result = l_firstOperand ^ s_cpuShifterResult;
+
+    if(l_setFlags) {
+        if(l_destinationRegister == E_CPUREGISTER_PC) {
+            cpuRestoreCpsr();
+        } else {
+            cpuUtilSetFlagsLogical(l_result);
+        }
+    }
+
+    cpuWriteRegister(l_destinationRegister, l_result);
+}
+
+static void cpuOpcodeArmMov(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+
+    if(l_setFlags) {
+        if(l_destinationRegister == E_CPUREGISTER_PC) {
+            cpuRestoreCpsr();
+        } else {
+            cpuUtilSetFlagsLogical(s_cpuShifterResult);
+        }
+    }
+
+    cpuWriteRegister(l_destinationRegister, s_cpuShifterResult);
+}
+
+static void cpuOpcodeArmMrs(uint32_t p_opcode) {
+    if((p_opcode & 0x0fbf0fff) != 0x010f0000) {
+        cpuRaiseUnd();
+    }
+
+    bool l_getSpsr = (p_opcode & 0x00400000) != 0x00000000;
+    uint32_t l_destinationRegister = (p_opcode & 0x0000f000) >> 12;
+    uint32_t l_value;
+
+    if(l_getSpsr) {
+        l_value = cpuGetSpsr();
+    } else {
+        l_value = cpuGetCpsr();
+    }
+
+    cpuWriteRegister(l_destinationRegister, l_value);
+}
+
+static void cpuOpcodeArmMsr(uint32_t p_opcode) {
+    bool l_destinationIsSpsr = ((p_opcode & 0x00400000) != 0x00000000);
+    uint32_t l_value;
+
+    if((p_opcode & 0x0fbffff0) == 0x0129f000) {
+        uint32_t l_sourceRegister = p_opcode & 0x0000000f;
+
+        l_value = s_cpuRegisterR[l_sourceRegister];
+    } else { // Flags-only
+        if((p_opcode & 0x0fbffff0) == 0x0128f000) {
+            // The shift value is multiplied by 2 so we shift one less to the
+            // right
+            uint32_t l_shift = (p_opcode & 0x00000f00) >> 7;
+            uint32_t l_immediate = p_opcode & 0x000000ff;
+
+            l_value = rotateRight(l_immediate, l_shift);
+        } else if((p_opcode & 0x0fbff000) == 0x0328f000) {
+            uint32_t l_sourceRegister = p_opcode & 0x0000000f;
+
+            l_value = s_cpuRegisterR[l_sourceRegister];
+        } else {
+            cpuRaiseUnd();
+            return;
+        }
+
+        // Keep only flags
+        l_value &= 0xf0000000;
+
+        // Keep the 28 lower bits
+        if(l_destinationIsSpsr) {
+            l_value |= cpuGetSpsr() & 0x0fffffff;
+        } else {
+            l_value |= cpuGetCpsr() & 0x0fffffff;
+        }
+    }
+
+    if(l_destinationIsSpsr) {
+        cpuSetSpsr(l_value);
+    } else {
+        cpuSetCpsr(l_value);
+    }
+}
+
+static void cpuOpcodeArmMvn(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+    uint32_t l_result = ~s_cpuShifterResult;
+
+    if(l_setFlags) {
+        if(l_destinationRegister == E_CPUREGISTER_PC) {
+            cpuRestoreCpsr();
+        } else {
+            cpuUtilSetFlagsLogical(l_result);
+        }
+    }
+
+    cpuWriteRegister(l_destinationRegister, l_result);
+}
+
+static void cpuOpcodeArmOrr(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+    uint32_t l_firstOperandRegister = (uint32_t)((p_opcode & 0x000f0000) >> 16);
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+
+    if(l_firstOperandRegister == E_CPUREGISTER_PC) {
+        bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
+
+        if(!l_isImmediate) {
+            bool l_shiftByRegister = (p_opcode & 0x00000010) != 0x00000000;
+
+            if(l_shiftByRegister) {
+                l_firstOperand += C_INSTRUCTION_SIZE_ARM;
+            }
+        }
+    }
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+    uint32_t l_result = l_firstOperand | s_cpuShifterResult;
+
+    if(l_setFlags) {
+        if(l_destinationRegister == E_CPUREGISTER_PC) {
+            cpuRestoreCpsr();
+        } else {
+            cpuUtilSetFlagsLogical(l_result);
+        }
+    }
+
+    cpuWriteRegister(l_destinationRegister, l_result);
+}
+
+static void cpuOpcodeArmSbc(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+    uint32_t l_firstOperandRegister = (uint32_t)((p_opcode & 0x000f0000) >> 16);
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+
+    if(l_firstOperandRegister == E_CPUREGISTER_PC) {
+        bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
+
+        if(!l_isImmediate) {
+            bool l_shiftByRegister = (p_opcode & 0x00000010) != 0x00000000;
+
+            if(l_shiftByRegister) {
+                l_firstOperand += C_INSTRUCTION_SIZE_ARM;
+            }
+        }
+    }
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+    uint32_t l_carryFlagValue;
+
+    if(s_cpuFlagC) {
+        l_carryFlagValue = 1;
+    } else {
+        l_carryFlagValue = 0;
+    }
+
+    uint32_t l_result =
+        l_firstOperand - s_cpuShifterResult + l_carryFlagValue - 1;
+
+    if(l_setFlags) {
+        if(l_destinationRegister == E_CPUREGISTER_PC) {
+            cpuRestoreCpsr();
+        } else {
+            cpuUtilSetCarryFlagSbc(l_firstOperand, s_cpuShifterResult);
+            cpuUtilSetOverflowFlagSub(
+                l_firstOperand,
+                s_cpuShifterResult,
+                l_result
+            );
+            cpuUtilSetFlagsArithmetical(l_result);
+        }
+    }
+
+    cpuWriteRegister(l_destinationRegister, l_result);
+}
+
+static void cpuOpcodeArmRsb(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+    uint32_t l_firstOperandRegister = (uint32_t)((p_opcode & 0x000f0000) >> 16);
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+
+    if(l_firstOperandRegister == E_CPUREGISTER_PC) {
+        bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
+
+        if(!l_isImmediate) {
+            bool l_shiftByRegister = (p_opcode & 0x00000010) != 0x00000000;
+
+            if(l_shiftByRegister) {
+                l_firstOperand += C_INSTRUCTION_SIZE_ARM;
+            }
+        }
+    }
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+    uint32_t l_result = s_cpuShifterResult - l_firstOperand;
+
+    if(l_setFlags) {
+        if(l_destinationRegister == E_CPUREGISTER_PC) {
+            cpuRestoreCpsr();
+        } else {
+            cpuUtilSetCarryFlagSub(s_cpuShifterResult, l_firstOperand);
+            cpuUtilSetOverflowFlagSub(
+                s_cpuShifterResult,
+                l_firstOperand,
+                l_result
+            );
+            cpuUtilSetFlagsArithmetical(l_result);
+        }
+    }
+
+    cpuWriteRegister(l_destinationRegister, l_result);
+}
+
+static void cpuOpcodeArmRsc(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+    uint32_t l_firstOperandRegister = (uint32_t)((p_opcode & 0x000f0000) >> 16);
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+
+    if(l_firstOperandRegister == E_CPUREGISTER_PC) {
+        bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
+
+        if(!l_isImmediate) {
+            bool l_shiftByRegister = (p_opcode & 0x00000010) != 0x00000000;
+
+            if(l_shiftByRegister) {
+                l_firstOperand += C_INSTRUCTION_SIZE_ARM;
+            }
+        }
+    }
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+    uint32_t l_carryFlagValue;
+
+    if(s_cpuFlagC) {
+        l_carryFlagValue = 1;
+    } else {
+        l_carryFlagValue = 0;
+    }
+
+    uint32_t l_result =
+        s_cpuShifterResult - l_firstOperand + l_carryFlagValue - 1;
+
+    if(l_setFlags) {
+        if(l_destinationRegister == E_CPUREGISTER_PC) {
+            cpuRestoreCpsr();
+        } else {
+            cpuUtilSetCarryFlagSbc(s_cpuShifterResult, l_firstOperand);
+            cpuUtilSetOverflowFlagSub(
+                s_cpuShifterResult,
+                l_firstOperand,
+                l_result
+            );
+            cpuUtilSetFlagsArithmetical(l_result);
+        }
+    }
+
+    cpuWriteRegister(l_destinationRegister, l_result);
+}
+
+static void cpuOpcodeArmSub(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+    uint32_t l_firstOperandRegister = (uint32_t)((p_opcode & 0x000f0000) >> 16);
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+
+    if(l_firstOperandRegister == E_CPUREGISTER_PC) {
+        bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
+
+        if(!l_isImmediate) {
+            bool l_shiftByRegister = (p_opcode & 0x00000010) != 0x00000000;
+
+            if(l_shiftByRegister) {
+                l_firstOperand += C_INSTRUCTION_SIZE_ARM;
+            }
+        }
+    }
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+    uint32_t l_result = l_firstOperand - s_cpuShifterResult;
+
+    if(l_setFlags) {
+        if(l_destinationRegister == E_CPUREGISTER_PC) {
+            cpuRestoreCpsr();
+        } else {
+            cpuUtilSetCarryFlagSub(l_firstOperand, s_cpuShifterResult);
+            cpuUtilSetOverflowFlagSub(
+                l_firstOperand,
+                s_cpuShifterResult,
+                l_result
+            );
+            cpuUtilSetFlagsArithmetical(l_result);
+        }
+    }
+
+    cpuWriteRegister(l_destinationRegister, l_result);
+}
+
+static void cpuOpcodeArmTeq(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    uint32_t l_firstOperandRegister = (uint32_t)((p_opcode & 0x000f0000) >> 16);
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+
+    if(l_firstOperandRegister == E_CPUREGISTER_PC) {
+        bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
+
+        if(!l_isImmediate) {
+            bool l_shiftByRegister = (p_opcode & 0x00000010) != 0x00000000;
+
+            if(l_shiftByRegister) {
+                l_firstOperand += C_INSTRUCTION_SIZE_ARM;
+            }
+        }
+    }
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+    uint32_t l_result = l_firstOperand ^ s_cpuShifterResult;
+
+    if(l_destinationRegister == E_CPUREGISTER_PC) {
+        cpuRestoreCpsr();
+    } else {
+        cpuUtilSetFlagsLogical(l_result);
+    }
+}
+
+static void cpuOpcodeArmTst(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    uint32_t l_firstOperandRegister = (uint32_t)((p_opcode & 0x000f0000) >> 16);
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+
+    if(l_firstOperandRegister == E_CPUREGISTER_PC) {
+        bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
+
+        if(!l_isImmediate) {
+            bool l_shiftByRegister = (p_opcode & 0x00000010) != 0x00000000;
+
+            if(l_shiftByRegister) {
+                l_firstOperand += C_INSTRUCTION_SIZE_ARM;
+            }
+        }
+    }
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+    uint32_t l_result = l_firstOperand & s_cpuShifterResult;
+
+    if(l_destinationRegister == E_CPUREGISTER_PC) {
+        cpuRestoreCpsr();
+    } else {
+        cpuUtilSetFlagsLogical(l_result);
+    }
+}
+
+static void cpuOpcodeArmUnd(uint32_t p_opcode) {
+    M_UNUSED_PARAMETER(p_opcode);
+
+    cpuRaiseUnd();
+}
+
+static void cpuOpcodeThumbUnd(uint16_t p_opcode) {
+    M_UNUSED_PARAMETER(p_opcode);
+
+    cpuRaiseUnd();
 }
