@@ -647,6 +647,13 @@ static void cpuOpcodeArmCmp(uint32_t p_opcode);
 static void cpuOpcodeArmEor(uint32_t p_opcode);
 
 /**
+ * @brief Executes the ARM MLA opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmMla(uint32_t p_opcode);
+
+/**
  * @brief Executes the ARM MOV opcode.
  *
  * @param[in] p_opcode The opcode as a 32-bit word.
@@ -666,6 +673,13 @@ static void cpuOpcodeArmMrs(uint32_t p_opcode);
  * @param[in] p_opcode The opcode as a 32-bit word.
  */
 static void cpuOpcodeArmMsr(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM MUL opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmMul(uint32_t p_opcode);
 
 /**
  * @brief Executes the ARM MVN opcode.
@@ -703,6 +717,20 @@ static void cpuOpcodeArmRsc(uint32_t p_opcode);
 static void cpuOpcodeArmSbc(uint32_t p_opcode);
 
 /**
+ * @brief Executes the ARM SMLAL opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmSmlal(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM SMULL opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmSmull(uint32_t p_opcode);
+
+/**
  * @brief Executes the ARM SUB opcode.
  *
  * @param[in] p_opcode The opcode as a 32-bit word.
@@ -722,6 +750,20 @@ static void cpuOpcodeArmTeq(uint32_t p_opcode);
  * @param[in] p_opcode The opcode as a 32-bit word.
  */
 static void cpuOpcodeArmTst(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM UMLAL opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmUmlal(uint32_t p_opcode);
+
+/**
+ * @brief Executes the ARM UMULL opcode.
+ *
+ * @param[in] p_opcode The opcode as a 32-bit word.
+ */
+static void cpuOpcodeArmUmull(uint32_t p_opcode);
 
 /**
  * @brief Puts the CPU in UND mode.
@@ -1186,6 +1228,18 @@ static void cpuInitArmDecodeTable(void) {
             l_opcodeHandler = cpuOpcodeArmMrs;
         } else if((l_opcode & 0x0db00000) == 0x01200000) { // MSR
             l_opcodeHandler = cpuOpcodeArmMsr;
+        } else if((l_opcode & 0x0fe000f0) == 0x00000090) { // MUL
+            l_opcodeHandler = cpuOpcodeArmMul;
+        } else if((l_opcode & 0x0fe000f0) == 0x00200090) { // MLA
+            l_opcodeHandler = cpuOpcodeArmMla;
+        } else if((l_opcode & 0x0fe000f0) == 0x00800090) { // UMULL
+            l_opcodeHandler = cpuOpcodeArmUmull;
+        } else if((l_opcode & 0x0fe000f0) == 0x00a00090) { // UMLAL
+            l_opcodeHandler = cpuOpcodeArmUmlal;
+        } else if((l_opcode & 0x0fe000f0) == 0x00c00090) { // SMULL
+            l_opcodeHandler = cpuOpcodeArmSmull;
+        } else if((l_opcode & 0x0fe000f0) == 0x00e00090) { // SMLAL
+            l_opcodeHandler = cpuOpcodeArmSmlal;
         } else {
             l_opcodeHandler = cpuOpcodeArmUnd;
         }
@@ -1771,6 +1825,25 @@ static void cpuOpcodeArmEor(uint32_t p_opcode) {
     cpuWriteRegister(l_destinationRegister, l_result);
 }
 
+static void cpuOpcodeArmMla(uint32_t p_opcode) {
+    uint32_t l_destinationRegister = (p_opcode & 0x000f0000) >> 16;
+    uint32_t l_firstOperandRegister = p_opcode & 0x0000000f;
+    uint32_t l_secondOperandRegister = (p_opcode & 0x00000f00) >> 8;
+    uint32_t l_thirdOperandRegister = (p_opcode & 0x0000f000) >> 12;
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+    uint32_t l_secondOperand = s_cpuRegisterR[l_secondOperandRegister];
+    uint32_t l_thirdOperand = s_cpuRegisterR[l_thirdOperandRegister];
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+
+    uint32_t l_result = l_firstOperand * l_secondOperand + l_thirdOperand;
+
+    if(l_setFlags) {
+        cpuUtilSetFlagsArithmetical(l_result);
+    }
+
+    cpuWriteRegister(l_destinationRegister, l_result);
+}
+
 static void cpuOpcodeArmMov(uint32_t p_opcode) {
     cpuUtilArmDataProcessingGetOperand(p_opcode);
 
@@ -1850,6 +1923,23 @@ static void cpuOpcodeArmMsr(uint32_t p_opcode) {
     }
 }
 
+static void cpuOpcodeArmMul(uint32_t p_opcode) {
+    uint32_t l_destinationRegister = (p_opcode & 0x000f0000) >> 16;
+    uint32_t l_firstOperandRegister = p_opcode & 0x0000000f;
+    uint32_t l_secondOperandRegister = (p_opcode & 0x00000f00) >> 8;
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+    uint32_t l_secondOperand = s_cpuRegisterR[l_secondOperandRegister];
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+
+    uint32_t l_result = l_firstOperand * l_secondOperand;
+
+    if(l_setFlags) {
+        cpuUtilSetFlagsArithmetical(l_result);
+    }
+
+    cpuWriteRegister(l_destinationRegister, l_result);
+}
+
 static void cpuOpcodeArmMvn(uint32_t p_opcode) {
     cpuUtilArmDataProcessingGetOperand(p_opcode);
 
@@ -1896,54 +1986,6 @@ static void cpuOpcodeArmOrr(uint32_t p_opcode) {
             cpuRestoreCpsr();
         } else {
             cpuUtilSetFlagsLogical(l_result);
-        }
-    }
-
-    cpuWriteRegister(l_destinationRegister, l_result);
-}
-
-static void cpuOpcodeArmSbc(uint32_t p_opcode) {
-    cpuUtilArmDataProcessingGetOperand(p_opcode);
-
-    bool l_setFlags = (p_opcode & 0x00100000) != 0;
-    uint32_t l_firstOperandRegister = (uint32_t)((p_opcode & 0x000f0000) >> 16);
-    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
-
-    if(l_firstOperandRegister == E_CPUREGISTER_PC) {
-        bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
-
-        if(!l_isImmediate) {
-            bool l_shiftByRegister = (p_opcode & 0x00000010) != 0x00000000;
-
-            if(l_shiftByRegister) {
-                l_firstOperand += C_INSTRUCTION_SIZE_ARM;
-            }
-        }
-    }
-
-    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
-    uint32_t l_carryFlagValue;
-
-    if(s_cpuFlagC) {
-        l_carryFlagValue = 1;
-    } else {
-        l_carryFlagValue = 0;
-    }
-
-    uint32_t l_result =
-        l_firstOperand - s_cpuShifterResult + l_carryFlagValue - 1;
-
-    if(l_setFlags) {
-        if(l_destinationRegister == E_CPUREGISTER_PC) {
-            cpuRestoreCpsr();
-        } else {
-            cpuUtilSetCarryFlagSbc(l_firstOperand, s_cpuShifterResult);
-            cpuUtilSetOverflowFlagSub(
-                l_firstOperand,
-                s_cpuShifterResult,
-                l_result
-            );
-            cpuUtilSetFlagsArithmetical(l_result);
         }
     }
 
@@ -2035,6 +2077,109 @@ static void cpuOpcodeArmRsc(uint32_t p_opcode) {
     }
 
     cpuWriteRegister(l_destinationRegister, l_result);
+}
+
+static void cpuOpcodeArmSbc(uint32_t p_opcode) {
+    cpuUtilArmDataProcessingGetOperand(p_opcode);
+
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+    uint32_t l_firstOperandRegister = (uint32_t)((p_opcode & 0x000f0000) >> 16);
+    uint32_t l_firstOperand = s_cpuRegisterR[l_firstOperandRegister];
+
+    if(l_firstOperandRegister == E_CPUREGISTER_PC) {
+        bool l_isImmediate = (p_opcode & 0x02000000) != 0x00000000;
+
+        if(!l_isImmediate) {
+            bool l_shiftByRegister = (p_opcode & 0x00000010) != 0x00000000;
+
+            if(l_shiftByRegister) {
+                l_firstOperand += C_INSTRUCTION_SIZE_ARM;
+            }
+        }
+    }
+
+    uint32_t l_destinationRegister = (uint32_t)((p_opcode & 0x0000f000) >> 12);
+    uint32_t l_carryFlagValue;
+
+    if(s_cpuFlagC) {
+        l_carryFlagValue = 1;
+    } else {
+        l_carryFlagValue = 0;
+    }
+
+    uint32_t l_result =
+        l_firstOperand - s_cpuShifterResult + l_carryFlagValue - 1;
+
+    if(l_setFlags) {
+        if(l_destinationRegister == E_CPUREGISTER_PC) {
+            cpuRestoreCpsr();
+        } else {
+            cpuUtilSetCarryFlagSbc(l_firstOperand, s_cpuShifterResult);
+            cpuUtilSetOverflowFlagSub(
+                l_firstOperand,
+                s_cpuShifterResult,
+                l_result
+            );
+            cpuUtilSetFlagsArithmetical(l_result);
+        }
+    }
+
+    cpuWriteRegister(l_destinationRegister, l_result);
+}
+
+static void cpuOpcodeArmSmlal(uint32_t p_opcode) {
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+    uint32_t l_destinationLowRegister = (p_opcode & 0x0000f000) >> 12;
+    uint32_t l_destinationHighRegister = (p_opcode & 0x000f0000) >> 16;
+    uint32_t l_firstOperandRegister = (p_opcode & 0x00000f00) >> 8;
+    uint32_t l_secondOperandRegister = p_opcode & 0x0000000f;
+    int64_t l_firstOperand =
+        signExtend32to64(s_cpuRegisterR[l_firstOperandRegister]);
+    int64_t l_secondOperand =
+        signExtend32to64(s_cpuRegisterR[l_secondOperandRegister]);
+    uint64_t l_thirdOperandHigh = s_cpuRegisterR[l_destinationHighRegister];
+    uint64_t l_thirdOperandLow = s_cpuRegisterR[l_destinationLowRegister];
+    int64_t l_thirdOperand =
+        (int64_t)(
+            (l_thirdOperandHigh << (uint64_t)32)
+            | l_thirdOperandLow
+        );
+
+    int64_t l_result = l_firstOperand * l_secondOperand + l_thirdOperand;
+    uint32_t l_resultHigh = (uint32_t)(l_result >> 32);
+    uint32_t l_resultLow = (uint32_t)l_result;
+
+    s_cpuRegisterR[l_destinationHighRegister] = l_resultHigh;
+    s_cpuRegisterR[l_destinationLowRegister] = l_resultLow;
+
+    if(l_setFlags) {
+        s_cpuFlagZ = (l_result == (int64_t)0);
+        s_cpuFlagN = (l_result & 0x8000000000000000) != 0;
+    }
+}
+
+static void cpuOpcodeArmSmull(uint32_t p_opcode) {
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+    uint32_t l_destinationLowRegister = (p_opcode & 0x0000f000) >> 12;
+    uint32_t l_destinationHighRegister = (p_opcode & 0x000f0000) >> 16;
+    uint32_t l_firstOperandRegister = (p_opcode & 0x00000f00) >> 8;
+    uint32_t l_secondOperandRegister = p_opcode & 0x0000000f;
+    int64_t l_firstOperand =
+        signExtend32to64(s_cpuRegisterR[l_firstOperandRegister]);
+    int64_t l_secondOperand =
+        signExtend32to64(s_cpuRegisterR[l_secondOperandRegister]);
+
+    int64_t l_result = l_firstOperand * l_secondOperand;
+    uint32_t l_resultHigh = (uint32_t)(l_result >> 32);
+    uint32_t l_resultLow = (uint32_t)l_result;
+
+    s_cpuRegisterR[l_destinationHighRegister] = l_resultHigh;
+    s_cpuRegisterR[l_destinationLowRegister] = l_resultLow;
+
+    if(l_setFlags) {
+        s_cpuFlagZ = (l_result == (int64_t)0);
+        s_cpuFlagN = (l_result & 0x8000000000000000) != 0;
+    }
 }
 
 static void cpuOpcodeArmSub(uint32_t p_opcode) {
@@ -2129,6 +2274,56 @@ static void cpuOpcodeArmTst(uint32_t p_opcode) {
         cpuRestoreCpsr();
     } else {
         cpuUtilSetFlagsLogical(l_result);
+    }
+}
+
+static void cpuOpcodeArmUmlal(uint32_t p_opcode) {
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+    uint32_t l_destinationLowRegister = (p_opcode & 0x0000f000) >> 12;
+    uint32_t l_destinationHighRegister = (p_opcode & 0x000f0000) >> 16;
+    uint32_t l_firstOperandRegister = (p_opcode & 0x00000f00) >> 8;
+    uint32_t l_secondOperandRegister = p_opcode & 0x0000000f;
+    uint64_t l_firstOperand = (uint64_t)s_cpuRegisterR[l_firstOperandRegister];
+    uint64_t l_secondOperand = s_cpuRegisterR[l_secondOperandRegister];
+    uint64_t l_thirdOperandHigh = s_cpuRegisterR[l_destinationHighRegister];
+    uint64_t l_thirdOperandLow = s_cpuRegisterR[l_destinationLowRegister];
+    uint64_t l_thirdOperand = (
+            (l_thirdOperandHigh << (uint64_t)32)
+            | l_thirdOperandLow
+        );
+
+    uint64_t l_result = l_firstOperand * l_secondOperand + l_thirdOperand;
+    uint32_t l_resultHigh = (uint32_t)(l_result >> 32);
+    uint32_t l_resultLow = (uint32_t)l_result;
+
+    s_cpuRegisterR[l_destinationHighRegister] = l_resultHigh;
+    s_cpuRegisterR[l_destinationLowRegister] = l_resultLow;
+
+    if(l_setFlags) {
+        s_cpuFlagZ = (l_result == (uint64_t)0);
+        s_cpuFlagN = (l_result & 0x8000000000000000) != 0;
+    }
+}
+
+static void cpuOpcodeArmUmull(uint32_t p_opcode) {
+    bool l_setFlags = (p_opcode & 0x00100000) != 0;
+    uint32_t l_destinationLowRegister = (p_opcode & 0x0000f000) >> 12;
+    uint32_t l_destinationHighRegister = (p_opcode & 0x000f0000) >> 16;
+    uint32_t l_firstOperandRegister = (p_opcode & 0x00000f00) >> 8;
+    uint32_t l_secondOperandRegister = p_opcode & 0x0000000f;
+    uint64_t l_firstOperand = (uint64_t)s_cpuRegisterR[l_firstOperandRegister];
+    uint64_t l_secondOperand = s_cpuRegisterR[l_secondOperandRegister];
+
+    uint64_t l_result = l_firstOperand * l_secondOperand;
+    uint32_t l_resultHigh = (uint32_t)(l_result >> 32);
+    uint32_t l_resultLow = (uint32_t)l_result;
+
+    s_cpuRegisterR[l_destinationHighRegister] = l_resultHigh;
+    s_cpuRegisterR[l_destinationLowRegister] = l_resultLow;
+
+    if(l_setFlags) {
+        s_cpuFlagZ = (l_result == (uint64_t)0);
+        s_cpuFlagN = (l_result & 0x8000000000000000) != 0;
     }
 }
 

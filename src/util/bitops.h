@@ -46,4 +46,8 @@ static inline uint32_t signExtend26to32(const uint32_t p_value) {
     return (uint32_t)(((int32_t)(p_value << 6)) >> 6);
 }
 
+static inline int64_t signExtend32to64(const uint32_t p_value) {
+    return (int64_t)((int32_t)p_value);
+}
+
 #endif // __BITOPS_H__
