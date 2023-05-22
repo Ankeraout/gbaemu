@@ -1,3 +1,9 @@
+# Visual Studio Code files
+.vscode
+
+# Build files
+obj
 bin
+
+# Test files
 roms
-*.vscode
