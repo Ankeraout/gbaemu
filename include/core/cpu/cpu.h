@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "core/cpu/decoder.h"
+
 typedef enum {
     E_CPUMODE_OLD_USR = 0x00,
     E_CPUMODE_OLD_FIQ = 0x01,
@@ -51,14 +53,29 @@ typedef enum {
     E_SHIFTTYPE_ROR
 } te_shiftType;
 
-extern bool s_cpuFlagZ;
-extern bool s_cpuFlagC;
-extern bool s_cpuFlagN;
-extern bool s_cpuFlagV;
-extern bool s_cpuFlagI;
-extern bool s_cpuFlagF;
-extern bool s_cpuFlagT;
-extern uint32_t s_cpuRegisterR[16];
+enum te_cpuPipelineState {
+    E_CPUPIPELINESTATE_FLUSH,
+    E_CPUPIPELINESTATE_FETCH,
+    E_CPUPIPELINESTATE_DECODE,
+    E_CPUPIPELINESTATE_EXECUTE
+};
+
+union tu_cpuFetchedOpcode {
+    uint32_t arm;
+    uint16_t thumb;
+};
+
+extern bool g_cpuFlagZ;
+extern bool g_cpuFlagC;
+extern bool g_cpuFlagN;
+extern bool g_cpuFlagV;
+extern bool g_cpuFlagI;
+extern bool g_cpuFlagF;
+extern bool g_cpuFlagT;
+extern uint32_t g_cpuRegisterR[16];
+extern enum te_cpuPipelineState g_cpuPipelineState;
+extern union tu_cpuFetchedOpcode g_cpuFetchedOpcode;
+extern union tu_cpuDecodedOpcode g_cpuDecodedOpcode;
 
 void cpuDebug(void);
 void cpuInit(void);
@@ -75,7 +92,7 @@ static inline void cpuWriteRegister(uint32_t p_register, uint32_t p_value) {
     if(p_register == E_CPUREGISTER_PC) {
         cpuJump(p_value);
     } else {
-        s_cpuRegisterR[p_register] = p_value;
+        g_cpuRegisterR[p_register] = p_value;
     }
 }
 
