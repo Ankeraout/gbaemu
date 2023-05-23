@@ -1,6 +1,6 @@
 #include <stddef.h>
 
-#include "core/cpu.h"
+#include "core/cpu/cpu.h"
 #include "core/gpu.h"
 
 void coreInit(void) {

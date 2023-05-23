@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include "core.h"
-#include "core/cpu.h"
+#include "core/cpu/cpu.h"
 #include "core/gba.h"
 
 static int loadBios();

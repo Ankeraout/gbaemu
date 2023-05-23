@@ -5,6 +5,10 @@
 
 #include "core/bitops.h"
 #include "core/bus.h"
+#include "core/cpu/cpu.h"
+#include "core/cpu/op_arm_bx.h"
+#include "core/cpu/op_arm_und.h"
+#include "core/cpu/op_thumb_und.h"
 
 #define C_ADDRESS_MASK_16 0xfffffffe
 #define C_ADDRESS_MASK_32 0xfffffffc
@@ -24,67 +28,20 @@
 #define C_EXCEPTION_VECTOR_IRQ 0x00000018
 
 typedef enum {
-    E_CPUMODE_OLD_USR = 0x00,
-    E_CPUMODE_OLD_FIQ = 0x01,
-    E_CPUMODE_OLD_IRQ = 0x02,
-    E_CPUMODE_OLD_SVC = 0x03,
-    E_CPUMODE_USR = 0x10,
-    E_CPUMODE_FIQ = 0x11,
-    E_CPUMODE_IRQ = 0x12,
-    E_CPUMODE_SVC = 0x13,
-    E_CPUMODE_ABT = 0x17,
-    E_CPUMODE_UND = 0x1b,
-    E_CPUMODE_SYS = 0x1f
-} t_cpuMode;
-
-typedef enum {
     E_CPUPIPELINESTATE_FLUSH,
     E_CPUPIPELINESTATE_FETCH,
     E_CPUPIPELINESTATE_DECODE,
     E_CPUPIPELINESTATE_EXECUTE
-} t_cpuPipelineState;
+} te_cpuPipelineState;
 
-typedef enum {
-    E_CPUCONDITION_EQ,
-    E_CPUCONDITION_NE,
-    E_CPUCONDITION_CS,
-    E_CPUCONDITION_CC,
-    E_CPUCONDITION_MI,
-    E_CPUCONDITION_PL,
-    E_CPUCONDITION_VS,
-    E_CPUCONDITION_VC,
-    E_CPUCONDITION_HI,
-    E_CPUCONDITION_LS,
-    E_CPUCONDITION_GE,
-    E_CPUCONDITION_LT,
-    E_CPUCONDITION_GT,
-    E_CPUCONDITION_LE,
-    E_CPUCONDITION_AL,
-    E_CPUCONDITION_NV
-} t_cpuCondition;
-
-enum {
-    E_CPUREGISTER_IP = 12,
-    E_CPUREGISTER_SP = 13,
-    E_CPUREGISTER_LR = 14,
-    E_CPUREGISTER_PC = 15
-};
-
-typedef enum {
-    E_SHIFTTYPE_LSL,
-    E_SHIFTTYPE_LSR,
-    E_SHIFTTYPE_ASR,
-    E_SHIFTTYPE_ROR
-} t_shiftType;
-
-static bool s_cpuFlagZ;
-static bool s_cpuFlagC;
-static bool s_cpuFlagN;
-static bool s_cpuFlagV;
-static bool s_cpuFlagI;
-static bool s_cpuFlagF;
-static bool s_cpuFlagT;
-static uint32_t s_cpuRegisterR[16];
+bool s_cpuFlagZ;
+bool s_cpuFlagC;
+bool s_cpuFlagN;
+bool s_cpuFlagV;
+bool s_cpuFlagI;
+bool s_cpuFlagF;
+bool s_cpuFlagT;
+uint32_t s_cpuRegisterR[16];
 static uint32_t s_cpuRegisterUsrR[7];
 static uint32_t s_cpuRegisterIrqR[2];
 static uint32_t s_cpuRegisterFiqR[7];
@@ -96,10 +53,8 @@ static uint32_t s_cpuRegisterSpsrFiq;
 static uint32_t s_cpuRegisterSpsrSvc;
 static uint32_t s_cpuRegisterSpsrAbt;
 static uint32_t s_cpuRegisterSpsrUnd;
-static uint32_t s_cpuShifterResult;
-static bool s_cpuShifterCarry;
-static t_cpuPipelineState s_cpuPipelineState;
-static t_cpuMode s_cpuMode;
+static te_cpuPipelineState s_cpuPipelineState;
+static te_cpuMode s_cpuMode;
 
 static union {
     uint32_t arm;
@@ -123,28 +78,14 @@ static struct {
     void (*thumb[1024])(uint16_t p_opcode);
 } s_cpuDecodeTable;
 
-static bool cpuCheckCondition(t_cpuCondition p_condition);
-static void cpuChangeMode(t_cpuMode p_newMode);
-static void cpuJump(uint32_t p_address);
+static bool cpuCheckCondition(te_cpuCondition p_condition);
+static void cpuChangeMode(te_cpuMode p_newMode);
 static void cpuRaiseIrq(void);
-static void cpuRaiseSwi(void);
-static void cpuRaiseUnd(void);
 static void cpuFetch(uint32_t p_fetchAddress);
 static void cpuDecode(void);
 static void cpuExecute(void);
-static uint32_t cpuGetCpsr(void);
-static uint32_t cpuGetSpsr(void);
-static void cpuSetCpsr(uint32_t p_value);
-static void cpuSetSpsr(uint32_t p_value);
 static void cpuInitArmDecodeTable(void);
 static void cpuInitThumbDecodeTable(void);
-static inline void cpuRestoreCpsr(void);
-static inline void cpuWriteRegister(uint32_t p_register, uint32_t p_value);
-static void cpuOpcodeArmB(uint32_t p_opcode);
-static void cpuOpcodeArmBl(uint32_t p_opcode);
-static void cpuOpcodeArmBx(uint32_t p_opcode);
-static void cpuOpcodeArmUnd(uint32_t p_opcode);
-static void cpuOpcodeThumbUnd(uint16_t p_opcode);
 
 void cpuInit(void) {
     memset(&s_cpuDecodeTable, 0, sizeof(s_cpuDecodeTable));
@@ -206,7 +147,150 @@ void cpuDebug(void) {
     printf("CPSR=0x%08x SPSR=0x%08x\n", cpuGetCpsr(), cpuGetSpsr());
 }
 
-static bool cpuCheckCondition(t_cpuCondition p_condition) {
+void coreStep(void) {
+    const uint32_t l_fetchAddress = s_cpuRegisterR[E_CPUREGISTER_PC];
+
+    cpuExecute();
+    cpuDecode();
+    cpuFetch(l_fetchAddress);
+
+    if(s_cpuPipelineState != E_CPUPIPELINESTATE_EXECUTE) {
+        s_cpuPipelineState++;
+    }
+}
+
+
+
+void cpuSetCpsr(uint32_t p_value) {
+    s_cpuFlagN = (p_value & C_PSR_MASK_FLAG_N) != 0;
+    s_cpuFlagZ = (p_value & C_PSR_MASK_FLAG_Z) != 0;
+    s_cpuFlagC = (p_value & C_PSR_MASK_FLAG_C) != 0;
+    s_cpuFlagV = (p_value & C_PSR_MASK_FLAG_V) != 0;
+    s_cpuFlagI = (p_value & C_PSR_MASK_FLAG_I) != 0;
+    s_cpuFlagF = (p_value & C_PSR_MASK_FLAG_F) != 0;
+    s_cpuFlagT = (p_value & C_PSR_MASK_FLAG_T) != 0;
+
+    cpuChangeMode(p_value & C_PSR_MASK_MODE);
+}
+
+void cpuSetSpsr(uint32_t p_value) {
+    switch(s_cpuMode) {
+        case E_CPUMODE_OLD_USR:
+        case E_CPUMODE_USR:
+        case E_CPUMODE_SYS:
+            cpuSetCpsr(p_value);
+            break;
+
+        case E_CPUMODE_OLD_FIQ:
+        case E_CPUMODE_FIQ:
+            s_cpuRegisterSpsrFiq = p_value;
+            break;
+
+        case E_CPUMODE_OLD_IRQ:
+        case E_CPUMODE_IRQ:
+            s_cpuRegisterSpsrIrq = p_value;
+            break;
+
+        case E_CPUMODE_OLD_SVC:
+        case E_CPUMODE_SVC:
+            s_cpuRegisterSpsrSvc = p_value;
+            break;
+
+        case E_CPUMODE_ABT:
+            s_cpuRegisterSpsrAbt = p_value;
+            break;
+
+        case E_CPUMODE_UND:
+            s_cpuRegisterSpsrUnd = p_value;
+            break;
+    }
+}
+
+uint32_t cpuGetCpsr(void) {
+    uint32_t l_cpsr = 0;
+
+    if(s_cpuFlagN) l_cpsr |= C_PSR_MASK_FLAG_N;
+    if(s_cpuFlagZ) l_cpsr |= C_PSR_MASK_FLAG_Z;
+    if(s_cpuFlagC) l_cpsr |= C_PSR_MASK_FLAG_C;
+    if(s_cpuFlagV) l_cpsr |= C_PSR_MASK_FLAG_V;
+    if(s_cpuFlagI) l_cpsr |= C_PSR_MASK_FLAG_I;
+    if(s_cpuFlagF) l_cpsr |= C_PSR_MASK_FLAG_F;
+    if(s_cpuFlagT) l_cpsr |= C_PSR_MASK_FLAG_T;
+
+    l_cpsr |= s_cpuMode;
+
+    return l_cpsr;
+}
+
+uint32_t cpuGetSpsr(void) {
+    uint32_t l_spsr = 0;
+
+    switch(s_cpuMode) {
+        case E_CPUMODE_OLD_USR:
+        case E_CPUMODE_USR:
+        case E_CPUMODE_SYS:
+            l_spsr = cpuGetCpsr();
+            break;
+
+        case E_CPUMODE_OLD_FIQ:
+        case E_CPUMODE_FIQ:
+            l_spsr = s_cpuRegisterSpsrFiq;
+            break;
+
+        case E_CPUMODE_OLD_IRQ:
+        case E_CPUMODE_IRQ:
+            l_spsr = s_cpuRegisterSpsrIrq;
+            break;
+
+        case E_CPUMODE_OLD_SVC:
+        case E_CPUMODE_SVC:
+            l_spsr = s_cpuRegisterSpsrSvc;
+            break;
+
+        case E_CPUMODE_ABT:
+            l_spsr = s_cpuRegisterSpsrAbt;
+            break;
+
+        case E_CPUMODE_UND:
+            l_spsr = s_cpuRegisterSpsrUnd;
+            break;
+    }
+
+    return l_spsr;
+}
+
+void cpuJump(uint32_t p_address) {
+    uint32_t l_address;
+
+    if(s_cpuFlagT) {
+        l_address = p_address & C_ADDRESS_MASK_16;
+    } else {
+        l_address = p_address & C_ADDRESS_MASK_32;
+    }
+
+    s_cpuRegisterR[15] = l_address;
+    s_cpuPipelineState = E_CPUPIPELINESTATE_FLUSH;
+}
+
+void cpuRaiseSwi(void) {
+    cpuChangeMode(E_CPUMODE_SVC);
+    s_cpuRegisterSpsrSvc = cpuGetCpsr();
+    s_cpuRegisterR[14] = s_cpuRegisterR[15];
+    s_cpuFlagT = false;
+    s_cpuFlagI = true;
+    cpuJump(C_EXCEPTION_VECTOR_SWI);
+}
+
+void cpuRaiseUnd(void) {
+    cpuChangeMode(E_CPUMODE_UND);
+    s_cpuRegisterSpsrUnd = cpuGetCpsr();
+    s_cpuRegisterR[14] = s_cpuRegisterR[15];
+    s_cpuFlagT = false;
+    s_cpuFlagI = true;
+    cpuJump(C_EXCEPTION_VECTOR_UND);
+}
+
+static bool cpuCheckCondition(te_cpuCondition p_condition) {
     switch(p_condition) {
         case E_CPUCONDITION_EQ: return s_cpuFlagZ;
         case E_CPUCONDITION_NE: return !s_cpuFlagZ;
@@ -228,7 +312,7 @@ static bool cpuCheckCondition(t_cpuCondition p_condition) {
     }
 }
 
-static void cpuChangeMode(t_cpuMode p_newMode) {
+static void cpuChangeMode(te_cpuMode p_newMode) {
     // Save banked registers
     switch(s_cpuMode) {
         case E_CPUMODE_OLD_USR:
@@ -369,19 +453,6 @@ static void cpuChangeMode(t_cpuMode p_newMode) {
     s_cpuMode = p_newMode;
 }
 
-static void cpuJump(uint32_t p_address) {
-    uint32_t l_address;
-
-    if(s_cpuFlagT) {
-        l_address = p_address & C_ADDRESS_MASK_16;
-    } else {
-        l_address = p_address & C_ADDRESS_MASK_32;
-    }
-
-    s_cpuRegisterR[15] = l_address;
-    s_cpuPipelineState = E_CPUPIPELINESTATE_FLUSH;
-}
-
 static void cpuRaiseIrq(void) {
     cpuChangeMode(E_CPUMODE_IRQ);
     s_cpuRegisterSpsrIrq = cpuGetCpsr();
@@ -389,24 +460,6 @@ static void cpuRaiseIrq(void) {
     s_cpuFlagT = false;
     s_cpuFlagI = true;
     cpuJump(C_EXCEPTION_VECTOR_IRQ);
-}
-
-static void cpuRaiseSwi(void) {
-    cpuChangeMode(E_CPUMODE_SVC);
-    s_cpuRegisterSpsrSvc = cpuGetCpsr();
-    s_cpuRegisterR[14] = s_cpuRegisterR[15];
-    s_cpuFlagT = false;
-    s_cpuFlagI = true;
-    cpuJump(C_EXCEPTION_VECTOR_SWI);
-}
-
-static void cpuRaiseUnd(void) {
-    cpuChangeMode(E_CPUMODE_UND);
-    s_cpuRegisterSpsrUnd = cpuGetCpsr();
-    s_cpuRegisterR[14] = s_cpuRegisterR[15];
-    s_cpuFlagT = false;
-    s_cpuFlagI = true;
-    cpuJump(C_EXCEPTION_VECTOR_UND);
 }
 
 static void cpuFetch(uint32_t p_fetchAddress) {
@@ -458,115 +511,9 @@ static void cpuExecute(void) {
     }
 }
 
-static uint32_t cpuGetCpsr(void) {
-    uint32_t l_cpsr = 0;
-
-    if(s_cpuFlagN) l_cpsr |= C_PSR_MASK_FLAG_N;
-    if(s_cpuFlagZ) l_cpsr |= C_PSR_MASK_FLAG_Z;
-    if(s_cpuFlagC) l_cpsr |= C_PSR_MASK_FLAG_C;
-    if(s_cpuFlagV) l_cpsr |= C_PSR_MASK_FLAG_V;
-    if(s_cpuFlagI) l_cpsr |= C_PSR_MASK_FLAG_I;
-    if(s_cpuFlagF) l_cpsr |= C_PSR_MASK_FLAG_F;
-    if(s_cpuFlagT) l_cpsr |= C_PSR_MASK_FLAG_T;
-
-    l_cpsr |= s_cpuMode;
-
-    return l_cpsr;
-}
-
-static uint32_t cpuGetSpsr(void) {
-    uint32_t l_spsr = 0;
-
-    switch(s_cpuMode) {
-        case E_CPUMODE_OLD_USR:
-        case E_CPUMODE_USR:
-        case E_CPUMODE_SYS:
-            l_spsr = cpuGetCpsr();
-            break;
-
-        case E_CPUMODE_OLD_FIQ:
-        case E_CPUMODE_FIQ:
-            l_spsr = s_cpuRegisterSpsrFiq;
-            break;
-
-        case E_CPUMODE_OLD_IRQ:
-        case E_CPUMODE_IRQ:
-            l_spsr = s_cpuRegisterSpsrIrq;
-            break;
-
-        case E_CPUMODE_OLD_SVC:
-        case E_CPUMODE_SVC:
-            l_spsr = s_cpuRegisterSpsrSvc;
-            break;
-
-        case E_CPUMODE_ABT:
-            l_spsr = s_cpuRegisterSpsrAbt;
-            break;
-
-        case E_CPUMODE_UND:
-            l_spsr = s_cpuRegisterSpsrUnd;
-            break;
-    }
-
-    return l_spsr;
-}
-
-static void cpuSetCpsr(uint32_t p_value) {
-    s_cpuFlagN = (p_value & C_PSR_MASK_FLAG_N) != 0;
-    s_cpuFlagZ = (p_value & C_PSR_MASK_FLAG_Z) != 0;
-    s_cpuFlagC = (p_value & C_PSR_MASK_FLAG_C) != 0;
-    s_cpuFlagV = (p_value & C_PSR_MASK_FLAG_V) != 0;
-    s_cpuFlagI = (p_value & C_PSR_MASK_FLAG_I) != 0;
-    s_cpuFlagF = (p_value & C_PSR_MASK_FLAG_F) != 0;
-    s_cpuFlagT = (p_value & C_PSR_MASK_FLAG_T) != 0;
-
-    cpuChangeMode(p_value & C_PSR_MASK_MODE);
-}
-
-static void cpuSetSpsr(uint32_t p_value) {
-    switch(s_cpuMode) {
-        case E_CPUMODE_OLD_USR:
-        case E_CPUMODE_USR:
-        case E_CPUMODE_SYS:
-            cpuSetCpsr(p_value);
-            break;
-
-        case E_CPUMODE_OLD_FIQ:
-        case E_CPUMODE_FIQ:
-            s_cpuRegisterSpsrFiq = p_value;
-            break;
-
-        case E_CPUMODE_OLD_IRQ:
-        case E_CPUMODE_IRQ:
-            s_cpuRegisterSpsrIrq = p_value;
-            break;
-
-        case E_CPUMODE_OLD_SVC:
-        case E_CPUMODE_SVC:
-            s_cpuRegisterSpsrSvc = p_value;
-            break;
-
-        case E_CPUMODE_ABT:
-            s_cpuRegisterSpsrAbt = p_value;
-            break;
-
-        case E_CPUMODE_UND:
-            s_cpuRegisterSpsrUnd = p_value;
-            break;
-    }
-}
-
 static void cpuInitArmDecodeTable(void) {
     for(int l_index = 0; l_index < 4096; l_index++) {
-        if((l_index & 0xe00) == 0xa00) {
-            if((l_index & 0x100) == 0x000) {
-                s_cpuDecodeTable.arm[l_index] = cpuOpcodeArmB;
-            } else {
-                s_cpuDecodeTable.arm[l_index] = cpuOpcodeArmBl;
-            }
-        } else {
-            s_cpuDecodeTable.arm[l_index] = cpuOpcodeArmUnd;
-        }
+        s_cpuDecodeTable.arm[l_index] = cpuOpcodeArmUnd;
     }
 
     s_cpuDecodeTable.arm[0x121] = cpuOpcodeArmBx;
@@ -576,75 +523,4 @@ static void cpuInitThumbDecodeTable(void) {
     for(int l_index = 0; l_index < 1024; l_index++) {
         s_cpuDecodeTable.thumb[l_index] = cpuOpcodeThumbUnd;
     }
-}
-
-static inline void cpuRestoreCpsr(void) {
-    cpuSetCpsr(cpuGetSpsr());
-}
-
-static inline void cpuWriteRegister(uint32_t p_register, uint32_t p_value) {
-    if(p_register == E_CPUREGISTER_PC) {
-        cpuJump(p_value);
-    } else {
-        s_cpuRegisterR[p_register] = p_value;
-    }
-}
-
-void coreStep(void) {
-    const uint32_t l_fetchAddress = s_cpuRegisterR[E_CPUREGISTER_PC];
-
-    cpuExecute();
-    cpuDecode();
-    cpuFetch(l_fetchAddress);
-
-    if(s_cpuPipelineState != E_CPUPIPELINESTATE_EXECUTE) {
-        s_cpuPipelineState++;
-    }
-}
-
-static void cpuOpcodeArmB(uint32_t p_opcode) {
-    uint32_t l_offset = p_opcode & 0x00ffffff;
-
-    l_offset <<= 2;
-    l_offset = signExtend26to32(l_offset);
-
-    cpuJump(s_cpuRegisterR[E_CPUREGISTER_PC] + l_offset);
-}
-
-static void cpuOpcodeArmBl(uint32_t p_opcode) {
-    uint32_t l_offset = p_opcode & 0x00ffffff;
-
-    l_offset <<= 2;
-    l_offset = signExtend26to32(l_offset);
-
-    s_cpuRegisterR[E_CPUREGISTER_LR] =
-        s_cpuRegisterR[E_CPUREGISTER_PC] - C_INSTRUCTION_SIZE_ARM;
-
-    cpuJump(s_cpuRegisterR[E_CPUREGISTER_PC] + l_offset);
-}
-
-static void cpuOpcodeArmBx(uint32_t p_opcode) {
-    if((p_opcode & 0x0ffffff0) != 0x012fff10) {
-        cpuRaiseUnd();
-        return;
-    }
-
-    const uint32_t l_rn = p_opcode & 0x0000000f;
-    const uint32_t l_rnValue = s_cpuRegisterR[l_rn];
-
-    if((l_rn & 0x00000001) != 0) {
-        s_cpuFlagT = true;
-        cpuJump(l_rnValue & 0xfffffffe);
-    } else {
-        s_cpuFlagT = false;
-        cpuJump(l_rnValue & 0xfffffffc);
-    }
-}
-
-static void cpuOpcodeArmUnd(uint32_t p_opcode) {
-    cpuRaiseUnd();
-}
-
-static void cpuOpcodeThumbUnd(uint16_t p_opcode) {
-    cpuRaiseUnd();
 }
