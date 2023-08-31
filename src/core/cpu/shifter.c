@@ -1,3 +1,3 @@
 #include <stdbool.h>
 
-extern bool g_cpuShifterCarry;
+bool g_cpuShifterCarry;
