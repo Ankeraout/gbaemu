@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <SDL2/SDL.h>
+
 #include "core.h"
 #include "core/cpu/cpu.h"
 #include "core/gba.h"
@@ -12,15 +14,22 @@ static int loadRom();
 static long po2_ceil(long p_initialValue);
 static void *readFile(const char *p_fileName, long *p_fileSize, bool p_po2);
 
-int main(int argc, const char *argv[]) {
+int main(int argc, char **argv) {
     coreInit();
-    loadBios();
-    loadRom();
+
+    if(loadBios() != 0) {
+        fprintf(stderr, "Failed to load BIOS file.\n");
+        return 1;
+    }
+
+    if(loadRom() != 0) {
+        fprintf(stderr, "Failed to read ROM file.\n");
+        return 1;
+    }
+
     coreReset();
 
-    cpuDebug();
-
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < 64; i++) {
         coreStep();
         cpuDebug();
     }

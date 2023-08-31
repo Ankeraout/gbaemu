@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "core/bitops.h"
 #include "core/bus.h"
 #include "core/cpu/cpu.h"
 #include "core/cpu/decoder.h"
@@ -13,8 +12,6 @@
 
 #define C_ADDRESS_MASK_16 0xfffffffe
 #define C_ADDRESS_MASK_32 0xfffffffc
-#define C_INSTRUCTION_SIZE_THUMB 0x00000002
-#define C_INSTRUCTION_SIZE_ARM 0x00000004
 #define C_PSR_MASK_FLAG_N 0x80000000
 #define C_PSR_MASK_FLAG_Z 0x40000000
 #define C_PSR_MASK_FLAG_C 0x20000000
@@ -103,17 +100,17 @@ void cpuReset(bool p_skipBoot) {
 }
 
 void cpuDebug(void) {
-    for(int l_i = 0; l_i < 4; l_i++) {
-        for(int l_j = 0; l_j < 4; l_j++) {
-            int l_k = (l_i << 2) | l_j;
-
-            printf("R%02d=0x%08x ", l_k, g_cpuRegisterR[l_k]);
-        }
-
-        printf("\n");
+    for(int l_i = 0; l_i < 12; l_i++) {
+        printf("R%d=%08x ", l_i, g_cpuRegisterR[l_i]);
     }
 
-    printf("CPSR=0x%08x SPSR=0x%08x\n", cpuGetCpsr(), cpuGetSpsr());
+    printf("IP=%08x SP=%08x LR=%08x PC=%08x CPSR=%08x SPSR=%08x", g_cpuRegisterR[12], g_cpuRegisterR[13], g_cpuRegisterR[14], g_cpuRegisterR[15], cpuGetCpsr(), cpuGetSpsr());
+
+    if(g_cpuPipelineState == E_CPUPIPELINESTATE_EXECUTE) {
+        printf(" %08x\n", g_cpuDecodedOpcode.arm.opcode);
+    } else {
+        printf("\n");
+    }
 }
 
 void coreStep(void) {
@@ -127,8 +124,6 @@ void coreStep(void) {
         g_cpuPipelineState++;
     }
 }
-
-
 
 void cpuSetCpsr(uint32_t p_value) {
     g_cpuFlagN = (p_value & C_PSR_MASK_FLAG_N) != 0;

@@ -11,6 +11,7 @@ CFLAGS += -std=gnu99 -pedantic-errors
 CFLAGS += -g3 -O0
 CFLAGS += -Iinclude
 CFLAGS += `sdl2-config --cflags`
+CFLAGS += -mwindows
 LDFLAGS += `sdl2-config --libs`
 
 rwildcard = $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))

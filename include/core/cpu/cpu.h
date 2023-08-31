@@ -6,6 +6,9 @@
 
 #include "core/cpu/decoder.h"
 
+#define C_INSTRUCTION_SIZE_ARM 4
+#define C_INSTRUCTION_SIZE_THUMB 2
+
 typedef enum {
     E_CPUMODE_OLD_USR = 0x00,
     E_CPUMODE_OLD_FIQ = 0x01,
@@ -46,12 +49,12 @@ enum {
     E_CPUREGISTER_PC = 15
 };
 
-typedef enum {
+enum te_shiftType {
     E_SHIFTTYPE_LSL,
     E_SHIFTTYPE_LSR,
     E_SHIFTTYPE_ASR,
     E_SHIFTTYPE_ROR
-} te_shiftType;
+};
 
 enum te_cpuPipelineState {
     E_CPUPIPELINESTATE_FLUSH,
