@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "core/cpu/cpu.h"
+
 static inline uint32_t rotateRight(
     const uint32_t p_value,
     const uint32_t p_rotation) {
@@ -47,6 +49,11 @@ static inline int hammingWeight16(uint16_t p_value) {
     }
 
     return l_result;
+}
+
+static inline void setFlagsLogical(uint32_t p_result) {
+    g_cpuFlagZ = p_result == 0;
+    g_cpuFlagN = p_result >> 31;
 }
 
 #endif

@@ -4,7 +4,12 @@
 #include "core/cpu/op_arm_bx.h"
 #include "core/cpu/op_arm_dataprocessing.h"
 #include "core/cpu/op_arm_halfwordsigneddatatransfer.h"
+#include "core/cpu/op_arm_mul.h"
+#include "core/cpu/op_arm_mull.h"
 #include "core/cpu/op_arm_psrtransfer.h"
+#include "core/cpu/op_arm_singledatatransfer.h"
+#include "core/cpu/op_arm_swi.h"
+#include "core/cpu/op_arm_swp.h"
 #include "core/cpu/op_arm_und.h"
 #include "core/cpu/op_thumb_und.h"
 
@@ -60,9 +65,15 @@ static void cpuInitArmDecodeTable(void) {
         const bool l_isMrs = (l_index & 0xfbf) == 0x100;
         const bool l_isMsrImmediate = (l_index & 0xfb0) == 0x320;
         const bool l_isMsrRegister = (l_index & 0xfbf) == 0x120;
+        const bool l_isMul = (l_index & 0xfcf) == 0x009;
+        const bool l_isMull = (l_index & 0xf8f) == 0x089;
+        const bool l_isSingleDataTransfer = (l_index & 0xc00) == 0x400;
+        const bool l_isInvalidSingleDataTransfer = (l_index & 0xe01) == 0x601;
         const bool l_isHalfwordSignedDataTransfer = (l_index & 0xe09) == 0x009;
         const bool l_isHalfwordSignedDataTransferSwap = (l_index & 0xe0f) == 0x000;
         const bool l_isBlockDataTransfer = (l_index & 0xe00) == 0x800;
+        const bool l_isSwap = (l_index & 0xfbf) == 0x109;
+        const bool l_isSwi = (l_index & 0xf00) == 0xf00;
 
         if(l_isBranchExchange) {
             l_result = cpuOpcodeArmBx;
@@ -103,6 +114,12 @@ static void cpuInitArmDecodeTable(void) {
             || l_isMrs
         ) {
             l_result = l_isMrs ? cpuOpcodeArmMrs : cpuOpcodeArmMsr;
+        } else if(l_isMul) {
+            l_result = cpuOpcodeArmMul;
+        } else if(l_isMull) {
+            l_result = cpuOpcodeArmMull;
+        } else if(l_isSingleDataTransfer && !l_isInvalidSingleDataTransfer) {
+            l_result = cpuOpcodeArmSingleDataTransfer;
         } else if(
             l_isHalfwordSignedDataTransfer
             && !l_isHalfwordSignedDataTransferSwap
@@ -110,6 +127,10 @@ static void cpuInitArmDecodeTable(void) {
             l_result = cpuOpcodeArmHalfwordSignedDataTransfer;
         } else if(l_isBlockDataTransfer) {
             l_result = cpuOpcodeArmLdmStm;
+        } else if(l_isSwap) {
+            l_result = cpuOpcodeArmSwp;
+        } else if(l_isSwi) {
+            l_result = cpuOpcodeArmSwi;
         }
 
         s_cpuDecodeTable.arm[l_index] = l_result;

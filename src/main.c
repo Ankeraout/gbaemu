@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 
     coreReset();
 
-    for(int i = 0; i < 64; i++) {
+    for(int i = 0; i < 256; i++) {
         coreStep();
         cpuDebug();
     }

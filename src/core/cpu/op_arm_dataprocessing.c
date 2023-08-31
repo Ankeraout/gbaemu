@@ -6,7 +6,6 @@
 #include "core/cpu/cpu.h"
 #include "core/cpu/shifter.h"
 
-static inline void setFlagsLogical(uint32_t p_result);
 static inline uint32_t getOperand2(uint32_t p_opcode);
 
 void cpuOpcodeArmAnd(uint32_t p_opcode) {
@@ -233,11 +232,6 @@ void cpuOpcodeArmMvn(uint32_t p_opcode) {
     if(l_setFlags) {
         setFlagsLogical(l_result);
     }
-}
-
-static inline void setFlagsLogical(uint32_t p_result) {
-    g_cpuFlagZ = p_result == 0;
-    g_cpuFlagN = p_result >> 31;
 }
 
 static inline uint32_t getOperand2(uint32_t p_opcode) {
