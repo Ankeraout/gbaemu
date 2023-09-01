@@ -9,12 +9,54 @@
 #include "core/cpu/cpu.h"
 #include "core/gba.h"
 
+static SDL_Window *s_window;
+static SDL_Surface *s_screenSurface;
+
 static int loadBios();
 static int loadRom();
 static long po2_ceil(long p_initialValue);
 static void *readFile(const char *p_fileName, long *p_fileSize, bool p_po2);
 
 int main(int argc, char **argv) {
+    int l_result = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_AUDIO);
+
+    if(l_result != 0) {
+        fprintf(stderr, "SDL_Init() failed with code %d.\n", l_result);
+        return 1;
+    }
+
+    s_window = SDL_CreateWindow(
+        "gbaemu",
+        SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_UNDEFINED,
+        480,
+        320,
+        0
+    );
+
+    if(s_window == NULL) {
+        SDL_Quit();
+        fprintf(stderr, "SDL_CreateWindow() failed: %s\n", SDL_GetError());
+        return 1;
+    }
+
+    s_screenSurface = SDL_CreateRGBSurface(
+        0,
+        240,
+        160,
+        32,
+        0x000000ff,
+        0x0000ff00,
+        0x00ff0000,
+        0
+    );
+
+    if(s_screenSurface == NULL) {
+        SDL_Quit();
+        fprintf(stderr, "SDL_CreateRGBSurface() failed: %s\n", SDL_GetError());
+        return 1;
+    }
+
     coreInit();
 
     if(loadBios() != 0) {
@@ -29,9 +71,15 @@ int main(int argc, char **argv) {
 
     coreReset();
 
-    for(int i = 0; i < 256; i++) {
+    /*
+    for(int i = 0; i < 100; i++) {
         coreStep();
         cpuDebug();
+    }
+    */
+
+    while(true) {
+        coreStep();
     }
 
     return 0;
@@ -40,7 +88,7 @@ int main(int argc, char **argv) {
 static int loadRom() {
     long l_romBufferSize = C_MAX_ROM_FILE_SIZE_BYTES;
 
-    uint8_t *l_romBuffer = readFile("roms/gba-tests/arm.gba", &l_romBufferSize, true);
+    uint8_t *l_romBuffer = readFile("roms/gba-tests/test_irq.gba", &l_romBufferSize, true);
 
     if(l_romBuffer == NULL) {
         fprintf(stderr, "Failed to read ROM file.\n");
@@ -138,4 +186,24 @@ static void *readFile(const char *p_fileName, long *p_fileSize, bool p_po2) {
     *p_fileSize = l_bufferSize;
 
     return l_buffer;
+}
+
+void frontendFrame(const uint32_t *p_pixels) {
+    for(int l_i = 0; l_i < 38400; l_i++) {
+        ((uint32_t *)s_screenSurface->pixels)[l_i] = p_pixels[l_i];
+    }
+
+    SDL_Surface *l_windowSurface = SDL_GetWindowSurface(s_window);
+    SDL_BlitScaled(s_screenSurface, NULL, l_windowSurface, NULL);
+    SDL_UpdateWindowSurface(s_window);
+
+    SDL_Event l_event;
+
+    while(SDL_PollEvent(&l_event) != 0) {
+        if(l_event.type == SDL_WINDOWEVENT) {
+            if(l_event.window.event == SDL_WINDOWEVENT_CLOSE) {
+                exit(0);
+            }
+        }
+    }
 }

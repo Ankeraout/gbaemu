@@ -58,7 +58,7 @@ void cpuOpcodeArmSingleDataTransfer(uint32_t p_opcode) {
 }
 
 static inline uint32_t getOperand(uint32_t p_opcode) {
-    bool l_isImmediate = (p_opcode & (1 << 25)) != 0;
+    bool l_isImmediate = (p_opcode & (1 << 25)) == 0;
     uint32_t l_result;
 
     if(l_isImmediate) {

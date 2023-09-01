@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "frontend.h"
+
 #define C_OAM_SIZE_BYTES 1024
 #define C_OAM_ADDRESS_MASK_8 0x000003ff
 #define C_OAM_ADDRESS_MASK_16 0x000003fe
@@ -19,8 +21,13 @@
 static uint8_t s_oamData[C_OAM_SIZE_BYTES];
 static uint8_t s_paletteData[C_PALETTE_RAM_SIZE_BYTES];
 static uint8_t s_vramData[C_VRAM_SIZE_BYTES];
+static uint32_t s_cycleCounter;
+static uint32_t s_frameBuffer[240 * 160];
 
-uint32_t gpuVramComputeAddress(uint32_t p_address);
+static uint32_t gpuVramComputeAddress(uint32_t p_address);
+static uint16_t getPaletteColor(uint8_t p_paletteIndex);
+static uint32_t getColor(uint16_t p_color);
+static void gpuDrawFrame(void);
 
 void gpuInit(void) {
 
@@ -30,10 +37,15 @@ void gpuReset(void) {
     memset(s_oamData, 0, C_OAM_SIZE_BYTES);
     memset(s_paletteData, 0, C_PALETTE_RAM_SIZE_BYTES);
     memset(s_vramData, 0, C_VRAM_SIZE_BYTES);
+
+    s_cycleCounter = 0;
 }
 
 void gpuCycle(void) {
-
+    if(s_cycleCounter++ == 280896) {
+        s_cycleCounter = 0;
+        gpuDrawFrame();
+    }
 }
 
 uint8_t gpuOamRead8(uint32_t p_address) {
@@ -173,7 +185,7 @@ void gpuVramWrite32(uint32_t p_address, uint32_t p_value) {
     s_vramData[l_address + 3] = (uint8_t)(p_value >> 24);
 }
 
-uint32_t gpuVramComputeAddress(uint32_t p_address) {
+static uint32_t gpuVramComputeAddress(uint32_t p_address) {
     uint32_t l_mask;
 
     if((p_address & 0x00010000) != 0) {
@@ -183,4 +195,33 @@ uint32_t gpuVramComputeAddress(uint32_t p_address) {
     }
 
     return p_address & l_mask;
+}
+
+static uint16_t getPaletteColor(uint8_t p_paletteIndex) {
+    uint32_t l_paletteOffset = p_paletteIndex << 1;
+
+    return (s_paletteData[l_paletteOffset] << 8)
+        | s_paletteData[l_paletteOffset | 1];
+}
+
+static uint32_t getColor(uint16_t p_color) {
+    uint32_t l_red = p_color & 0x1f;
+    uint32_t l_green = (p_color >> 5) & 0x1f;
+    uint32_t l_blue = (p_color >> 10) & 0x1f;
+
+    l_red = (l_red << 3) | (l_red >> 2);
+    l_green = (l_green << 3) | (l_green >> 2);
+    l_blue = (l_blue << 3) | (l_blue >> 2);
+
+    return l_red | (l_green << 8) | (l_blue << 16);
+}
+
+static void gpuDrawFrame(void) {
+    for(uint32_t l_i = 0; l_i < 38400; l_i++) {
+        uint8_t l_paletteIndex = s_vramData[l_i];
+        s_frameBuffer[l_i] = getColor(getPaletteColor(l_paletteIndex));
+        //s_frameBuffer[l_i] = getColor(((uint16_t *)s_vramData)[l_i]);
+    }
+
+    frontendFrame(s_frameBuffer);
 }

@@ -4,7 +4,7 @@
 #include "core/cpu/cpu.h"
 
 void cpuOpcodeArmMull(uint32_t p_opcode) {
-    const bool l_isUnsigned = (p_opcode & (1 << 22)) != 0;
+    const bool l_isSigned = (p_opcode & (1 << 22)) != 0;
     const bool l_accumulate = (p_opcode & (1 << 21)) != 0;
     const bool l_setFlags = (p_opcode & (1 << 20)) != 0;
     const uint32_t l_rdHi = (p_opcode >> 16) & 0xf;
@@ -17,10 +17,10 @@ void cpuOpcodeArmMull(uint32_t p_opcode) {
 
     uint64_t l_result;
 
-    if(l_isUnsigned) {
-        l_result = ((uint64_t)l_rsValue) * ((uint64_t)l_rmValue);
-    } else {
+    if(l_isSigned) {
         l_result = ((int64_t)((int32_t)l_rsValue)) * ((int64_t)((int32_t)l_rmValue));
+    } else {
+        l_result = ((uint64_t)l_rsValue) * ((uint64_t)l_rmValue);
     }
 
     if(l_accumulate) {
@@ -30,8 +30,8 @@ void cpuOpcodeArmMull(uint32_t p_opcode) {
         l_result += (((uint64_t)l_rdHiValue) << 32ULL) | l_rdLoValue;
     }
 
-    cpuWriteRegister(g_cpuRegisterR[l_rdHi], l_result >> 32UL);
-    cpuWriteRegister(g_cpuRegisterR[l_rdLo], l_result);
+    cpuWriteRegister(l_rdHi, l_result >> 32UL);
+    cpuWriteRegister(l_rdLo, l_result);
 
     if(l_setFlags) {
         g_cpuFlagZ = l_result == 0ULL;

@@ -19,7 +19,11 @@ void cpuOpcodeArmAnd(uint32_t p_opcode) {
     cpuWriteRegister(l_rd, l_result);
 
     if(l_setFlags) {
-        setFlagsLogical(l_result);
+        if(l_rd == 15) {
+            cpuSetCpsr(cpuGetSpsr());
+        } else {
+            setFlagsLogical(l_result);
+        }
     }
 }
 
@@ -34,7 +38,11 @@ void cpuOpcodeArmEor(uint32_t p_opcode) {
     cpuWriteRegister(l_rd, l_result);
 
     if(l_setFlags) {
-        setFlagsLogical(l_result);
+        if(l_rd == 15) {
+            cpuSetCpsr(cpuGetSpsr());
+        } else {
+            setFlagsLogical(l_result);
+        }
     }
 }
 
@@ -49,7 +57,13 @@ void cpuOpcodeArmSub(uint32_t p_opcode) {
     cpuWriteRegister(l_rd, l_result);
 
     if(l_setFlags) {
-        setFlagsLogical(l_result);
+        if(l_rd == 15) {
+            cpuSetCpsr(cpuGetSpsr());
+        } else {
+            setFlagsArithmetical(l_result);
+            g_cpuFlagC = getCarrySub(l_rnValue, l_operand);
+            g_cpuFlagV = getOverflowSub(l_rnValue, l_operand, l_result);
+        }
     }
 }
 
@@ -64,7 +78,13 @@ void cpuOpcodeArmRsb(uint32_t p_opcode) {
     cpuWriteRegister(l_rd, l_result);
 
     if(l_setFlags) {
-        setFlagsLogical(l_result);
+        if(l_rd == 15) {
+            cpuSetCpsr(cpuGetSpsr());
+        } else {
+            setFlagsArithmetical(l_result);
+            g_cpuFlagC = getCarrySub(l_operand, l_rnValue);
+            g_cpuFlagV = getOverflowSub(l_operand, l_rnValue, l_result);
+        }
     }
 }
 
@@ -79,7 +99,13 @@ void cpuOpcodeArmAdd(uint32_t p_opcode) {
     cpuWriteRegister(l_rd, l_result);
 
     if(l_setFlags) {
-        setFlagsLogical(l_result);
+        if(l_rd == 15) {
+            cpuSetCpsr(cpuGetSpsr());
+        } else {
+            setFlagsArithmetical(l_result);
+            g_cpuFlagC = l_result < l_rnValue;
+            g_cpuFlagV = getOverflowAdd(l_rnValue, l_operand, l_result);
+        }
     }
 }
 
@@ -90,12 +116,21 @@ void cpuOpcodeArmAdc(uint32_t p_opcode) {
     const uint32_t l_rnValue = g_cpuRegisterR[l_rn];
     const uint32_t l_rd = (p_opcode >> 12) & 0xf;
     const uint32_t l_carry = g_cpuFlagC ? 1 : 0;
-    const uint32_t l_result = l_rnValue + l_operand + l_carry;
+    const uint64_t l_result =
+        (uint64_t)l_rnValue
+        + (uint64_t)l_operand
+        + (uint64_t)l_carry;
 
     cpuWriteRegister(l_rd, l_result);
 
     if(l_setFlags) {
-        setFlagsLogical(l_result);
+        if(l_rd == 15) {
+            cpuSetCpsr(cpuGetSpsr());
+        } else {
+            setFlagsArithmetical(l_result);
+            g_cpuFlagC = l_result > UINT32_MAX;
+            g_cpuFlagV = getOverflowAdd(l_rnValue, l_operand, l_result);
+        }
     }
 }
 
@@ -111,7 +146,13 @@ void cpuOpcodeArmSbc(uint32_t p_opcode) {
     cpuWriteRegister(l_rd, l_result);
 
     if(l_setFlags) {
-        setFlagsLogical(l_result);
+        if(l_rd == 15) {
+            cpuSetCpsr(cpuGetSpsr());
+        } else {
+            setFlagsArithmetical(l_result);
+            g_cpuFlagC = getCarrySbc(l_rnValue, l_operand, g_cpuFlagC);
+            g_cpuFlagV = getOverflowSub(l_rnValue, l_operand, l_result);
+        }
     }
 }
 
@@ -127,7 +168,13 @@ void cpuOpcodeArmRsc(uint32_t p_opcode) {
     cpuWriteRegister(l_rd, l_result);
 
     if(l_setFlags) {
-        setFlagsLogical(l_result);
+        if(l_rd == 15) {
+            cpuSetCpsr(cpuGetSpsr());
+        } else {
+            setFlagsArithmetical(l_result);
+            g_cpuFlagC = getCarrySbc(l_operand, l_rnValue, g_cpuFlagC);
+            g_cpuFlagV = getOverflowSub(l_operand, l_rnValue, l_result);
+        }
     }
 }
 
@@ -163,7 +210,9 @@ void cpuOpcodeArmCmp(uint32_t p_opcode) {
     const uint32_t l_result = l_rnValue - l_operand;
 
     if(l_setFlags) {
-        setFlagsLogical(l_result);
+        setFlagsArithmetical(l_result);
+        g_cpuFlagC = getCarrySub(l_rnValue, l_operand);
+        g_cpuFlagV = getOverflowSub(l_rnValue, l_operand, l_result);
     }
 }
 
@@ -175,7 +224,9 @@ void cpuOpcodeArmCmn(uint32_t p_opcode) {
     const uint32_t l_result = l_rnValue + l_operand;
 
     if(l_setFlags) {
-        setFlagsLogical(l_result);
+        setFlagsArithmetical(l_result);
+        g_cpuFlagC = l_result < l_rnValue;
+        g_cpuFlagV = getOverflowAdd(l_rnValue, l_operand, l_result);
     }
 }
 
@@ -190,7 +241,11 @@ void cpuOpcodeArmOrr(uint32_t p_opcode) {
     cpuWriteRegister(l_rd, l_result);
 
     if(l_setFlags) {
-        setFlagsLogical(l_result);
+        if(l_rd == 15) {
+            cpuSetCpsr(cpuGetSpsr());
+        } else {
+            setFlagsLogical(l_result);
+        }
     }
 }
 
@@ -202,7 +257,11 @@ void cpuOpcodeArmMov(uint32_t p_opcode) {
     cpuWriteRegister(l_rd, l_operand);
 
     if(l_setFlags) {
-        setFlagsLogical(l_operand);
+        if(l_rd == 15) {
+            cpuSetCpsr(cpuGetSpsr());
+        } else {
+            setFlagsLogical(l_operand);
+        }
     }
 }
 
@@ -212,12 +271,16 @@ void cpuOpcodeArmBic(uint32_t p_opcode) {
     const uint32_t l_rn = (p_opcode >> 16) & 0xf;
     const uint32_t l_rnValue = g_cpuRegisterR[l_rn];
     const uint32_t l_rd = (p_opcode >> 12) & 0xf;
-    const uint32_t l_result = l_operand & ~l_rnValue;
+    const uint32_t l_result = l_rnValue & ~l_operand;
 
     cpuWriteRegister(l_rd, l_result);
 
     if(l_setFlags) {
-        setFlagsLogical(l_result);
+        if(l_rd == 15) {
+            cpuSetCpsr(cpuGetSpsr());
+        } else {
+            setFlagsLogical(l_result);
+        }
     }
 }
 
@@ -230,7 +293,11 @@ void cpuOpcodeArmMvn(uint32_t p_opcode) {
     cpuWriteRegister(l_rd, l_result);
 
     if(l_setFlags) {
-        setFlagsLogical(l_result);
+        if(l_rd == 15) {
+            cpuSetCpsr(cpuGetSpsr());
+        } else {
+            setFlagsLogical(l_result);
+        }
     }
 }
 

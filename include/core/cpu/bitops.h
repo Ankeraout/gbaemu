@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "core/cpu/cpu.h"
+#include "core/cpu/shifter.h"
 
 static inline uint32_t rotateRight(
     const uint32_t p_value,
@@ -51,9 +52,43 @@ static inline int hammingWeight16(uint16_t p_value) {
     return l_result;
 }
 
-static inline void setFlagsLogical(uint32_t p_result) {
+static inline void setFlagsArithmetical(uint32_t p_result) {
     g_cpuFlagZ = p_result == 0;
-    g_cpuFlagN = p_result >> 31;
+    g_cpuFlagN = (p_result & (1 << 31)) != 0;
+}
+
+static inline void setFlagsLogical(uint32_t p_result) {
+    setFlagsArithmetical(p_result);
+    g_cpuFlagC = g_cpuShifterCarry;
+}
+
+static inline bool getCarrySub(uint32_t p_left, uint32_t p_right) {
+    return p_left >= p_right;
+}
+
+static inline bool getOverflowSub(
+    uint32_t p_left,
+    uint32_t p_right,
+    uint32_t p_result
+) {
+    return (((p_left ^ p_right) & (p_left ^ p_result)) & (1 << 31)) != 0;
+}
+
+static inline bool getCarrySbc(
+    uint32_t p_left,
+    uint32_t p_right,
+    bool p_carry
+) {
+    return (p_left >= p_right) && ((p_left - p_right) >= !p_carry);
+}
+
+static inline bool getOverflowAdd(
+    uint32_t p_left,
+    uint32_t p_right,
+    uint32_t p_result
+) {
+    return (((p_left ^ p_right) & (1 << 31)) == 0)
+        && (((p_left ^ p_result) & (1 << 31)) != 0);
 }
 
 #endif

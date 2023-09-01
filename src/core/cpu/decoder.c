@@ -53,7 +53,7 @@ void cpuDecoderInit(void) {
 
 static void cpuInitArmDecodeTable(void) {
     for(int l_index = 0; l_index < 4096; l_index++) {
-        void (*l_result)(uint32_t) = cpuOpcodeArmUnd;
+        void (*l_result)(uint32_t);
 
         const bool l_isBranchExchange = l_index == 0x121;
         const bool l_isBranch = (l_index & 0xe00) == 0xa00;
@@ -70,7 +70,7 @@ static void cpuInitArmDecodeTable(void) {
         const bool l_isSingleDataTransfer = (l_index & 0xc00) == 0x400;
         const bool l_isInvalidSingleDataTransfer = (l_index & 0xe01) == 0x601;
         const bool l_isHalfwordSignedDataTransfer = (l_index & 0xe09) == 0x009;
-        const bool l_isHalfwordSignedDataTransferSwap = (l_index & 0xe0f) == 0x000;
+        const bool l_isHalfwordSignedDataTransferSwap = (l_index & 0xe0f) == 0x009;
         const bool l_isBlockDataTransfer = (l_index & 0xe00) == 0x800;
         const bool l_isSwap = (l_index & 0xfbf) == 0x109;
         const bool l_isSwi = (l_index & 0xf00) == 0xf00;
@@ -131,6 +131,8 @@ static void cpuInitArmDecodeTable(void) {
             l_result = cpuOpcodeArmSwp;
         } else if(l_isSwi) {
             l_result = cpuOpcodeArmSwi;
+        } else {
+            l_result = cpuOpcodeArmUnd;
         }
 
         s_cpuDecodeTable.arm[l_index] = l_result;

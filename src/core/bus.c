@@ -181,31 +181,37 @@ void busCycle(void) {
 }
 
 uint8_t busRead8(uint32_t p_address) {
+    busCycle();
     return s_busOperationHandlers[(p_address & 0x0f000000) >> 24]
         .read8(p_address);
 }
 
 uint16_t busRead16(uint32_t p_address) {
+    busCycle();
     return s_busOperationHandlers[(p_address & 0x0f000000) >> 24]
         .read16(p_address);
 }
 
 uint32_t busRead32(uint32_t p_address) {
+    busCycle();
     return s_busOperationHandlers[(p_address & 0x0f000000) >> 24]
         .read32(p_address);
 }
 
 void busWrite8(uint32_t p_address, uint8_t p_value) {
+    busCycle();
     s_busOperationHandlers[(p_address & 0x0f000000) >> 24]
         .write8(p_address, p_value);
 }
 
 void busWrite16(uint32_t p_address, uint16_t p_value) {
+    busCycle();
     s_busOperationHandlers[(p_address & 0x0f000000) >> 24]
         .write16(p_address, p_value);
 }
 
 void busWrite32(uint32_t p_address, uint32_t p_value) {
+    busCycle();
     s_busOperationHandlers[(p_address & 0x0f000000) >> 24]
         .write32(p_address, p_value);
 }
