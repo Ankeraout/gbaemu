@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
 static int loadRom() {
     long l_romBufferSize = C_MAX_ROM_FILE_SIZE_BYTES;
 
-    uint8_t *l_romBuffer = readFile("roms/gba-tests/test_irq.gba", &l_romBufferSize, true);
+    uint8_t *l_romBuffer = readFile("../FuzzARM/main.gba", &l_romBufferSize, true);
 
     if(l_romBuffer == NULL) {
         fprintf(stderr, "Failed to read ROM file.\n");

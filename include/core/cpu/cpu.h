@@ -9,7 +9,7 @@
 #define C_INSTRUCTION_SIZE_ARM 4
 #define C_INSTRUCTION_SIZE_THUMB 2
 
-typedef enum {
+enum te_cpuMode {
     E_CPUMODE_OLD_USR = 0x00,
     E_CPUMODE_OLD_FIQ = 0x01,
     E_CPUMODE_OLD_IRQ = 0x02,
@@ -21,9 +21,9 @@ typedef enum {
     E_CPUMODE_ABT = 0x17,
     E_CPUMODE_UND = 0x1b,
     E_CPUMODE_SYS = 0x1f
-} te_cpuMode;
+};
 
-typedef enum {
+enum te_cpuCondition {
     E_CPUCONDITION_EQ,
     E_CPUCONDITION_NE,
     E_CPUCONDITION_CS,
@@ -40,7 +40,7 @@ typedef enum {
     E_CPUCONDITION_LE,
     E_CPUCONDITION_AL,
     E_CPUCONDITION_NV
-} te_cpuCondition;
+};
 
 enum {
     E_CPUREGISTER_IP = 12,
@@ -86,6 +86,7 @@ void cpuReset(bool p_skipBoot);
 void cpuJump(uint32_t p_address);
 void cpuRaiseSwi(void);
 void cpuRaiseUnd(void);
+bool cpuCheckCondition(enum te_cpuCondition p_condition);
 uint32_t cpuGetCpsr(void);
 uint32_t cpuGetSpsr(void);
 void cpuSetCpsr(uint32_t p_value);

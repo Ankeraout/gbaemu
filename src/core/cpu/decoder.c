@@ -11,6 +11,25 @@
 #include "core/cpu/op_arm_swi.h"
 #include "core/cpu/op_arm_swp.h"
 #include "core/cpu/op_arm_und.h"
+#include "core/cpu/op_thumb_addspoffset.h"
+#include "core/cpu/op_thumb_addsubtract.h"
+#include "core/cpu/op_thumb_aluoperations.h"
+#include "core/cpu/op_thumb_conditionalbranch.h"
+#include "core/cpu/op_thumb_hiregops.h"
+#include "core/cpu/op_thumb_loadaddress.h"
+#include "core/cpu/op_thumb_loadstorehalfword.h"
+#include "core/cpu/op_thumb_loadstoreimmediateoffset.h"
+#include "core/cpu/op_thumb_loadstoreregisteroffset.h"
+#include "core/cpu/op_thumb_loadstoresignextendedbytehalfword.h"
+#include "core/cpu/op_thumb_longbranchlink.h"
+#include "core/cpu/op_thumb_movecompareaddsubtractimmediate.h"
+#include "core/cpu/op_thumb_moveshiftedregister.h"
+#include "core/cpu/op_thumb_multipleloadstore.h"
+#include "core/cpu/op_thumb_pcrelativeload.h"
+#include "core/cpu/op_thumb_pushpop.h"
+#include "core/cpu/op_thumb_sprelativeloadstore.h"
+#include "core/cpu/op_thumb_swi.h"
+#include "core/cpu/op_thumb_unconditionalbranch.h"
 #include "core/cpu/op_thumb_und.h"
 
 static struct {
@@ -141,6 +160,72 @@ static void cpuInitArmDecodeTable(void) {
 
 static void cpuInitThumbDecodeTable(void) {
     for(int l_index = 0; l_index < 1024; l_index++) {
-        s_cpuDecodeTable.thumb[l_index] = cpuOpcodeThumbUnd;
+        void (*l_result)(uint16_t);
+
+        const bool l_isMoveShiftedRegister = (l_index & 0x280) == 0x000;
+        const bool l_isAddSubtract = (l_index & 0x2e0) == 0x060;
+        const bool l_isMoveCompareAddSubtractImmediate = (l_index & 0x280) == 0x080;
+        const bool l_isAluOperations = (l_index & 0x3f0) == 0x100;
+        const bool l_isHighRegOps = (l_index & 0x3f0) == 0x110;
+        const bool l_isInvalidHighRegOps = (l_index & 0x3f3) == 0x110;
+        const bool l_isInvalidBx = (l_index & 0x3fe) == 0x11e;
+        const bool l_isPcRelativeLoad = (l_index & 0x3e0) == 0x120;
+        const bool l_isLoadStoreRegisterOffset = (l_index & 0x3c8) == 0x140;
+        const bool l_isLoadStoreSignExtendedByteHalfword = (l_index & 0x3c8) == 0x148;
+        const bool l_isLoadStoreImmediateOffset = (l_index & 0x380) == 0x180;
+        const bool l_isLoadStoreHalfword = (l_index & 0x200) == 0x200;
+        const bool l_isSpRelativeLoadStore = (l_index & 0x2c0) == 0x240;
+        const bool l_isLoadAddress = (l_index & 0x3c0) == 0x280;
+        const bool l_isAddSpOffset = (l_index & 0x3fc) == 0x2c0;
+        const bool l_isPushPop = (l_index & 0x3d8) == 0x2d0;
+        const bool l_isMultipleLoadStore = (l_index & 0x3c0) == 0x300;
+        const bool l_isConditionalBranch = (l_index & 0x3c0) == 0x340;
+        const bool l_isSoftwareInterrupt = (l_index & 0x3fc) == 0x37c;
+        const bool l_isUnconditionalBranch = (l_index & 0x3e0) == 0x380;
+        const bool l_isLongBranchLink = (l_index & 0x3c0) == 0x3c0;
+
+        if(l_isMoveShiftedRegister && !l_isAddSubtract) {
+            l_result = cpuOpcodeThumbMoveShiftedRegister;
+        } else if(l_isAddSubtract) {
+            l_result = cpuOpcodeThumbAddSubtract;
+        } else if(l_isMoveCompareAddSubtractImmediate) {
+            l_result = cpuOpcodeThumbMoveCompareAddSubtractImmediate;
+        } else if(l_isAluOperations) {
+            l_result = cpuOpcodeThumbAluOperations;
+        } else if(l_isHighRegOps && !l_isInvalidHighRegOps && !l_isInvalidBx) {
+            l_result = cpuOpcodeThumbHighRegisterOperations;
+        } else if(l_isPcRelativeLoad) {
+            l_result = cpuOpcodeThumbPcRelativeLoad;
+        } else if(l_isLoadStoreRegisterOffset) {
+            l_result = cpuOpcodeThumbLoadStoreRegisterOffset;
+        } else if(l_isLoadStoreSignExtendedByteHalfword) {
+            l_result = cpuOpcodeThumbLoadStoreSignExtendedByteHalfword;
+        } else if(l_isLoadStoreImmediateOffset) {
+            l_result = cpuOpcodeThumbLoadStoreImmediateOffset;
+        } else if(l_isLoadStoreHalfword) {
+            l_result = cpuOpcodeThumbLoadStoreHalfword;
+        } else if(l_isSpRelativeLoadStore) {
+            l_result = cpuOpcodeThumbSpRelativeLoadStore;
+        } else if(l_isLoadAddress) {
+            l_result = cpuOpcodeThumbLoadAddress;
+        } else if(l_isAddSpOffset) {
+            l_result = cpuOpcodeThumbAddSpOffset;
+        } else if(l_isPushPop) {
+            l_result = cpuOpcodeThumbPushPop;
+        } else if(l_isMultipleLoadStore) {
+            l_result = cpuOpcodeThumbMultipleLoadStore;
+        } else if(l_isConditionalBranch && !l_isSoftwareInterrupt) {
+            l_result = cpuOpcodeThumbConditionalBranch;
+        } else if(l_isSoftwareInterrupt) {
+            l_result = cpuOpcodeThumbSwi;
+        } else if(l_isUnconditionalBranch) {
+            l_result = cpuOpcodeThumbUnconditionalBranch;
+        } else if(l_isLongBranchLink) {
+            l_result = cpuOpcodeThumbLongBranchLink;
+        } else {
+            l_result = cpuOpcodeThumbUnd;
+        }
+
+        s_cpuDecodeTable.thumb[l_index] = l_result;
     }
 }

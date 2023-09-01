@@ -45,12 +45,11 @@ static uint32_t s_cpuRegisterSpsrSvc;
 static uint32_t s_cpuRegisterSpsrAbt;
 static uint32_t s_cpuRegisterSpsrUnd;
 enum te_cpuPipelineState g_cpuPipelineState;
-static te_cpuMode s_cpuMode;
+static enum te_cpuMode s_cpuMode;
 union tu_cpuFetchedOpcode g_cpuFetchedOpcode;
 union tu_cpuDecodedOpcode g_cpuDecodedOpcode;
 
-static bool cpuCheckCondition(te_cpuCondition p_condition);
-static void cpuChangeMode(te_cpuMode p_newMode);
+static void cpuChangeMode(enum te_cpuMode p_newMode);
 static void cpuRaiseIrq(void);
 static void cpuFetch(uint32_t p_fetchAddress);
 static void cpuExecute(void);
@@ -254,7 +253,7 @@ void cpuRaiseUnd(void) {
     cpuJump(C_EXCEPTION_VECTOR_UND);
 }
 
-static bool cpuCheckCondition(te_cpuCondition p_condition) {
+bool cpuCheckCondition(enum te_cpuCondition p_condition) {
     switch(p_condition) {
         case E_CPUCONDITION_EQ: return g_cpuFlagZ;
         case E_CPUCONDITION_NE: return !g_cpuFlagZ;
@@ -276,7 +275,7 @@ static bool cpuCheckCondition(te_cpuCondition p_condition) {
     }
 }
 
-static void cpuChangeMode(te_cpuMode p_newMode) {
+static void cpuChangeMode(enum te_cpuMode p_newMode) {
     // Save banked registers
     switch(s_cpuMode) {
         case E_CPUMODE_OLD_USR:

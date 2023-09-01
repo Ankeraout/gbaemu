@@ -23,7 +23,7 @@ void cpuOpcodeArmLdmStm(uint32_t p_opcode) {
     }
 
     if(!l_isUp) {
-        l_offset += -4 * l_registerCount;
+        l_offset -= 4 * l_registerCount;
     }
 
     // loop
