@@ -34,7 +34,11 @@ void cpuOpcodeArmLdmStm(uint32_t p_opcode) {
             if(l_isLoad) {
                 cpuWriteRegister(l_registerIndex, busRead32(l_offset));
             } else {
-                busWrite32(l_offset, g_cpuRegisterR[l_registerIndex]);
+                if(l_registerIndex == 15) {
+                    busWrite32(l_offset, g_cpuRegisterR[15] + 4);
+                } else {
+                    busWrite32(l_offset, g_cpuRegisterR[l_registerIndex]);
+                }
             }
 
             l_offset += 4;
