@@ -31,20 +31,33 @@ void cpuOpcodeArmSingleDataTransfer(uint32_t p_opcode) {
     }
 
     if(l_isLoad) {
+        uint32_t l_result;
+
         if(l_isByte) {
-            g_cpuRegisterR[l_rd] = busRead8(l_address);
+            l_result = busRead8(l_address);
         } else {
-            g_cpuRegisterR[l_rd] = busRead32(l_address);
+            l_result = busRead32(l_address);
         }
+
+        const uint32_t l_rotation = (l_address & 0x3) << 3;
+
+        cpuWriteRegister(l_rd, rotateRight(l_result, l_rotation));
+        //g_cpuRegisterR[l_rd] = l_result;
     } else {
+        uint32_t l_rdValue = g_cpuRegisterR[l_rd];
+
+        if(l_rd == 15) {
+            l_rdValue += 4;
+        }
+
         if(l_isByte) {
-            busWrite8(l_address, g_cpuRegisterR[l_rd]);
+            busWrite8(l_address, l_rdValue);
         } else {
-            busWrite32(l_address, g_cpuRegisterR[l_rd]);
+            busWrite32(l_address, l_rdValue);
         }
     }
 
-    if(!l_isPreIndexed || l_writeBack) {
+    if((!l_isPreIndexed || l_writeBack) && !(l_isLoad && (l_rd == l_rn))) {
         if(!l_isPreIndexed) {
             if(l_isUp) {
                 l_address += l_offset;

@@ -9,7 +9,7 @@
 #include "core/cpu/cpu.h"
 #include "core/gba.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 static SDL_Window *s_window;
 static SDL_Surface *s_screenSurface;
@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
     coreReset();
 
 #if DEBUG
-    for(int i = 0; i < 1024000; i++) {
+    for(int i = 0; i < 10240; i++) {
         coreStep();
         cpuDebug();
     }
@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
 static int loadRom() {
     long l_romBufferSize = C_MAX_ROM_FILE_SIZE_BYTES;
 
-    uint8_t *l_romBuffer = readFile("roms/gba-tests/armwrestler-gba-fixed.gba", &l_romBufferSize, true);
+    uint8_t *l_romBuffer = readFile("roms/gba-tests/arm.gba", &l_romBufferSize, true);
 
     if(l_romBuffer == NULL) {
         fprintf(stderr, "Failed to read ROM file.\n");

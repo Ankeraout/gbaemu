@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #include "core/bus.h"
+#include "core/cpu/bitops.h"
 #include "core/cpu/cpu.h"
 
 void cpuOpcodeArmSwp(uint32_t p_opcode) {
@@ -17,7 +18,9 @@ void cpuOpcodeArmSwp(uint32_t p_opcode) {
         cpuWriteRegister(l_rd, busRead8(l_rnValue));
         busWrite8(l_rnValue, l_rmValue);
     } else {
-        cpuWriteRegister(l_rd, busRead32(l_rnValue));
+        const uint32_t l_rotation = (l_rnValue & 0x03) << 3;
+
+        cpuWriteRegister(l_rd, rotateRight(busRead32(l_rnValue), l_rotation));
         busWrite32(l_rnValue, l_rmValue);
     }
 }

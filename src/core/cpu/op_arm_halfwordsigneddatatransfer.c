@@ -37,23 +37,30 @@ void cpuOpcodeArmHalfwordSignedDataTransfer(uint32_t p_opcode) {
     }
 
     if(l_isLoad) {
+        uint32_t l_loadedValue;
+
         if(l_isHalfword) {
-            uint32_t l_loadedValue = busRead16(l_address);
+            const bool l_isMisaligned = (l_address & (1 << 0)) != 0;
+            l_loadedValue = busRead16(l_address);
 
             if(l_isSigned) {
-                l_loadedValue = signExtend16to32(l_loadedValue);
+                if(l_isMisaligned) {
+                    l_loadedValue = signExtend8to32(l_loadedValue >> 8);
+                } else {
+                    l_loadedValue = signExtend16to32(l_loadedValue);
+                }
+            } else if(l_isMisaligned) {
+                l_loadedValue = rotateRight(l_loadedValue, 8);
             }
-
-            cpuWriteRegister(l_rd, l_loadedValue);
         } else {
-            uint32_t l_loadedValue = busRead8(l_address);
+            l_loadedValue = busRead8(l_address);
 
             if(l_isSigned) {
                 l_loadedValue = signExtend8to32(l_loadedValue);
             }
-
-            cpuWriteRegister(l_rd, l_loadedValue);
         }
+
+        cpuWriteRegister(l_rd, l_loadedValue);
     } else {
         const uint32_t l_rdValue = g_cpuRegisterR[l_rd];
 
@@ -64,11 +71,13 @@ void cpuOpcodeArmHalfwordSignedDataTransfer(uint32_t p_opcode) {
         }
     }
 
-    if(!l_isPreIndexed || l_writeBack) {
-        if(l_isUp) {
-            l_address += l_offset;
-        } else {
-            l_address -= l_offset;
+    if((!l_isPreIndexed || l_writeBack) && !(l_isLoad && (l_rd == l_rn))) {
+        if(!l_isPreIndexed) {
+            if(l_isUp) {
+                l_address += l_offset;
+            } else {
+                l_address -= l_offset;
+            }
         }
 
         cpuWriteRegister(l_rn, l_address);
