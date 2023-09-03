@@ -70,5 +70,7 @@ void cpuOpcodeArmHalfwordSignedDataTransfer(uint32_t p_opcode) {
         } else {
             l_address -= l_offset;
         }
+
+        cpuWriteRegister(l_rn, l_address);
     }
 }

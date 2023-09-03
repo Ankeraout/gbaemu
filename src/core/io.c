@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+#include "common.h"
+#include "core/gpu.h"
 #include "core/io.h"
 
 #define C_IOADDR_MASK_BIT_0 0x00000001
@@ -9,6 +11,30 @@
 #define C_UINT16_MASK_MSB 0x0000ff00
 #define C_IOADDR_POSTFLG 0x04000300
 #define C_IOADDR_HALTCNT 0x04000301
+
+static uint16_t (*s_ioReadFunc[512])(uint32_t p_address);
+static void (*s_ioWriteFunc[512])(uint32_t p_address, uint16_t p_value);
+
+static uint16_t ioReadDummy(uint32_t p_address);
+static void ioWriteDummy(uint32_t p_address, uint16_t p_value);
+
+void ioInit(void) {
+    for(uint32_t l_address = 0x04000000; l_address < 0x04000400; l_address += 2) {
+        uint16_t (*l_ioReadFunc)(uint32_t);
+        void (*l_ioWriteFunc)(uint32_t, uint16_t);
+
+        if((l_address >= 0x04000000) && (l_address <= 0x0400005f)) {
+            l_ioReadFunc = gpuIoRead16;
+            l_ioWriteFunc = gpuIoWrite16;
+        } else {
+            l_ioReadFunc = ioReadDummy;
+            l_ioWriteFunc = ioWriteDummy;
+        }
+
+        s_ioReadFunc[(l_address >> 1) & 0x1ff] = l_ioReadFunc;
+        s_ioWriteFunc[(l_address >> 1) & 0x1ff] = l_ioWriteFunc;
+    }
+}
 
 uint8_t ioRead8(uint32_t p_address) {
     uint8_t l_returnValue;
@@ -34,12 +60,7 @@ uint8_t ioRead8(uint32_t p_address) {
 }
 
 uint16_t ioRead16(uint32_t p_address) {
-    uint32_t l_address = p_address & C_IOADDR_MASK_16;
-
-    switch(l_address) {
-        default:
-            return 0;
-    }
+    return s_ioReadFunc[(p_address >> 1) & 0x1ff](p_address);
 }
 
 uint32_t ioRead32(uint32_t p_address) {
@@ -80,12 +101,7 @@ void ioWrite8(uint32_t p_address, uint8_t p_value) {
 }
 
 void ioWrite16(uint32_t p_address, uint16_t p_value) {
-    uint32_t l_address = p_address & C_IOADDR_MASK_16;
-
-    switch(l_address) {
-        default:
-            break;
-    }
+    s_ioWriteFunc[(p_address >> 1) & 0x1ff](p_address, p_value);
 }
 
 void ioWrite32(uint32_t p_address, uint32_t p_value) {
@@ -103,4 +119,14 @@ void ioWrite32(uint32_t p_address, uint32_t p_value) {
 
             break;
     }
+}
+
+static uint16_t ioReadDummy(uint32_t p_address) {
+    M_UNUSED_PARAMETER(p_address);
+    return 0xffff;
+}
+
+static void ioWriteDummy(uint32_t p_address, uint16_t p_value) {
+    M_UNUSED_PARAMETER(p_address);
+    M_UNUSED_PARAMETER(p_value);
 }

@@ -162,19 +162,20 @@ static void cpuInitThumbDecodeTable(void) {
     for(int l_index = 0; l_index < 1024; l_index++) {
         void (*l_result)(uint16_t);
 
-        const bool l_isMoveShiftedRegister = (l_index & 0x280) == 0x000;
-        const bool l_isAddSubtract = (l_index & 0x2e0) == 0x060;
-        const bool l_isMoveCompareAddSubtractImmediate = (l_index & 0x280) == 0x080;
+        const bool l_isMoveShiftedRegister = (l_index & 0x380) == 0x000;
+        const bool l_isAddSubtract = (l_index & 0x3e0) == 0x060;
+        const bool l_isMoveCompareAddSubtractImmediate = (l_index & 0x380) == 0x080;
         const bool l_isAluOperations = (l_index & 0x3f0) == 0x100;
         const bool l_isHighRegOps = (l_index & 0x3f0) == 0x110;
         const bool l_isInvalidHighRegOps = (l_index & 0x3f3) == 0x110;
+        const bool l_isBx = (l_index & 0x3fc) == 0x11c;
         const bool l_isInvalidBx = (l_index & 0x3fe) == 0x11e;
         const bool l_isPcRelativeLoad = (l_index & 0x3e0) == 0x120;
         const bool l_isLoadStoreRegisterOffset = (l_index & 0x3c8) == 0x140;
         const bool l_isLoadStoreSignExtendedByteHalfword = (l_index & 0x3c8) == 0x148;
         const bool l_isLoadStoreImmediateOffset = (l_index & 0x380) == 0x180;
-        const bool l_isLoadStoreHalfword = (l_index & 0x200) == 0x200;
-        const bool l_isSpRelativeLoadStore = (l_index & 0x2c0) == 0x240;
+        const bool l_isLoadStoreHalfword = (l_index & 0x3c0) == 0x200;
+        const bool l_isSpRelativeLoadStore = (l_index & 0x3c0) == 0x240;
         const bool l_isLoadAddress = (l_index & 0x3c0) == 0x280;
         const bool l_isAddSpOffset = (l_index & 0x3fc) == 0x2c0;
         const bool l_isPushPop = (l_index & 0x3d8) == 0x2d0;
@@ -192,7 +193,10 @@ static void cpuInitThumbDecodeTable(void) {
             l_result = cpuOpcodeThumbMoveCompareAddSubtractImmediate;
         } else if(l_isAluOperations) {
             l_result = cpuOpcodeThumbAluOperations;
-        } else if(l_isHighRegOps && !l_isInvalidHighRegOps && !l_isInvalidBx) {
+        } else if(
+            (l_isHighRegOps && !l_isInvalidHighRegOps)
+            || (l_isBx && !l_isInvalidBx)
+        ) {
             l_result = cpuOpcodeThumbHighRegisterOperations;
         } else if(l_isPcRelativeLoad) {
             l_result = cpuOpcodeThumbPcRelativeLoad;

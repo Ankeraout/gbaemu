@@ -106,7 +106,11 @@ void cpuDebug(void) {
     printf("IP=%08x SP=%08x LR=%08x PC=%08x CPSR=%08x SPSR=%08x", g_cpuRegisterR[12], g_cpuRegisterR[13], g_cpuRegisterR[14], g_cpuRegisterR[15], cpuGetCpsr(), cpuGetSpsr());
 
     if(g_cpuPipelineState == E_CPUPIPELINESTATE_EXECUTE) {
-        printf(" %08x\n", g_cpuDecodedOpcode.arm.opcode);
+        if(g_cpuFlagT) {
+            printf(" %04x\n", g_cpuDecodedOpcode.thumb.opcode);
+        } else {
+            printf(" %08x\n", g_cpuDecodedOpcode.arm.opcode);
+        }
     } else {
         printf("\n");
     }

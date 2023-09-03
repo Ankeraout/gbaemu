@@ -7,12 +7,12 @@
 void cpuOpcodeThumbPushPop(uint16_t p_opcode) {
     const bool l_isLoad = (p_opcode & (1 << 11)) != 0;
     const bool l_storeLrLoadPc = (p_opcode & (1 << 8)) != 0;
-    const int l_registerCount = hammingWeight8(p_opcode) + l_storeLrLoadPc ? 1 : 0;
+    const int l_registerCount = hammingWeight8(p_opcode) + (l_storeLrLoadPc ? 1 : 0);
     const uint32_t l_base = g_cpuRegisterR[13];
 
     uint32_t l_offset = l_base;
 
-    if(l_isLoad) {
+    if(!l_isLoad) {
         l_offset -= 4 * l_registerCount;
     }
 

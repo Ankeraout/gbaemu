@@ -60,5 +60,5 @@ void cpuOpcodeThumbMoveShiftedRegister(uint16_t p_opcode) {
 
     g_cpuRegisterR[l_rd] = l_result;
 
-    setFlagsLogical(l_result);
+    setFlagsArithmetical(l_result);
 }

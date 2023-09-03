@@ -62,18 +62,7 @@ static inline uint32_t getOperand(uint32_t p_opcode) {
     uint32_t l_result;
 
     if(l_isImmediate) {
-        uint32_t l_immediate = (uint32_t)(p_opcode & 0x000000ff);
-        uint32_t l_shift = (uint32_t)((p_opcode >> 8) & 0x0000000f);
-
-        l_shift <<= 1;
-
-        if(l_shift == 0) {
-            g_cpuShifterCarry = g_cpuFlagC;
-            l_result = l_immediate;
-        } else {
-            l_result = rotateRight(l_immediate, l_shift);
-            g_cpuShifterCarry = ((uint32_t)l_result >> 31) != 0;
-        }
+        l_result = p_opcode & 0x00000fff;
     } else {
         enum te_shiftType l_shiftType = ((uint32_t)(p_opcode & 0x00000060)) >> 5;
         uint32_t l_operandRegister = (uint32_t)(p_opcode & 0x0000000f);

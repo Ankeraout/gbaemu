@@ -5,6 +5,8 @@
 
 void gpuReset(void);
 void gpuCycle(void);
+uint16_t gpuIoRead16(uint32_t p_address);
+void gpuIoWrite16(uint32_t p_address, uint16_t p_value);
 uint8_t gpuOamRead8(uint32_t p_address);
 uint16_t gpuOamRead16(uint32_t p_address);
 uint32_t gpuOamRead32(uint32_t p_address);

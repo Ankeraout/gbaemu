@@ -3,22 +3,22 @@
 #include "core/cpu/bitops.h"
 #include "core/cpu/cpu.h"
 
-static inline void and(const uint16_t p_rsValue, const uint16_t p_rd);
-static inline void eor(const uint16_t p_rsValue, const uint16_t p_rd);
-static inline void lsl(const uint16_t p_rsValue, const uint16_t p_rd);
-static inline void lsr(const uint16_t p_rsValue, const uint16_t p_rd);
-static inline void asr(const uint16_t p_rsValue, const uint16_t p_rd);
-static inline void adc(const uint16_t p_rsValue, const uint16_t p_rd);
-static inline void sbc(const uint16_t p_rsValue, const uint16_t p_rd);
-static inline void ror(const uint16_t p_rsValue, const uint16_t p_rd);
-static inline void tst(const uint16_t p_rsValue, const uint16_t p_rd);
-static inline void neg(const uint16_t p_rsValue, const uint16_t p_rd);
-static inline void cmp(const uint16_t p_rsValue, const uint16_t p_rd);
-static inline void cmn(const uint16_t p_rsValue, const uint16_t p_rd);
-static inline void orr(const uint16_t p_rsValue, const uint16_t p_rd);
-static inline void mul(const uint16_t p_rsValue, const uint16_t p_rd);
-static inline void bic(const uint16_t p_rsValue, const uint16_t p_rd);
-static inline void mvn(const uint16_t p_rsValue, const uint16_t p_rd);
+static inline void and(const uint32_t p_rsValue, const uint16_t p_rd);
+static inline void eor(const uint32_t p_rsValue, const uint16_t p_rd);
+static inline void lsl(const uint32_t p_rsValue, const uint16_t p_rd);
+static inline void lsr(const uint32_t p_rsValue, const uint16_t p_rd);
+static inline void asr(const uint32_t p_rsValue, const uint16_t p_rd);
+static inline void adc(const uint32_t p_rsValue, const uint16_t p_rd);
+static inline void sbc(const uint32_t p_rsValue, const uint16_t p_rd);
+static inline void ror(const uint32_t p_rsValue, const uint16_t p_rd);
+static inline void tst(const uint32_t p_rsValue, const uint16_t p_rd);
+static inline void neg(const uint32_t p_rsValue, const uint16_t p_rd);
+static inline void cmp(const uint32_t p_rsValue, const uint16_t p_rd);
+static inline void cmn(const uint32_t p_rsValue, const uint16_t p_rd);
+static inline void orr(const uint32_t p_rsValue, const uint16_t p_rd);
+static inline void mul(const uint32_t p_rsValue, const uint16_t p_rd);
+static inline void bic(const uint32_t p_rsValue, const uint16_t p_rd);
+static inline void mvn(const uint32_t p_rsValue, const uint16_t p_rd);
 
 void cpuOpcodeThumbAluOperations(uint16_t p_opcode) {
     const uint16_t l_op = (p_opcode >> 6) & 0xf;
@@ -47,7 +47,7 @@ void cpuOpcodeThumbAluOperations(uint16_t p_opcode) {
     }
 }
 
-static inline void and(const uint16_t p_rsValue, const uint16_t p_rd) {
+static inline void and(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
     const uint32_t l_result = p_rsValue & l_rdValue;
 
@@ -55,7 +55,7 @@ static inline void and(const uint16_t p_rsValue, const uint16_t p_rd) {
     g_cpuRegisterR[p_rd] = l_result;
 }
 
-static inline void eor(const uint16_t p_rsValue, const uint16_t p_rd) {
+static inline void eor(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
     const uint32_t l_result = p_rsValue ^ l_rdValue;
 
@@ -63,7 +63,7 @@ static inline void eor(const uint16_t p_rsValue, const uint16_t p_rd) {
     g_cpuRegisterR[p_rd] = l_result;
 }
 
-static inline void lsl(const uint16_t p_rsValue, const uint16_t p_rd) {
+static inline void lsl(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
     uint32_t l_result;
 
@@ -86,7 +86,7 @@ static inline void lsl(const uint16_t p_rsValue, const uint16_t p_rd) {
     g_cpuRegisterR[p_rd] = l_result;
 }
 
-static inline void lsr(const uint16_t p_rsValue, const uint16_t p_rd) {
+static inline void lsr(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
     uint32_t l_result;
 
@@ -109,7 +109,7 @@ static inline void lsr(const uint16_t p_rsValue, const uint16_t p_rd) {
     g_cpuRegisterR[p_rd] = l_result;
 }
 
-static inline void asr(const uint16_t p_rsValue, const uint16_t p_rd) {
+static inline void asr(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
     uint32_t l_result;
 
@@ -131,7 +131,7 @@ static inline void asr(const uint16_t p_rsValue, const uint16_t p_rd) {
     g_cpuRegisterR[p_rd] = l_result;
 }
 
-static inline void adc(const uint16_t p_rsValue, const uint16_t p_rd) {
+static inline void adc(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
     const uint32_t l_carry = g_cpuFlagC ? 1 : 0;
     const uint64_t l_result =
@@ -145,18 +145,18 @@ static inline void adc(const uint16_t p_rsValue, const uint16_t p_rd) {
     g_cpuRegisterR[p_rd] = l_result;
 }
 
-static inline void sbc(const uint16_t p_rsValue, const uint16_t p_rd) {
+static inline void sbc(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
     const uint32_t l_carry = g_cpuFlagC ? 1 : 0;
-    const uint32_t l_result = p_rsValue - l_rdValue + l_carry;
+    const uint32_t l_result = l_rdValue - p_rsValue + l_carry - 1;
 
     setFlagsArithmetical(l_result);
-    g_cpuFlagC = getCarrySbc(p_rsValue, l_rdValue, g_cpuFlagC);
-    g_cpuFlagV = getOverflowSub(p_rsValue, l_rdValue, l_result);
+    g_cpuFlagC = getCarrySbc(l_rdValue, p_rsValue, g_cpuFlagC);
+    g_cpuFlagV = getOverflowSub(l_rdValue, p_rsValue, l_result);
     g_cpuRegisterR[p_rd] = l_result;
 }
 
-static inline void ror(const uint16_t p_rsValue, const uint16_t p_rd) {
+static inline void ror(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
     uint32_t l_result;
 
@@ -178,30 +178,30 @@ static inline void ror(const uint16_t p_rsValue, const uint16_t p_rd) {
     g_cpuRegisterR[p_rd] = l_result;
 }
 
-static inline void tst(const uint16_t p_rsValue, const uint16_t p_rd) {
+static inline void tst(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
     const uint32_t l_result = p_rsValue & l_rdValue;
 
     setFlagsArithmetical(l_result);
 }
 
-static inline void neg(const uint16_t p_rsValue, const uint16_t p_rd) {
+static inline void neg(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_result = -p_rsValue;
 
     setFlagsArithmetical(l_result);
     g_cpuRegisterR[p_rd] = l_result;
 }
 
-static inline void cmp(const uint16_t p_rsValue, const uint16_t p_rd) {
+static inline void cmp(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
-    const uint32_t l_result = p_rsValue - l_rdValue;
+    const uint32_t l_result = l_rdValue - p_rsValue;
 
     setFlagsArithmetical(l_result);
-    g_cpuFlagC = getCarrySub(p_rsValue, l_rdValue);
-    g_cpuFlagV = getOverflowSub(p_rsValue, l_rdValue, l_result);
+    g_cpuFlagC = getCarrySub(l_rdValue, p_rsValue);
+    g_cpuFlagV = getOverflowSub(l_rdValue, p_rsValue, l_result);
 }
 
-static inline void cmn(const uint16_t p_rsValue, const uint16_t p_rd) {
+static inline void cmn(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
     const uint32_t l_result = p_rsValue + l_rdValue;
 
@@ -210,7 +210,7 @@ static inline void cmn(const uint16_t p_rsValue, const uint16_t p_rd) {
     g_cpuFlagV = getOverflowAdd(p_rsValue, l_rdValue, l_result);
 }
 
-static inline void orr(const uint16_t p_rsValue, const uint16_t p_rd) {
+static inline void orr(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
     const uint32_t l_result = p_rsValue | l_rdValue;
 
@@ -218,7 +218,7 @@ static inline void orr(const uint16_t p_rsValue, const uint16_t p_rd) {
     g_cpuRegisterR[p_rd] = l_result;
 }
 
-static inline void mul(const uint16_t p_rsValue, const uint16_t p_rd) {
+static inline void mul(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
     const uint32_t l_result = p_rsValue * l_rdValue;
 
@@ -226,7 +226,7 @@ static inline void mul(const uint16_t p_rsValue, const uint16_t p_rd) {
     g_cpuRegisterR[p_rd] = l_result;
 }
 
-static inline void bic(const uint16_t p_rsValue, const uint16_t p_rd) {
+static inline void bic(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
     const uint32_t l_result = l_rdValue & ~p_rsValue;
 
@@ -234,7 +234,7 @@ static inline void bic(const uint16_t p_rsValue, const uint16_t p_rd) {
     g_cpuRegisterR[p_rd] = l_result;
 }
 
-static inline void mvn(const uint16_t p_rsValue, const uint16_t p_rd) {
+static inline void mvn(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_result = ~p_rsValue;
 
     setFlagsArithmetical(l_result);

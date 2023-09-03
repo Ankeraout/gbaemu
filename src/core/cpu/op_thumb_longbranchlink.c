@@ -13,7 +13,6 @@ void cpuOpcodeThumbLongBranchLink(uint16_t p_opcode) {
         g_cpuRegisterR[14] = l_nextInstructionAddress | 1;
     } else {
         const bool l_isNegative = (l_offset & (1 << 10)) != 0;
-
-        g_cpuRegisterR[14] = g_cpuRegisterR[15] + ((l_offset << 12) | (l_isNegative ? 0xfffff800 : 0));
+        g_cpuRegisterR[14] = g_cpuRegisterR[15] + ((l_offset << 12) | (l_isNegative ? 0xff800000 : 0));
     }
 }

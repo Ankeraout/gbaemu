@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+void ioInit(void);
 uint8_t ioRead8(uint32_t p_address);
 uint16_t ioRead16(uint32_t p_address);
 uint32_t ioRead32(uint32_t p_address);

@@ -18,11 +18,18 @@
 #define C_VRAM_ADDRESS_COMPUTE_HIGH 0x00017fff
 #define C_VRAM_ADDRESS_COMPUTE_LOW 0x0000ffff
 
+#define C_IOADDRESS_DISPCNT 0x04000000
+#define C_IOADDRESS_DISPSTAT 0x04000004
+
 static uint8_t s_oamData[C_OAM_SIZE_BYTES];
 static uint8_t s_paletteData[C_PALETTE_RAM_SIZE_BYTES];
 static uint8_t s_vramData[C_VRAM_SIZE_BYTES];
-static uint32_t s_cycleCounter;
 static uint32_t s_frameBuffer[240 * 160];
+
+static unsigned int s_horizontalCounter = 0;
+static unsigned int s_verticalCounter = 0;
+static uint16_t s_gpuRegisterDispcnt;
+static uint16_t s_gpuRegisterDispstat;
 
 static uint32_t gpuVramComputeAddress(uint32_t p_address);
 static uint16_t getPaletteColor(uint8_t p_paletteIndex);
@@ -30,7 +37,6 @@ static uint32_t getColor(uint16_t p_color);
 static void gpuDrawFrame(void);
 
 void gpuInit(void) {
-
 }
 
 void gpuReset(void) {
@@ -38,13 +44,64 @@ void gpuReset(void) {
     memset(s_paletteData, 0, C_PALETTE_RAM_SIZE_BYTES);
     memset(s_vramData, 0, C_VRAM_SIZE_BYTES);
 
-    s_cycleCounter = 0;
+    s_gpuRegisterDispcnt = 0;
+    s_gpuRegisterDispstat = 0;
+
+    s_horizontalCounter = 0;
+    s_verticalCounter = 0;
 }
 
 void gpuCycle(void) {
-    if(s_cycleCounter++ == 280896) {
-        s_cycleCounter = 0;
+    s_horizontalCounter++;
+
+    if(s_horizontalCounter == 1232) {
+        s_horizontalCounter = 0;
+        s_verticalCounter++;
+
+        if(s_verticalCounter == 228) {
+            s_verticalCounter = 0;
+        }
+
         gpuDrawFrame();
+    }
+}
+
+uint16_t gpuIoRead16(uint32_t p_address) {
+    uint16_t l_result;
+
+    switch(p_address) {
+        case C_IOADDRESS_DISPCNT: l_result = s_gpuRegisterDispcnt; break;
+        case C_IOADDRESS_DISPSTAT:
+            l_result = s_gpuRegisterDispstat;
+
+            if((s_verticalCounter >= 160) && (s_verticalCounter <= 226)) {
+                l_result |= 1 << 0;
+            }
+
+            if(s_horizontalCounter >= 1006) {
+                l_result |= 1 << 1;
+            }
+
+            if(s_verticalCounter == (s_gpuRegisterDispstat >> 8)) {
+                l_result |= 1 << 2;
+            }
+
+            break;
+
+        default:
+            l_result = 0xffff;
+            break;
+    }
+
+    return l_result;
+}
+
+void gpuIoWrite16(uint32_t p_address, uint16_t p_value) {
+    switch(p_address) {
+        case C_IOADDRESS_DISPCNT: s_gpuRegisterDispcnt = p_value; break;
+        case C_IOADDRESS_DISPSTAT: s_gpuRegisterDispstat = p_value & 0xfff8; break;
+        default:
+            break;
     }
 }
 
@@ -198,10 +255,7 @@ static uint32_t gpuVramComputeAddress(uint32_t p_address) {
 }
 
 static uint16_t getPaletteColor(uint8_t p_paletteIndex) {
-    uint32_t l_paletteOffset = p_paletteIndex << 1;
-
-    return (s_paletteData[l_paletteOffset] << 8)
-        | s_paletteData[l_paletteOffset | 1];
+    return ((uint16_t *)s_paletteData)[p_paletteIndex];
 }
 
 static uint32_t getColor(uint16_t p_color) {
@@ -218,9 +272,14 @@ static uint32_t getColor(uint16_t p_color) {
 
 static void gpuDrawFrame(void) {
     for(uint32_t l_i = 0; l_i < 38400; l_i++) {
-        uint8_t l_paletteIndex = s_vramData[l_i];
-        s_frameBuffer[l_i] = getColor(getPaletteColor(l_paletteIndex));
-        //s_frameBuffer[l_i] = getColor(((uint16_t *)s_vramData)[l_i]);
+        if((s_gpuRegisterDispcnt & 0x7) == 4) {
+            uint8_t l_paletteIndex = s_vramData[l_i];
+            s_frameBuffer[l_i] = getColor(getPaletteColor(l_paletteIndex));
+        } else if((s_gpuRegisterDispcnt & 0x7) == 3) {
+            s_frameBuffer[l_i] = getColor(((uint16_t *)s_vramData)[l_i]);
+        } else {
+            s_frameBuffer[l_i] = l_i;
+        }
     }
 
     frontendFrame(s_frameBuffer);
