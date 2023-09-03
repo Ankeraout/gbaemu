@@ -18,13 +18,13 @@ void cpuOpcodeThumbLoadStoreSignExtendedByteHalfword(uint16_t p_opcode) {
 
     if(l_isHalfword) {
         if(l_signExtend) {
-            g_cpuRegisterR[l_rd] = signExtend8to32(busRead8(l_address));
+            g_cpuRegisterR[l_rd] = signExtend16to32(busRead16(l_address));
         } else {
-            g_cpuRegisterR[l_rd] = busRead8(l_address);
+            g_cpuRegisterR[l_rd] = busRead16(l_address);
         }
     } else {
         if(l_signExtend) {
-            g_cpuRegisterR[l_rd] = signExtend16to32(busRead16(l_address));
+            g_cpuRegisterR[l_rd] = signExtend8to32(busRead8(l_address));
         } else {
             busWrite16(l_address, g_cpuRegisterR[l_rd]);
         }

@@ -18,6 +18,7 @@ static int loadBios();
 static int loadRom();
 static long po2_ceil(long p_initialValue);
 static void *readFile(const char *p_fileName, long *p_fileSize, bool p_po2);
+static void frontendHandleKeyEvent(int p_key, bool p_pressed);
 
 int main(int argc, char **argv) {
     int l_result = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_AUDIO);
@@ -90,7 +91,7 @@ int main(int argc, char **argv) {
 static int loadRom() {
     long l_romBufferSize = C_MAX_ROM_FILE_SIZE_BYTES;
 
-    uint8_t *l_romBuffer = readFile("roms/gba-tests/hello.gba", &l_romBufferSize, true);
+    uint8_t *l_romBuffer = readFile("roms/gba-tests/armwrestler-gba-fixed.gba", &l_romBufferSize, true);
 
     if(l_romBuffer == NULL) {
         fprintf(stderr, "Failed to read ROM file.\n");
@@ -206,6 +207,33 @@ void frontendFrame(const uint32_t *p_pixels) {
             if(l_event.window.event == SDL_WINDOWEVENT_CLOSE) {
                 exit(0);
             }
+        } else if(l_event.type == SDL_KEYDOWN) {
+            frontendHandleKeyEvent(l_event.key.keysym.sym, true);
+        } else if(l_event.type == SDL_KEYUP) {
+            frontendHandleKeyEvent(l_event.key.keysym.sym, false);
         }
     }
+}
+
+static void frontendHandleKeyEvent(int p_key, bool p_pressed) {
+    int l_key = -1;
+
+    switch(p_key) {
+        case SDLK_a: l_key = 0; break;
+        case SDLK_b: l_key = 1; break;
+        case SDLK_RSHIFT: l_key = 2; break;
+        case SDLK_RETURN: l_key = 3; break;
+        case SDLK_RIGHT: l_key = 4; break;
+        case SDLK_LEFT: l_key = 5; break;
+        case SDLK_UP: l_key = 6; break;
+        case SDLK_DOWN: l_key = 7; break;
+        case SDLK_r: l_key = 8; break;
+        case SDLK_l: l_key = 9; break;
+    }
+
+    if(p_key == -1) {
+        return;
+    }
+
+    coreSetInput(l_key, p_pressed);
 }

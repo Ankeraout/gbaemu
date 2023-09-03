@@ -3,6 +3,7 @@
 #include "common.h"
 #include "core/gpu.h"
 #include "core/io.h"
+#include "core/keypad.h"
 
 #define C_IOADDR_MASK_BIT_0 0x00000001
 #define C_IOADDR_MASK_16 0xfffffffe
@@ -26,6 +27,9 @@ void ioInit(void) {
         if((l_address >= 0x04000000) && (l_address <= 0x0400005f)) {
             l_ioReadFunc = gpuIoRead16;
             l_ioWriteFunc = gpuIoWrite16;
+        } else if((l_address >= 0x04000130) && (l_address <= 0x04000132)) {
+            l_ioReadFunc = keypadIoRead16;
+            l_ioWriteFunc = keypadIoWrite16;
         } else {
             l_ioReadFunc = ioReadDummy;
             l_ioWriteFunc = ioWriteDummy;
