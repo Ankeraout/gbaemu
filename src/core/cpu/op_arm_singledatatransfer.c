@@ -36,13 +36,11 @@ void cpuOpcodeArmSingleDataTransfer(uint32_t p_opcode) {
         if(l_isByte) {
             l_result = busRead8(l_address);
         } else {
-            l_result = busRead32(l_address);
+            const uint32_t l_rotation = (l_address & 0x3) << 3;
+            l_result = rotateRight(busRead32(l_address), l_rotation);
         }
 
-        const uint32_t l_rotation = (l_address & 0x3) << 3;
-
-        cpuWriteRegister(l_rd, rotateRight(l_result, l_rotation));
-        //g_cpuRegisterR[l_rd] = l_result;
+        cpuWriteRegister(l_rd, l_result);
     } else {
         uint32_t l_rdValue = g_cpuRegisterR[l_rd];
 
