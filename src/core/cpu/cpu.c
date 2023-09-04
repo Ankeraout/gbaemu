@@ -53,6 +53,7 @@ static void cpuChangeMode(enum te_cpuMode p_newMode);
 static void cpuRaiseIrq(void);
 static void cpuFetch(uint32_t p_fetchAddress);
 static void cpuExecute(void);
+static inline uint32_t *getRegisterPointerUsr(uint32_t p_register);
 
 void cpuInit(void) {
     cpuDecoderInit();
@@ -279,6 +280,18 @@ bool cpuCheckCondition(enum te_cpuCondition p_condition) {
     }
 }
 
+void cpuWriteRegisterUsr(uint32_t p_register, uint32_t p_value) {
+    if(p_register == 15) {
+        cpuJump(p_value);
+    } else {
+        *(getRegisterPointerUsr(p_register)) = p_value;
+    }
+}
+
+uint32_t cpuReadRegisterUsr(uint32_t p_register) {
+    return *(getRegisterPointerUsr(p_register));
+}
+
 static void cpuChangeMode(enum te_cpuMode p_newMode) {
     // Save banked registers
     switch(s_cpuMode) {
@@ -450,5 +463,26 @@ static void cpuExecute(void) {
         } else if(cpuCheckCondition(g_cpuDecodedOpcode.arm.opcode >> 28)) {
             g_cpuDecodedOpcode.arm.handler(g_cpuDecodedOpcode.arm.opcode);
         }
+    }
+}
+
+static inline uint32_t *getRegisterPointerUsr(uint32_t p_register) {
+    const bool l_isUserMode =
+        s_cpuMode == E_CPUMODE_OLD_USR
+        || s_cpuMode == E_CPUMODE_USR
+        || s_cpuMode == E_CPUMODE_SYS;
+    const bool l_isCommonRegister =
+        (p_register <= 7)
+        || (p_register == 15)
+        || (
+            s_cpuMode != E_CPUMODE_FIQ
+            && s_cpuMode != E_CPUMODE_OLD_FIQ
+            && (p_register <= 12)
+        );
+
+    if(l_isUserMode || l_isCommonRegister) {
+        return &g_cpuRegisterR[p_register];
+    } else {
+        return &s_cpuRegisterUsrR[p_register - 8];
     }
 }

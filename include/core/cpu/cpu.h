@@ -91,6 +91,8 @@ uint32_t cpuGetCpsr(void);
 uint32_t cpuGetSpsr(void);
 void cpuSetCpsr(uint32_t p_value);
 void cpuSetSpsr(uint32_t p_value);
+uint32_t cpuReadRegisterUsr(uint32_t p_register);
+void cpuWriteRegisterUsr(uint32_t p_register, uint32_t p_value);
 
 static inline void cpuWriteRegister(uint32_t p_register, uint32_t p_value) {
     if(p_register == E_CPUREGISTER_PC) {
