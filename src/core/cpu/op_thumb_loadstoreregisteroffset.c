@@ -17,11 +17,16 @@ void cpuOpcodeThumbLoadStoreRegisterOffset(uint16_t p_opcode) {
     const uint32_t l_address = l_roValue + l_rbValue;
 
     if(l_isLoad) {
+        uint32_t l_result;
+
         if(l_isByte) {
-            g_cpuRegisterR[l_rd] = busRead8(l_address);
+            l_result = busRead8(l_address);
         } else {
-            g_cpuRegisterR[l_rd] = busRead32(l_address);
+            const uint32_t l_rotation = (l_address & 0x3) << 3;
+            l_result = rotateRight(busRead32(l_address), l_rotation);
         }
+        
+        g_cpuRegisterR[l_rd] = l_result;
     } else {
         if(l_isByte) {
             busWrite8(l_address, g_cpuRegisterR[l_rd]);

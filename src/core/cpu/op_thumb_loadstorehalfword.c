@@ -15,7 +15,8 @@ void cpuOpcodeThumbLoadStoreHalfword(uint16_t p_opcode) {
     const uint32_t l_address = l_rbValue + l_offset;
 
     if(l_isLoad) {
-        g_cpuRegisterR[l_rd] = busRead16(l_address);
+        const uint32_t l_rotation = (l_address & 1) == 0 ? 0 : 8;
+        g_cpuRegisterR[l_rd] = rotateRight(busRead16(l_address), l_rotation);
     } else {
         busWrite16(l_address, g_cpuRegisterR[l_rd]);
     }

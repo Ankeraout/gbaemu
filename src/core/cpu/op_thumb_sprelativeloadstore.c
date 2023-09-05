@@ -11,7 +11,8 @@ void cpuOpcodeThumbSpRelativeLoadStore(uint16_t p_opcode) {
     const uint32_t l_address = g_cpuRegisterR[13] + l_offset;
 
     if(l_isLoad) {
-        g_cpuRegisterR[l_rd] = busRead32(l_address);
+        const uint32_t l_rotation = (l_address & 0x3) << 3;
+        g_cpuRegisterR[l_rd] = rotateRight(busRead32(l_address), l_rotation);
     } else {
         busWrite32(l_address, g_cpuRegisterR[l_rd]);
     }

@@ -17,11 +17,24 @@ void cpuOpcodeThumbLoadStoreSignExtendedByteHalfword(uint16_t p_opcode) {
     const uint32_t l_address = l_roValue + l_rbValue;
 
     if(l_isHalfword) {
+        const bool l_isMisaligned = (l_address & (1 << 0)) != 0;
+        uint32_t l_loadedValue = busRead16(l_address);
+
         if(l_signExtend) {
-            g_cpuRegisterR[l_rd] = signExtend16to32(busRead16(l_address));
-        } else {
-            g_cpuRegisterR[l_rd] = busRead16(l_address);
+            if(l_signExtend) {
+                if(l_isMisaligned) {
+                    l_loadedValue = signExtend8to32(l_loadedValue >> 8);
+                } else {
+                    l_loadedValue = signExtend16to32(l_loadedValue);
+                }
+            } else if(l_isMisaligned) {
+                l_loadedValue = rotateRight(l_loadedValue, 8);
+            }
+        } else if(l_isMisaligned) {
+            l_loadedValue = rotateRight(l_loadedValue, 8);
         }
+
+        g_cpuRegisterR[l_rd] = l_loadedValue;
     } else {
         if(l_signExtend) {
             g_cpuRegisterR[l_rd] = signExtend8to32(busRead8(l_address));
