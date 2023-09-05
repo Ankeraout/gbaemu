@@ -46,9 +46,9 @@ void cpuOpcodeArmLdmStm(uint32_t p_opcode) {
 
         if(l_writeBack) {
             if(l_isUp) {
-                cpuWriteRegister(l_rn, l_address + 0x40);
+                cpuWriteRegister(l_rn, l_base + 0x40);
             } else {
-                cpuWriteRegister(l_rn, l_address - 0x40);
+                cpuWriteRegister(l_rn, l_base - 0x40);
             }
         }
     } else {
