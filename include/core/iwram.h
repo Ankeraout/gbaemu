@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+void iwramReset(void);
 uint8_t iwramRead8(uint32_t p_address);
 uint16_t iwramRead16(uint32_t p_address);
 uint32_t iwramRead32(uint32_t p_address);

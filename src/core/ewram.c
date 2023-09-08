@@ -1,8 +1,13 @@
 #include <stdint.h>
+#include <string.h>
 
 #define C_EWRAM_SIZE_BYTES 262144
 
 static uint8_t s_ewramData[C_EWRAM_SIZE_BYTES];
+
+void ewramReset(void) {
+    memset(s_ewramData, 0, C_EWRAM_SIZE_BYTES);
+}
 
 uint8_t ewramRead8(uint32_t p_address) {
     return s_ewramData[p_address & 0x0003ffff];

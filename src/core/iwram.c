@@ -1,8 +1,13 @@
 #include <stdint.h>
+#include <string.h>
 
 #define C_IWRAM_SIZE_BYTES 32768
 
 static uint8_t s_iwramData[C_IWRAM_SIZE_BYTES];
+
+void iwramReset(void) {
+    memset(s_iwramData, 0, C_IWRAM_SIZE_BYTES);
+}
 
 uint8_t iwramRead8(uint32_t p_address) {
     return s_iwramData[p_address & 0x00007fff];

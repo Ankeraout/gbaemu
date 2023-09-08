@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+void ewramReset(void);
 uint8_t ewramRead8(uint32_t p_address);
 uint16_t ewramRead16(uint32_t p_address);
 uint32_t ewramRead32(uint32_t p_address);

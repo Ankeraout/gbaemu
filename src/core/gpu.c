@@ -20,6 +20,7 @@
 
 #define C_IOADDRESS_DISPCNT 0x04000000
 #define C_IOADDRESS_DISPSTAT 0x04000004
+#define C_IOADDRESS_VCOUNT 0x04000006
 
 static uint8_t s_oamData[C_OAM_SIZE_BYTES];
 static uint8_t s_paletteData[C_PALETTE_RAM_SIZE_BYTES];
@@ -37,6 +38,7 @@ static uint32_t getColor(uint16_t p_color);
 static void gpuDrawFrame(void);
 
 void gpuInit(void) {
+
 }
 
 void gpuReset(void) {
@@ -87,6 +89,8 @@ uint16_t gpuIoRead16(uint32_t p_address) {
             }
 
             break;
+
+        case C_IOADDRESS_VCOUNT: l_result = s_verticalCounter; break;
 
         default:
             l_result = 0xffff;

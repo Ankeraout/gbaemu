@@ -55,6 +55,13 @@ void cpuOpcodeThumbMoveShiftedRegister(uint16_t p_opcode) {
             break;
 
         default: // ROR is not implemented (ADD/SUB format)
+            /*
+                This code should never be executed.
+                This assignment to l_result only fixes a use-before-assign
+                warning, as the compiler has no way to guess that l_operation
+                cannot be E_SHIFTTYPE_ROR.
+            */
+            l_result = 0;
             break;
     }
 

@@ -1,8 +1,10 @@
 #include <stddef.h>
 
 #include "core/cpu/cpu.h"
+#include "core/ewram.h"
 #include "core/gpu.h"
 #include "core/io.h"
+#include "core/iwram.h"
 #include "core/keypad.h"
 
 void coreInit(void) {
@@ -12,6 +14,8 @@ void coreInit(void) {
 
 void coreReset(void) {
     cpuReset(true);
+    ewramReset();
     gpuReset();
+    iwramReset();
     keypadReset();
 }
