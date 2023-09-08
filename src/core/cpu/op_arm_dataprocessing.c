@@ -134,8 +134,8 @@ void cpuOpcodeArmSbc(uint32_t p_opcode) {
     const uint32_t l_operand1 = getOperand1(p_opcode);
     const uint32_t l_operand2 = getOperand2(p_opcode);
     const uint32_t l_rd = (p_opcode >> 12) & 0xf;
-    const uint32_t l_carry = g_cpuFlagC ? 0 : -1;
-    const uint32_t l_result = l_operand1 - l_operand2 + l_carry;
+    const uint32_t l_carry = g_cpuFlagC ? 0 : 1;
+    const uint32_t l_result = l_operand1 - l_operand2 - l_carry;
 
     cpuWriteRegister(l_rd, l_result);
 
@@ -155,8 +155,8 @@ void cpuOpcodeArmRsc(uint32_t p_opcode) {
     const uint32_t l_operand1 = getOperand1(p_opcode);
     const uint32_t l_operand2 = getOperand2(p_opcode);
     const uint32_t l_rd = (p_opcode >> 12) & 0xf;
-    const uint32_t l_carry = g_cpuFlagC ? 0 : -1;
-    const uint32_t l_result = l_operand2 - l_operand1 + l_carry;
+    const uint32_t l_carry = g_cpuFlagC ? 0 : 1;
+    const uint32_t l_result = l_operand2 - l_operand1 - l_carry;
 
     cpuWriteRegister(l_rd, l_result);
 

@@ -79,7 +79,7 @@ static inline bool getCarrySbc(
     uint32_t p_right,
     bool p_carry
 ) {
-    return (p_left >= p_right) && ((p_left - p_right) >= !p_carry);
+    return p_left >= (p_right + (p_carry ? 0 : 1));
 }
 
 static inline bool getOverflowAdd(
