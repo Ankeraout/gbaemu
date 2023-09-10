@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "core/bus.h"
+#include "core/irq.h"
 #include "core/cpu/cpu.h"
 #include "core/cpu/decoder.h"
 #include "core/cpu/op_arm_bx.h"
@@ -456,12 +457,14 @@ static void cpuFetch(uint32_t p_fetchAddress) {
 
 static void cpuExecute(void) {
     if(g_cpuPipelineState >= E_CPUPIPELINESTATE_EXECUTE) {
-        // TODO: Check for hardware interrupts
-
-        if(g_cpuFlagT) {
-            g_cpuDecodedOpcode.thumb.handler(g_cpuDecodedOpcode.thumb.opcode);
-        } else if(cpuCheckCondition(g_cpuDecodedOpcode.arm.opcode >> 28)) {
-            g_cpuDecodedOpcode.arm.handler(g_cpuDecodedOpcode.arm.opcode);
+        if(irqGetSignal()) {
+            cpuRaiseIrq();
+        } else {
+            if(g_cpuFlagT) {
+                g_cpuDecodedOpcode.thumb.handler(g_cpuDecodedOpcode.thumb.opcode);
+            } else if(cpuCheckCondition(g_cpuDecodedOpcode.arm.opcode >> 28)) {
+                g_cpuDecodedOpcode.arm.handler(g_cpuDecodedOpcode.arm.opcode);
+            }
         }
     }
 }

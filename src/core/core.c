@@ -4,6 +4,7 @@
 #include "core/ewram.h"
 #include "core/gpu.h"
 #include "core/io.h"
+#include "core/irq.h"
 #include "core/iwram.h"
 #include "core/keypad.h"
 
@@ -17,5 +18,6 @@ void coreReset(void) {
     ewramReset();
     gpuReset();
     iwramReset();
+    irqReset();
     keypadReset();
 }
