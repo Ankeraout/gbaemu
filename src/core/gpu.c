@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "frontend.h"
+#include "core/irq.h"
 
 #define C_OAM_SIZE_BYTES 1024
 #define C_OAM_ADDRESS_MASK_8 0x000003ff
@@ -56,11 +57,25 @@ void gpuReset(void) {
 void gpuCycle(void) {
     s_horizontalCounter++;
 
-    if(s_horizontalCounter == 1232) {
+    if(s_horizontalCounter == 1006) {
+        if((s_gpuRegisterDispstat & (1 << 4)) != 0) {
+            irqRaise(E_IRQMASK_HBLANK);
+        }
+    } else if(s_horizontalCounter == 1232) {
         s_horizontalCounter = 0;
         s_verticalCounter++;
 
-        if(s_verticalCounter == 228) {
+        if(s_verticalCounter == (s_gpuRegisterDispstat >> 8)) {
+            if((s_gpuRegisterDispstat & (1 << 5))) {
+                irqRaise(E_IRQMASK_VCOUNT);
+            }
+        }
+
+        if(s_verticalCounter == 160) {
+            if((s_gpuRegisterDispstat & (1 << 3)) != 0) {
+                irqRaise(E_IRQMASK_VBLANK);
+            }
+        } else if(s_verticalCounter == 228) {
             s_verticalCounter = 0;
         }
 

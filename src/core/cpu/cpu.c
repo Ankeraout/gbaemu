@@ -242,18 +242,18 @@ void cpuJump(uint32_t p_address) {
 }
 
 void cpuRaiseSwi(void) {
-    cpuChangeMode(E_CPUMODE_SVC);
     s_cpuRegisterSpsrSvc = cpuGetCpsr();
-    g_cpuRegisterR[14] = g_cpuRegisterR[15];
+    cpuChangeMode(E_CPUMODE_SVC);
+    g_cpuRegisterR[14] = g_cpuRegisterR[15] - 4;
     g_cpuFlagT = false;
     g_cpuFlagI = true;
     cpuJump(C_EXCEPTION_VECTOR_SWI);
 }
 
 void cpuRaiseUnd(void) {
-    cpuChangeMode(E_CPUMODE_UND);
     s_cpuRegisterSpsrUnd = cpuGetCpsr();
-    g_cpuRegisterR[14] = g_cpuRegisterR[15];
+    cpuChangeMode(E_CPUMODE_UND);
+    g_cpuRegisterR[14] = g_cpuRegisterR[15] - 4;
     g_cpuFlagT = false;
     g_cpuFlagI = true;
     cpuJump(C_EXCEPTION_VECTOR_UND);
@@ -435,9 +435,9 @@ static void cpuChangeMode(enum te_cpuMode p_newMode) {
 }
 
 static void cpuRaiseIrq(void) {
-    cpuChangeMode(E_CPUMODE_IRQ);
     s_cpuRegisterSpsrIrq = cpuGetCpsr();
-    g_cpuRegisterR[14] = g_cpuRegisterR[15];
+    cpuChangeMode(E_CPUMODE_IRQ);
+    g_cpuRegisterR[14] = g_cpuRegisterR[15] - 4;
     g_cpuFlagT = false;
     g_cpuFlagI = true;
     cpuJump(C_EXCEPTION_VECTOR_IRQ);
@@ -457,7 +457,7 @@ static void cpuFetch(uint32_t p_fetchAddress) {
 
 static void cpuExecute(void) {
     if(g_cpuPipelineState >= E_CPUPIPELINESTATE_EXECUTE) {
-        if(irqGetSignal()) {
+        if(irqGetSignal() && !g_cpuFlagI) {
             cpuRaiseIrq();
         } else {
             if(g_cpuFlagT) {
