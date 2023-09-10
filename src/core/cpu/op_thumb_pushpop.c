@@ -52,19 +52,3 @@ void cpuOpcodeThumbPushPop(uint16_t p_opcode) {
         cpuWriteRegister(13, l_base + (l_isLoad ? 4 : -4) * l_registerCount);
     }
 }
-
-static inline uint16_t getFirstRegisterInList(uint16_t p_opcode) {
-    uint16_t l_registerIndex = 0;
-    uint16_t l_registerMask = 1;
-
-    while(l_registerIndex < 8) {
-        if((p_opcode & l_registerMask) != 0) {
-            break;
-        }
-
-        l_registerIndex++;
-        l_registerMask <<= 1;
-    }
-
-    return l_registerIndex;
-}

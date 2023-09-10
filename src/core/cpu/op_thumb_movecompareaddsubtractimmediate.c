@@ -10,7 +10,7 @@ void cpuOpcodeThumbMoveCompareAddSubtractImmediate(uint16_t p_opcode) {
 
     if(l_op == 0) { // MOV
         g_cpuRegisterR[l_rd] = l_immediate;
-        setFlagsLogical(l_immediate);
+        setFlagsArithmetical(l_immediate);
     } else {
         const uint32_t l_rdValue = g_cpuRegisterR[l_rd];
 

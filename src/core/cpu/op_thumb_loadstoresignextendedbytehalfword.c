@@ -21,14 +21,10 @@ void cpuOpcodeThumbLoadStoreSignExtendedByteHalfword(uint16_t p_opcode) {
         uint32_t l_loadedValue = busRead16(l_address);
 
         if(l_signExtend) {
-            if(l_signExtend) {
-                if(l_isMisaligned) {
-                    l_loadedValue = signExtend8to32(l_loadedValue >> 8);
-                } else {
-                    l_loadedValue = signExtend16to32(l_loadedValue);
-                }
-            } else if(l_isMisaligned) {
-                l_loadedValue = rotateRight(l_loadedValue, 8);
+            if(l_isMisaligned) {
+                l_loadedValue = signExtend8to32(l_loadedValue >> 8);
+            } else {
+                l_loadedValue = signExtend16to32(l_loadedValue);
             }
         } else if(l_isMisaligned) {
             l_loadedValue = rotateRight(l_loadedValue, 8);

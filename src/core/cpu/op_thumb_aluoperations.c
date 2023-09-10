@@ -67,14 +67,16 @@ static inline void lsl(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
     uint32_t l_result;
 
-    if(p_rsValue == 0) {
+    const uint32_t l_shift = p_rsValue & 0xff;
+
+    if(l_shift == 0) {
         g_cpuShifterCarry = g_cpuFlagC;
         l_result = l_rdValue;
-    } else if(p_rsValue < 32) {
+    } else if(l_shift < 32) {
         g_cpuShifterCarry =
-            ((l_rdValue >> (32 - p_rsValue)) & 0x00000001) != 0;
-        l_result = (uint32_t)(l_rdValue << p_rsValue);
-    } else if(p_rsValue == 32) {
+            ((l_rdValue >> (32 - l_shift)) & 0x00000001) != 0;
+        l_result = (uint32_t)(l_rdValue << l_shift);
+    } else if(l_shift == 32) {
         g_cpuShifterCarry = (l_rdValue & 0x00000001) != 0;
         l_result = 0;
     } else {
@@ -90,14 +92,16 @@ static inline void lsr(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
     uint32_t l_result;
 
-    if(p_rsValue == 0) {
+    const uint32_t l_shift = p_rsValue & 0xff;
+
+    if(l_shift == 0) {
         g_cpuShifterCarry = g_cpuFlagC;
         l_result = l_rdValue;
-    } else if(p_rsValue < 32) {
+    } else if(l_shift < 32) {
         g_cpuShifterCarry =
-            ((l_rdValue >> (p_rsValue - 1)) & 0x00000001) != 0;
-        l_result = (uint32_t)(l_rdValue >> p_rsValue);
-    } else if(p_rsValue == 32) {
+            ((l_rdValue >> (l_shift - 1)) & 0x00000001) != 0;
+        l_result = (uint32_t)(l_rdValue >> l_shift);
+    } else if(l_shift == 32) {
         g_cpuShifterCarry = (l_rdValue & 0x80000000) != 0;
         l_result = 0;
     } else {
@@ -113,14 +117,16 @@ static inline void asr(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
     uint32_t l_result;
 
-    if(p_rsValue == 0) {
+    const uint32_t l_shift = p_rsValue & 0xff;
+
+    if(l_shift == 0) {
         g_cpuShifterCarry = g_cpuFlagC;
         l_result = l_rdValue;
-    } else if(p_rsValue < 32) {
+    } else if(l_shift < 32) {
         g_cpuShifterCarry =
-            ((l_rdValue >> (p_rsValue - 1)) & 0x00000001) != 0;
+            ((l_rdValue >> (l_shift - 1)) & 0x00000001) != 0;
         l_result =
-            (uint32_t)(((int32_t)l_rdValue) >> p_rsValue);
+            (uint32_t)(((int32_t)l_rdValue) >> l_shift);
     } else {
         g_cpuShifterCarry = (l_rdValue & 0x80000000) != 0;
         l_result =
@@ -147,8 +153,8 @@ static inline void adc(const uint32_t p_rsValue, const uint16_t p_rd) {
 
 static inline void sbc(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_rdValue = g_cpuRegisterR[p_rd];
-    const uint32_t l_carry = g_cpuFlagC ? 1 : 0;
-    const uint32_t l_result = l_rdValue - p_rsValue + l_carry - 1;
+    const uint32_t l_carry = g_cpuFlagC ? 0 : 1;
+    const uint32_t l_result = l_rdValue - p_rsValue - l_carry;
 
     setFlagsArithmetical(l_result);
     g_cpuFlagC = getCarrySbc(l_rdValue, p_rsValue, g_cpuFlagC);
@@ -189,6 +195,8 @@ static inline void neg(const uint32_t p_rsValue, const uint16_t p_rd) {
     const uint32_t l_result = -p_rsValue;
 
     setFlagsArithmetical(l_result);
+    g_cpuFlagC = getCarrySub(0, p_rsValue);
+    g_cpuFlagV = getOverflowSub(0, p_rsValue, l_result);
     g_cpuRegisterR[p_rd] = l_result;
 }
 
