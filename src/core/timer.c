@@ -42,9 +42,9 @@ void timerCycle(void) {
         if(s_timerRegisterControl[l_index].isEnabled) {
             const bool l_count = (
                 (s_timerRegisterControl[l_index].isCountingUp && l_lastTimerOverflowed)
-                || (s_timerRegisterControl[l_index].preScaler == 1)
                 || (
-                    (s_timerRegisterPrescaler % s_timerRegisterControl[l_index].preScaler) == 0
+                    !s_timerRegisterControl[l_index].isCountingUp
+                    && ((s_timerRegisterPrescaler % s_timerRegisterControl[l_index].preScaler) == 0)
                 )
             );
 
