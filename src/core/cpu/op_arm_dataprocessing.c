@@ -16,8 +16,6 @@ void cpuOpcodeArmAnd(uint32_t p_opcode) {
     const uint32_t l_rd = (p_opcode >> 12) & 0xf;
     const uint32_t l_result = l_operand1 & l_operand2;
 
-    cpuWriteRegister(l_rd, l_result);
-
     if(l_setFlags) {
         if(l_rd == 15) {
             cpuSetCpsr(cpuGetSpsr());
@@ -25,6 +23,8 @@ void cpuOpcodeArmAnd(uint32_t p_opcode) {
             setFlagsLogical(l_result);
         }
     }
+
+    cpuWriteRegister(l_rd, l_result);
 }
 
 void cpuOpcodeArmEor(uint32_t p_opcode) {
@@ -34,8 +34,6 @@ void cpuOpcodeArmEor(uint32_t p_opcode) {
     const uint32_t l_rd = (p_opcode >> 12) & 0xf;
     const uint32_t l_result = l_operand1 ^ l_operand2;
 
-    cpuWriteRegister(l_rd, l_result);
-
     if(l_setFlags) {
         if(l_rd == 15) {
             cpuSetCpsr(cpuGetSpsr());
@@ -43,6 +41,8 @@ void cpuOpcodeArmEor(uint32_t p_opcode) {
             setFlagsLogical(l_result);
         }
     }
+
+    cpuWriteRegister(l_rd, l_result);
 }
 
 void cpuOpcodeArmSub(uint32_t p_opcode) {
@@ -51,8 +51,6 @@ void cpuOpcodeArmSub(uint32_t p_opcode) {
     const uint32_t l_operand2 = getOperand2(p_opcode);
     const uint32_t l_rd = (p_opcode >> 12) & 0xf;
     const uint32_t l_result = l_operand1 - l_operand2;
-
-    cpuWriteRegister(l_rd, l_result);
 
     if(l_setFlags) {
         if(l_rd == 15) {
@@ -63,6 +61,8 @@ void cpuOpcodeArmSub(uint32_t p_opcode) {
             g_cpuFlagV = getOverflowSub(l_operand1, l_operand2, l_result);
         }
     }
+
+    cpuWriteRegister(l_rd, l_result);
 }
 
 void cpuOpcodeArmRsb(uint32_t p_opcode) {
@@ -71,8 +71,6 @@ void cpuOpcodeArmRsb(uint32_t p_opcode) {
     const uint32_t l_operand2 = getOperand2(p_opcode);
     const uint32_t l_rd = (p_opcode >> 12) & 0xf;
     const uint32_t l_result = l_operand2 - l_operand1;
-
-    cpuWriteRegister(l_rd, l_result);
 
     if(l_setFlags) {
         if(l_rd == 15) {
@@ -83,6 +81,8 @@ void cpuOpcodeArmRsb(uint32_t p_opcode) {
             g_cpuFlagV = getOverflowSub(l_operand2, l_operand1, l_result);
         }
     }
+
+    cpuWriteRegister(l_rd, l_result);
 }
 
 void cpuOpcodeArmAdd(uint32_t p_opcode) {
@@ -91,8 +91,6 @@ void cpuOpcodeArmAdd(uint32_t p_opcode) {
     const uint32_t l_operand2 = getOperand2(p_opcode);
     const uint32_t l_rd = (p_opcode >> 12) & 0xf;
     const uint32_t l_result = l_operand1 + l_operand2;
-
-    cpuWriteRegister(l_rd, l_result);
 
     if(l_setFlags) {
         if(l_rd == 15) {
@@ -103,6 +101,8 @@ void cpuOpcodeArmAdd(uint32_t p_opcode) {
             g_cpuFlagV = getOverflowAdd(l_operand1, l_operand2, l_result);
         }
     }
+
+    cpuWriteRegister(l_rd, l_result);
 }
 
 void cpuOpcodeArmAdc(uint32_t p_opcode) {
@@ -116,8 +116,6 @@ void cpuOpcodeArmAdc(uint32_t p_opcode) {
         + (uint64_t)l_operand2
         + (uint64_t)l_carry;
 
-    cpuWriteRegister(l_rd, l_result);
-
     if(l_setFlags) {
         if(l_rd == 15) {
             cpuSetCpsr(cpuGetSpsr());
@@ -127,6 +125,8 @@ void cpuOpcodeArmAdc(uint32_t p_opcode) {
             g_cpuFlagV = getOverflowAdd(l_operand1, l_operand2, l_result);
         }
     }
+
+    cpuWriteRegister(l_rd, l_result);
 }
 
 void cpuOpcodeArmSbc(uint32_t p_opcode) {
@@ -137,8 +137,6 @@ void cpuOpcodeArmSbc(uint32_t p_opcode) {
     const uint32_t l_carry = g_cpuFlagC ? 0 : 1;
     const uint32_t l_result = l_operand1 - l_operand2 - l_carry;
 
-    cpuWriteRegister(l_rd, l_result);
-
     if(l_setFlags) {
         if(l_rd == 15) {
             cpuSetCpsr(cpuGetSpsr());
@@ -148,6 +146,8 @@ void cpuOpcodeArmSbc(uint32_t p_opcode) {
             g_cpuFlagV = getOverflowSub(l_operand1, l_operand2, l_result);
         }
     }
+
+    cpuWriteRegister(l_rd, l_result);
 }
 
 void cpuOpcodeArmRsc(uint32_t p_opcode) {
@@ -158,8 +158,6 @@ void cpuOpcodeArmRsc(uint32_t p_opcode) {
     const uint32_t l_carry = g_cpuFlagC ? 0 : 1;
     const uint32_t l_result = l_operand2 - l_operand1 - l_carry;
 
-    cpuWriteRegister(l_rd, l_result);
-
     if(l_setFlags) {
         if(l_rd == 15) {
             cpuSetCpsr(cpuGetSpsr());
@@ -169,6 +167,8 @@ void cpuOpcodeArmRsc(uint32_t p_opcode) {
             g_cpuFlagV = getOverflowSub(l_operand2, l_operand1, l_result);
         }
     }
+
+    cpuWriteRegister(l_rd, l_result);
 }
 
 void cpuOpcodeArmTst(uint32_t p_opcode) {
@@ -226,8 +226,6 @@ void cpuOpcodeArmOrr(uint32_t p_opcode) {
     const uint32_t l_rd = (p_opcode >> 12) & 0xf;
     const uint32_t l_result = l_operand1 | l_operand2;
 
-    cpuWriteRegister(l_rd, l_result);
-
     if(l_setFlags) {
         if(l_rd == 15) {
             cpuSetCpsr(cpuGetSpsr());
@@ -235,14 +233,14 @@ void cpuOpcodeArmOrr(uint32_t p_opcode) {
             setFlagsLogical(l_result);
         }
     }
+
+    cpuWriteRegister(l_rd, l_result);
 }
 
 void cpuOpcodeArmMov(uint32_t p_opcode) {
     const bool l_setFlags = (p_opcode & (1 << 20)) != 0;
     const uint32_t l_operand2 = getOperand2(p_opcode);
     const uint32_t l_rd = (p_opcode >> 12) & 0xf;
-
-    cpuWriteRegister(l_rd, l_operand2);
 
     if(l_setFlags) {
         if(l_rd == 15) {
@@ -251,6 +249,8 @@ void cpuOpcodeArmMov(uint32_t p_opcode) {
             setFlagsLogical(l_operand2);
         }
     }
+
+    cpuWriteRegister(l_rd, l_operand2);
 }
 
 void cpuOpcodeArmBic(uint32_t p_opcode) {
@@ -260,8 +260,6 @@ void cpuOpcodeArmBic(uint32_t p_opcode) {
     const uint32_t l_rd = (p_opcode >> 12) & 0xf;
     const uint32_t l_result = l_operand1 & ~l_operand2;
 
-    cpuWriteRegister(l_rd, l_result);
-
     if(l_setFlags) {
         if(l_rd == 15) {
             cpuSetCpsr(cpuGetSpsr());
@@ -269,6 +267,8 @@ void cpuOpcodeArmBic(uint32_t p_opcode) {
             setFlagsLogical(l_result);
         }
     }
+
+    cpuWriteRegister(l_rd, l_result);
 }
 
 void cpuOpcodeArmMvn(uint32_t p_opcode) {
@@ -277,8 +277,6 @@ void cpuOpcodeArmMvn(uint32_t p_opcode) {
     const uint32_t l_rd = (p_opcode >> 12) & 0xf;
     const uint32_t l_result = ~l_operand2;
 
-    cpuWriteRegister(l_rd, l_result);
-
     if(l_setFlags) {
         if(l_rd == 15) {
             cpuSetCpsr(cpuGetSpsr());
@@ -286,6 +284,8 @@ void cpuOpcodeArmMvn(uint32_t p_opcode) {
             setFlagsLogical(l_result);
         }
     }
+
+    cpuWriteRegister(l_rd, l_result);
 }
 
 static inline uint32_t getOperand1(uint32_t p_opcode) {

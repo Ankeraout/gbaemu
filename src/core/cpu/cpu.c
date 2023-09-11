@@ -244,7 +244,12 @@ void cpuJump(uint32_t p_address) {
 void cpuRaiseSwi(void) {
     s_cpuRegisterSpsrSvc = cpuGetCpsr();
     cpuChangeMode(E_CPUMODE_SVC);
-    g_cpuRegisterR[14] = g_cpuRegisterR[15] - 4;
+
+    if(g_cpuFlagT) {
+        g_cpuRegisterR[14] = g_cpuRegisterR[15] - 2;
+    } else {
+        g_cpuRegisterR[14] = g_cpuRegisterR[15] - 4;
+    }
     g_cpuFlagT = false;
     g_cpuFlagI = true;
     cpuJump(C_EXCEPTION_VECTOR_SWI);
@@ -437,7 +442,13 @@ static void cpuChangeMode(enum te_cpuMode p_newMode) {
 static void cpuRaiseIrq(void) {
     s_cpuRegisterSpsrIrq = cpuGetCpsr();
     cpuChangeMode(E_CPUMODE_IRQ);
-    g_cpuRegisterR[14] = g_cpuRegisterR[15] - 4;
+
+    if(g_cpuFlagT) {
+        g_cpuRegisterR[14] = g_cpuRegisterR[15];
+    } else {
+        g_cpuRegisterR[14] = g_cpuRegisterR[15] - 4;
+    }
+
     g_cpuFlagT = false;
     g_cpuFlagI = true;
     cpuJump(C_EXCEPTION_VECTOR_IRQ);
