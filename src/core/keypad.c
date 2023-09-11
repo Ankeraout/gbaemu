@@ -28,6 +28,7 @@ uint16_t keypadIoRead16(uint32_t p_address) {
 
     switch(p_address) {
         case C_KEYPAD_IOADDR_KEYINPUT:
+            l_result = keypadGetKeyInput();
             break;
 
         case C_KEYPAD_IOADDR_KEYCNT:
@@ -78,10 +79,8 @@ static uint16_t keypadGetKeyInput(void) {
     uint16_t l_result = 0xffff;
 
     for(int l_i = 0; l_i < 10; l_i++) {
-        uint16_t l_mask = 1 << l_i;
-
         if(s_keypadButtonState[l_i]) {
-            l_result &= ~l_mask;
+            l_result &= ~(1 << l_i);
         }
     }
 

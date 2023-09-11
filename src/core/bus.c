@@ -7,6 +7,7 @@
 #include "core/gpu.h"
 #include "core/io.h"
 #include "core/iwram.h"
+#include "core/timer.h"
 
 typedef struct {
     uint8_t (*read8)(uint32_t p_address); ///< Handler for the read8 operation.
@@ -178,6 +179,7 @@ const t_busOperationHandlers s_busOperationHandlers[16] = {
 
 void busCycle(void) {
     gpuCycle();
+    timerCycle();
 }
 
 uint8_t busRead8(uint32_t p_address) {

@@ -7,6 +7,7 @@
 #include "core/irq.h"
 #include "core/iwram.h"
 #include "core/keypad.h"
+#include "core/timer.h"
 
 void coreInit(void) {
     cpuInit();
@@ -20,4 +21,5 @@ void coreReset(void) {
     iwramReset();
     irqReset();
     keypadReset();
+    timerReset();
 }
