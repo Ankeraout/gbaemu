@@ -1,6 +1,7 @@
 #include <stdint.h>
 
 #include "common.h"
+#include "core/dma.h"
 #include "core/gpu.h"
 #include "core/io.h"
 #include "core/irq.h"
@@ -38,6 +39,9 @@ void ioInit(void) {
         } else if((l_address >= 0x04000200) && (l_address <= 0x04000208)) {
             l_ioReadFunc = irqIoRead16;
             l_ioWriteFunc = irqIoWrite16;
+        } else if((l_address >= 0x040000b0) && (l_address <= 0x040000df)) {
+            l_ioReadFunc = dmaIoRead16;
+            l_ioWriteFunc = dmaIoWrite16;
         } else {
             l_ioReadFunc = ioReadDummy;
             l_ioWriteFunc = ioWriteDummy;

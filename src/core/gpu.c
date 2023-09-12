@@ -303,3 +303,11 @@ static void gpuDrawFrame(void) {
 
     frontendFrame(s_frameBuffer);
 }
+
+bool gpuIsVBlank(void) {
+    return s_verticalCounter >= 160;
+}
+
+bool gpuIsHBlank(void) {
+    return (s_verticalCounter < 160) && (s_horizontalCounter >= 1006);
+}
