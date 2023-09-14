@@ -33,10 +33,16 @@ static unsigned int s_verticalCounter = 0;
 static uint16_t s_gpuRegisterDispcnt;
 static uint16_t s_gpuRegisterDispstat;
 
-static uint32_t gpuVramComputeAddress(uint32_t p_address);
-static uint16_t getPaletteColor(uint8_t p_paletteIndex);
-static uint32_t getColor(uint16_t p_color);
-static void gpuDrawFrame(void);
+static inline uint32_t gpuVramComputeAddress(uint32_t p_address);
+static inline uint16_t getPaletteColor(uint8_t p_paletteIndex);
+static inline uint32_t getColor(uint16_t p_color);
+static inline void gpuDrawFrame(void);
+static inline void gpuDrawFrameMode0(void);
+static inline void gpuDrawFrameMode1(void);
+static inline void gpuDrawFrameMode2(void);
+static inline void gpuDrawFrameMode3(void);
+static inline void gpuDrawFrameMode4(void);
+static inline void gpuDrawFrameMode5(void);
 
 void gpuInit(void) {
 
@@ -261,7 +267,7 @@ void gpuVramWrite32(uint32_t p_address, uint32_t p_value) {
     s_vramData[l_address + 3] = (uint8_t)(p_value >> 24);
 }
 
-static uint32_t gpuVramComputeAddress(uint32_t p_address) {
+static inline uint32_t gpuVramComputeAddress(uint32_t p_address) {
     uint32_t l_mask;
 
     if((p_address & 0x00010000) != 0) {
@@ -273,11 +279,11 @@ static uint32_t gpuVramComputeAddress(uint32_t p_address) {
     return p_address & l_mask;
 }
 
-static uint16_t getPaletteColor(uint8_t p_paletteIndex) {
+static inline uint16_t getPaletteColor(uint8_t p_paletteIndex) {
     return ((uint16_t *)s_paletteData)[p_paletteIndex];
 }
 
-static uint32_t getColor(uint16_t p_color) {
+static inline uint32_t getColor(uint16_t p_color) {
     uint32_t l_red = p_color & 0x1f;
     uint32_t l_green = (p_color >> 5) & 0x1f;
     uint32_t l_blue = (p_color >> 10) & 0x1f;
@@ -289,7 +295,16 @@ static uint32_t getColor(uint16_t p_color) {
     return l_red | (l_green << 8) | (l_blue << 16);
 }
 
-static void gpuDrawFrame(void) {
+static inline void gpuDrawFrame(void) {
+    switch(s_gpuRegisterDispcnt & 7) {
+        case 0: gpuDrawFrameMode0(); break;
+        case 1: gpuDrawFrameMode1(); break;
+        case 2: gpuDrawFrameMode2(); break;
+        case 3: gpuDrawFrameMode3(); break;
+        case 4: gpuDrawFrameMode4(); break;
+        case 5: gpuDrawFrameMode5(); break;
+    }
+
     for(uint32_t l_i = 0; l_i < 38400; l_i++) {
         if((s_gpuRegisterDispcnt & 0x7) == 4) {
             uint8_t l_paletteIndex = s_vramData[l_i];
@@ -302,4 +317,41 @@ static void gpuDrawFrame(void) {
     }
 
     frontendFrame(s_frameBuffer);
+}
+
+bool gpuIsVBlank(void) {
+    return s_verticalCounter >= 160;
+}
+
+bool gpuIsHBlank(void) {
+    return (s_verticalCounter < 160) && (s_horizontalCounter >= 1006);
+}
+
+static inline void gpuDrawFrameMode0(void) {
+    
+}
+
+static inline void gpuDrawFrameMode1(void) {
+
+}
+
+static inline void gpuDrawFrameMode2(void) {
+
+}
+
+static inline void gpuDrawFrameMode3(void) {
+    for(uint32_t l_i = 0; l_i < 38400; l_i++) {
+        s_frameBuffer[l_i] = getColor(((uint16_t *)s_vramData)[l_i]);
+    }
+}
+
+static inline void gpuDrawFrameMode4(void) {
+    for(uint32_t l_i = 0; l_i < 38400; l_i++) {
+        uint8_t l_paletteIndex = s_vramData[l_i];
+        s_frameBuffer[l_i] = getColor(getPaletteColor(l_paletteIndex));
+    }
+}
+
+static inline void gpuDrawFrameMode5(void) {
+
 }

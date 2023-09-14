@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "core/bus.h"
+#include "core/dma.h"
 #include "core/irq.h"
 #include "core/cpu/cpu.h"
 #include "core/cpu/decoder.h"
@@ -119,6 +120,10 @@ void cpuDebug(void) {
 }
 
 void coreStep(void) {
+    while(dmaIsRunning()) {
+        busCycle();
+    }
+
     const uint32_t l_fetchAddress = g_cpuRegisterR[E_CPUREGISTER_PC];
 
     cpuExecute();

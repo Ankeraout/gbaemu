@@ -3,6 +3,7 @@
 #include "common.h"
 #include "core/bios.h"
 #include "core/cartridge.h"
+#include "core/dma.h"
 #include "core/ewram.h"
 #include "core/gpu.h"
 #include "core/io.h"
@@ -178,6 +179,7 @@ const t_busOperationHandlers s_busOperationHandlers[16] = {
 };
 
 void busCycle(void) {
+    dmaCycle();
     gpuCycle();
     timerCycle();
 }
