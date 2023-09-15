@@ -37,12 +37,13 @@ static inline uint32_t gpuVramComputeAddress(uint32_t p_address);
 static inline uint16_t getPaletteColor(uint8_t p_paletteIndex);
 static inline uint32_t getColor(uint16_t p_color);
 static inline void gpuDrawFrame(void);
-static inline void gpuDrawFrameMode0(void);
-static inline void gpuDrawFrameMode1(void);
-static inline void gpuDrawFrameMode2(void);
-static inline void gpuDrawFrameMode3(void);
-static inline void gpuDrawFrameMode4(void);
-static inline void gpuDrawFrameMode5(void);
+static inline void gpuRenderScanline(void);
+static inline void gpuRenderScanlineMode0(void);
+static inline void gpuRenderScanlineMode1(void);
+static inline void gpuRenderScanlineMode2(void);
+static inline void gpuRenderScanlineMode3(void);
+static inline void gpuRenderScanlineMode4(void);
+static inline void gpuRenderScanlineMode5(void);
 
 void gpuInit(void) {
 
@@ -64,8 +65,12 @@ void gpuCycle(void) {
     s_horizontalCounter++;
 
     if(s_horizontalCounter == 1006) {
-        if((s_gpuRegisterDispstat & (1 << 4)) != 0) {
-            irqRaise(E_IRQMASK_HBLANK);
+        if(s_verticalCounter < 160) {
+            if((s_gpuRegisterDispstat & (1 << 4)) != 0) {
+                irqRaise(E_IRQMASK_HBLANK);
+            }
+
+            gpuRenderScanline();
         }
     } else if(s_horizontalCounter == 1232) {
         s_horizontalCounter = 0;
@@ -81,11 +86,11 @@ void gpuCycle(void) {
             if((s_gpuRegisterDispstat & (1 << 3)) != 0) {
                 irqRaise(E_IRQMASK_VBLANK);
             }
+
+            gpuDrawFrame();
         } else if(s_verticalCounter == 228) {
             s_verticalCounter = 0;
         }
-
-        gpuDrawFrame();
     }
 }
 
@@ -296,26 +301,6 @@ static inline uint32_t getColor(uint16_t p_color) {
 }
 
 static inline void gpuDrawFrame(void) {
-    switch(s_gpuRegisterDispcnt & 7) {
-        case 0: gpuDrawFrameMode0(); break;
-        case 1: gpuDrawFrameMode1(); break;
-        case 2: gpuDrawFrameMode2(); break;
-        case 3: gpuDrawFrameMode3(); break;
-        case 4: gpuDrawFrameMode4(); break;
-        case 5: gpuDrawFrameMode5(); break;
-    }
-
-    for(uint32_t l_i = 0; l_i < 38400; l_i++) {
-        if((s_gpuRegisterDispcnt & 0x7) == 4) {
-            uint8_t l_paletteIndex = s_vramData[l_i];
-            s_frameBuffer[l_i] = getColor(getPaletteColor(l_paletteIndex));
-        } else if((s_gpuRegisterDispcnt & 0x7) == 3) {
-            s_frameBuffer[l_i] = getColor(((uint16_t *)s_vramData)[l_i]);
-        } else {
-            s_frameBuffer[l_i] = l_i;
-        }
-    }
-
     frontendFrame(s_frameBuffer);
 }
 
@@ -327,31 +312,47 @@ bool gpuIsHBlank(void) {
     return (s_verticalCounter < 160) && (s_horizontalCounter >= 1006);
 }
 
-static inline void gpuDrawFrameMode0(void) {
-    
-}
-
-static inline void gpuDrawFrameMode1(void) {
-
-}
-
-static inline void gpuDrawFrameMode2(void) {
-
-}
-
-static inline void gpuDrawFrameMode3(void) {
-    for(uint32_t l_i = 0; l_i < 38400; l_i++) {
-        s_frameBuffer[l_i] = getColor(((uint16_t *)s_vramData)[l_i]);
+static inline void gpuRenderScanline(void) {
+    switch(s_gpuRegisterDispcnt & 7) {
+        case 0: gpuRenderScanlineMode0(); break;
+        case 1: gpuRenderScanlineMode1(); break;
+        case 2: gpuRenderScanlineMode2(); break;
+        case 3: gpuRenderScanlineMode3(); break;
+        case 4: gpuRenderScanlineMode4(); break;
+        case 5: gpuRenderScanlineMode5(); break;
     }
 }
 
-static inline void gpuDrawFrameMode4(void) {
-    for(uint32_t l_i = 0; l_i < 38400; l_i++) {
-        uint8_t l_paletteIndex = s_vramData[l_i];
-        s_frameBuffer[l_i] = getColor(getPaletteColor(l_paletteIndex));
+static inline void gpuRenderScanlineMode0(void) {
+
+}
+
+static inline void gpuRenderScanlineMode1(void) {
+
+}
+
+static inline void gpuRenderScanlineMode2(void) {
+
+}
+
+static inline void gpuRenderScanlineMode3(void) {
+    uint32_t l_offset = s_verticalCounter * 240;
+
+    for(uint32_t l_index = 0; l_index < 240; l_index++) {
+        s_frameBuffer[l_offset] = getColor(((uint16_t *)s_vramData)[l_offset]);
+        l_offset++;
     }
 }
 
-static inline void gpuDrawFrameMode5(void) {
+static inline void gpuRenderScanlineMode4(void) {
+    uint32_t l_offset = s_verticalCounter * 240;
+
+    for(uint32_t l_index = 0; l_index < 240; l_index++) {
+        s_frameBuffer[l_offset] = getColor(getPaletteColor(s_vramData[l_offset]));
+        l_offset++;
+    }
+}
+
+static inline void gpuRenderScanlineMode5(void) {
 
 }
